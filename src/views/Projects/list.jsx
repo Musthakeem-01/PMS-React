@@ -116,6 +116,9 @@ export default function CustomTable(props) {
     if (props.onClickData) {
       props.onClickData(Descriptions);
     }
+    if (props.WorkOrderID) {
+      props.WorkOrderID(WorkOrderID);
+    }
   };
 
   function numberToColorClass(number) {
@@ -262,7 +265,6 @@ export default function CustomTable(props) {
                 );
               })}
             </tbody>
-            ;
           </table>
         </div>
       </div>

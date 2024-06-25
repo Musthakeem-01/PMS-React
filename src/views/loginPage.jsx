@@ -31,7 +31,8 @@ function LoginPage() {
 
       const data = await response.json();
       const eid = data.UserValues[0].EmployeeID;
-
+      const UserIDPK = data.UserValues[0].UserIDPK;
+      // console.log("🚀 ~ handleLogin ~ NstUserID:", UserIDPK);
       if (!data.UserValues[0].UserIDPK) {
         alert("Invalid UserName / Password");
         return false;
@@ -40,6 +41,7 @@ function LoginPage() {
       // Save username to local storage
       localStorage.setItem("username", username);
       localStorage.setItem("eid", eid);
+      localStorage.setItem("UserIDPK", UserIDPK);
       navigate("/Home");
     } catch (error) {
       console.error("Error during login:", error);
@@ -74,17 +76,24 @@ function LoginPage() {
               <div className="justify-center items-center fixed top-4 right-4 p-1">
                 <div className="flex items-center"></div>
                 <div id="clock" className="text-2xl font-bold mt-2">
-                <div class="flex items-center">
-                  <i id="day-icon" class="far fa-sun clock-icon text-yellow-500 mr-2"></i>
-                  <i id="noon-icon" class="fas fa-circle-notch clock-icon text-gray-500 mx-2"></i>
-                  <i id="night-icon" class="far fa-moon clock-icon text-gray-500 ml-2"></i>
-                </div>
+                  <div class="flex items-center">
+                    <i
+                      id="day-icon"
+                      class="far fa-sun clock-icon text-yellow-500 mr-2"
+                    ></i>
+                    <i
+                      id="noon-icon"
+                      class="fas fa-circle-notch clock-icon text-gray-500 mx-2"
+                    ></i>
+                    <i
+                      id="night-icon"
+                      class="far fa-moon clock-icon text-gray-500 ml-2"
+                    ></i>
+                  </div>
                   {formattedTime}
                 </div>
               </div>
-              <p className="text-2xl font-bold mb-6 text-center">
-                Login
-              </p>
+              <p className="text-2xl font-bold mb-6 text-center">Login</p>
               <form id="loginForm" className="space-y-4 w-3/4">
                 <div>
                   <label

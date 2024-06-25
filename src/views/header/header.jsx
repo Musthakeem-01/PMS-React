@@ -6,15 +6,26 @@ import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { IoMdSearch } from "react-icons/io";
 import CreateTask from "../CreateTask";
+import { useNavigate } from "react-router-dom";
+import { CiLogout } from "react-icons/ci";
+
 const Header = () => {
   const [activeLink, setActiveLink] = useState("Dashboards");
   const [clickedDes, setclickedDes] = useState(null);
+  const [workid, setWorkId] = useState(null);
+  // console.log("🚀 ~ Header ~ workid:", workid);
   const handlechangetab = () => {
     setActiveLink("Projects");
   };
   const selecteddes = (desc) => {
     setclickedDes(desc);
   };
+  const selectworkid = (id) => {
+    // console.log(id, "id from dashboard");
+    setWorkId(id);
+  };
+
+  const navigate = useNavigate();
 
   return (
     <div className="w-full">
@@ -56,13 +67,26 @@ const Header = () => {
               </div>
             </form>
           </div>
+          <CiLogout
+            className="mt-5 ml-2 text-lg cursor-pointer"
+            onClick={() => {
+              navigate("/");
+              localStorage.clear();
+            }}
+          />
         </nav>
       </div>
 
       <div>
-        {activeLink === "Projects" && <Projects desc={clickedDes} />}
+        {activeLink === "Projects" && (
+          <Projects id={workid} desc={clickedDes} />
+        )}
         {activeLink === "Dashboards" && (
-          <Dashboard selecteddes={selecteddes} changeTab={handlechangetab} />
+          <Dashboard
+            selecteddes={selecteddes}
+            selectworkid={selectworkid}
+            changeTab={handlechangetab}
+          />
         )}
       </div>
     </div>

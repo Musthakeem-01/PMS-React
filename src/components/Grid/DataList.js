@@ -25,9 +25,13 @@ const CustomDatalist = (props) => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, []);
+
   useEffect(() => {
     if (inputValue && props.getdata) {
       props.getdata(inputValue);
+    }
+    if (inputValue) {
+      props.inputSelected(inputValue);
     }
   }, [inputValue]);
   const handleInputChange = (e) => {
@@ -54,7 +58,10 @@ const CustomDatalist = (props) => {
   };
 
   const handleOptionClick = (option) => {
-    setInputValue(option);
+    // console.log(option["id"], "ref");
+    props.getKey(option["id"]);
+
+    setInputValue(option["name"]);
     setIsOpen(false);
   };
   const clear = () => {
@@ -70,6 +77,7 @@ const CustomDatalist = (props) => {
         ref={inputRef}
         className="w-full text-xs p-1 border border-gray-300 rounded"
         placeholder={`Search for ${props.fieldName}`}
+        required
       />
       <div className="absolute top-1 right-0 cursor-pointer">
         <IoIosClose onClick={clear} />
@@ -82,11 +90,12 @@ const CustomDatalist = (props) => {
           {filteredOptions.length > 0 ? (
             filteredOptions.map((option, index) => (
               <div
-                key={index}
+                id={props.fieldName}
+                key={option["id"]}
                 onClick={() => handleOptionClick(option)}
                 className="p-1 text-xs cursor-pointer hover:bg-gray-200"
               >
-                {option}
+                {option["name"]}
               </div>
             ))
           ) : (

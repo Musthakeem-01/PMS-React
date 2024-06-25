@@ -38,7 +38,7 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
   },
 }));
 
-function Dashboard({ changeTab, selecteddes }) {
+function Dashboard(props) {
   const columns = [
     { field: "Descriptions", headerName: "Contract Name", width: 150 },
     { field: "DR", headerName: "DR", width: 110 },
@@ -59,8 +59,14 @@ function Dashboard({ changeTab, selecteddes }) {
   const [greeting, setGreeting] = useState("");
 
   const onClickData = (description) => {
-    selecteddes(description);
+    props.selecteddes(description);
   };
+  const WorkOrderID = (id) => {
+    props.selectworkid(id);
+    // console.log(id, "id from list");
+    // setworkid(id);
+  };
+
   useEffect(() => {
     fetchData();
     const currentGreeting = getGreeting();
@@ -129,7 +135,11 @@ function Dashboard({ changeTab, selecteddes }) {
         </div>
 
         <div className="w-full pt-6 h-96">
-          <CustomTable onClickData={onClickData} changeTab={changeTab} />
+          <CustomTable
+            WorkOrderID={WorkOrderID}
+            onClickData={onClickData}
+            changeTab={props.changeTab}
+          />
         </div>
       </div>
     </div>

@@ -13,39 +13,75 @@ import GridContainer from "../components/Grid/GridContainer";
 import GridItem from "../components/Grid/GridItem";
 
 import DataList from "../components/Grid/DataList";
-export default function CreateTask() {
+export default function CreateTask(props) {
+  // console.log(props, "props");
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [activeTab, setActiveTab] = useState(1);
   const [contract, setContract] = useState([]);
+  const [contracts, setContracts] = useState([]);
+
+  // const [Contractdetails, setContractdetails] = useState([]);
+  // console.log("🚀 ~ CreateTask ~ contract:", Contractdetails);
   const [Complaint, setComplint] = useState([]);
   const [workType, setWorkType] = useState([]);
   const [divisionDetails, setDivisionDetails] = useState([]);
+  // console.log("🚀 ~ CreateTask ~ divisionDetails:", divisionDetails);
   const [dataDivision, setdataDivision] = useState([]);
   const [Module, setModule] = useState([]);
   const [Value, setValue] = useState(["Internal", "Client"]);
   const [Priority, setPriority] = useState([]);
+  const [taskDescription, settaskDescription] = useState([]);
   const [week, setweek] = useState([]);
   const [emp, setemp] = useState([]);
-
+  const [previewImages, setPreviewImages] = useState([]);
+  const [fullResponse, setFullResponse] = useState([]);
+  // console.log("🚀 ~ CreateTask ~ fullResponse:", fullResponse);
+  const [selectedcontract, setSelectedcontract] = useState("");
+  // console.log("🚀 ~ CreateTask ~ selectedcontract:", selectedcontract);
+  // console.log("🚀 ~ CreateTask ~ fullResponse:", fullResponse);
   const handleTabClick = (tabNumber) => {
     setActiveTab(tabNumber);
   };
   const [startDate, setStartDate] = useState(null);
+  // console.log("🚀 ~ CreateTask ~ startDate:", startDate);
   const [endDate, setEndDate] = useState(null);
   const [etaTime, setEtaTime] = useState("");
-
+  const [selectedWorkorder, setselectedWorkorder] = useState("");
+  const [selectedInput, setSelectedInput] = useState([]);
   const handleStartDateChange = (date) => {
     setStartDate(date);
     calculateEta(date, endDate);
   };
 
+  const selectedVal = selectedcontract;
+
+  // Find the object with the matching mapkey
+  const selectedObject = fullResponse.find(
+    (item) => item.mapkey === selectedVal
+  );
+
+  // Use the ternary operator to get the mapid if the object is found, otherwise use an empty string
+  const selectedMapid = selectedObject ? selectedObject["mapid"] : "";
+
+  // console.log("🚀 ~ CreateTask ~ selectedInput:", selectedVal);
+  // console.log("Selected mapid:", selectedMapid);
+
   const handleEndDateChange = (date) => {
     setEndDate(date);
     calculateEta(startDate, date);
   };
+  const handleInputValue = (value) => {
+    settaskDescription(value.target.value);
+  };
 
+  const inputSelected = (inputValue) => {
+    console.log("🚀 ~ inputSelected ~ inputValue:", inputValue);
+    setSelectedInput(inputValue);
+    setselectedWorkorder(inputValue);
+    setSelectedcontract(inputValue);
+  };
   const calculateEta = (fromDate, toDate) => {
     if (fromDate && toDate) {
       const diffInMilliseconds = toDate - fromDate;
@@ -69,16 +105,53 @@ export default function CreateTask() {
       );
     }
   }
+  const removeImage = (name) => {
+    setPreviewImages((prev) => prev.filter((image) => image.name !== name));
+  };
 
-  const fetchData1 = async (typeID, setState, mapKey, DivisionIDPK) => {
+  const handleCreateTask = async () => {
+    console.log(document.getElementById("contract"), "ref");
+    const param = {
+      NatureOfComplaint: selectedWorkorder, //Division
+      UserID: localStorage.getItem("eid"), //eid
+      Email: null,
+      Description: taskDescription, //taskDescription
+      ContractID: contract, //contractName
+      // LocalityID: document.getElementById("CT_Locality_ID").value,
+      // BuildingID: document.getElementById("CT_Building_ID").value,
+      FloorID: 0,
+      SpotID: 0,
+      ComplainerName: localStorage.getItem("username"),
+      ContactNo: null,
+      PortalType: 2,
+      DocID: null,
+      DivisionID: workType, //workType
+      PriorityID: Priority ? Priority : 1,
+      EmpID: localStorage.getItem("eid"),
+      ProDate: Value == "Client" ? "" : startDate,
+      ProDate: startDate,
+      TaskType: Value == "Internal" ? 2 : 1,
+      EndDate: endDate,
+      // EndDate: taskType == 'client' ? '' : toDateInput.value,
+      WoTypeID: Complaint, //Complaint id
+      WoProTypeID: Module, //Module
+      TradeGrpID: 0, //parentTId ? parentTId : 0
+      IsBMS: Value == "Client" ? 1 : 0,
+    };
+    console.log(param);
+  };
+  const fetchData1 = async (typeID, setState, mapKey, DivisionIDPK, mapId) => {
     //console.log("🚀 ~ fetchData1 ~ DivisionIDPK:", DivisionIDPK);
     try {
       if (DivisionIDPK) {
         const url = `https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/WebPortalLocDetailsNew.php?TypeID=${typeID}&DivisionID=${DivisionIDPK}&CategoryID=1`;
         const response = await fetch(url);
         const data = await response.json();
-        let responses = data.map((e) => (mapKey ? e[mapKey] : e));
-        setState(responses);
+        let value = data.map((e) => ({
+          name: e[mapKey],
+          id: e[mapId],
+        }));
+        setState(value);
       } else {
         console.warn("NstUserID is not available in localStorage.");
       }
@@ -86,17 +159,29 @@ export default function CreateTask() {
       console.error("Error:", error);
     }
   };
+  const getKey = (key) => {
+    console.log(key, "key");
+  };
 
   useEffect(() => {
-    const fetchData = async (typeID, setState, mapKey) => {
+    const fetchData = async (typeID, setState, mapKey, mapId) => {
+      // console.log("🚀 ~ useEffect ~ mapKey:", mapId);
       try {
-        let NstUserID = localStorage.getItem("NstUserID");
+        let NstUserID = localStorage.getItem("UserIDPK");
+        // console.log("🚀 ~ fetchData ~ NstUserID:", NstUserID);
         if (NstUserID) {
           const url = `https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/WebPortalLocDetailsNew.php?TypeID=${typeID}&UserID=${NstUserID}`;
           const response = await fetch(url);
           const data = await response.json();
-          let responses = data.map((e) => (mapKey ? e[mapKey] : e));
-          setState(responses);
+          let responses = data.map((e) =>
+            mapKey && mapId ? { mapkey: e[mapKey], mapid: e[mapId] } : e
+          );
+          setFullResponse(responses);
+          let value = data.map((e) => ({
+            name: e[mapKey],
+            id: e[mapId],
+          }));
+          setState(value);
         } else {
           console.warn("NstUserID is not available in localStorage.");
         }
@@ -127,12 +212,13 @@ export default function CreateTask() {
     };
 
     const fetchAllData = async () => {
-      await fetchData(101, setContract, "ContractName");
-      await fetchData(10, setComplint, "CCmWoTypeName");
+      await fetchData(101, setContract, "ContractName", "ContractID");
+      // await fetchData(101, setContractdetails);
+      await fetchData(10, setComplint, "CCmWoTypeName", "CCMWoTypeIDPK");
       await fetchData(8, setWorkType, "DivisionName");
       await fetchData(8, setDivisionDetails);
 
-      await fetchData(11, setModule, "CCMProTypeName");
+      await fetchData(11, setModule, "CCMProTypeName", "CCMProTypeIDPK");
       await fetchData(13, setweek, "SprintName");
       await fetchData(12, setPriority, "PriorityName");
       await fetchEmployeeData();
@@ -153,6 +239,27 @@ export default function CreateTask() {
     p: 4,
     width: "80%",
     height: "450px",
+  };
+
+  const handleImageUpload = (event) => {
+    const files = event.target.files;
+    if (files) {
+      const newImages = Array.from(files).map((file) => {
+        const reader = new FileReader();
+        return new Promise((resolve) => {
+          reader.onload = () => {
+            resolve({
+              src: reader.result,
+              name: file.name,
+            });
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+      Promise.all(newImages).then((images) =>
+        setPreviewImages((prev) => [...prev, ...images])
+      );
+    }
   };
 
   return (
@@ -220,36 +327,65 @@ export default function CreateTask() {
                 <GridContainer spacing={2}>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
                     <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
-                      <DataList options={contract} fieldName={"contract"} />
-                    </div>
-                  </GridItem>
-                  <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
-                      <DataList options={Complaint} fieldName={"Complaint"} />
-                    </div>
-                  </GridItem>
-                  <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
                       <DataList
-                        options={workType}
-                        getdata={getdata1}
-                        fieldName={"workType"}
+                        inputSelected={inputSelected}
+                        options={contract}
+                        fieldName={"contract"}
+                        getKey={getKey}
                       />
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
                     <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
-                      <DataList options={dataDivision} fieldName={"Division"} />
+                      <DataList
+                        inputSelected={inputSelected}
+                        options={Complaint}
+                        fieldName={"Complaint"}
+                        getKey={getKey}
+                      />
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
                     <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
-                      <DataList options={Module} fieldName={"Module"} />
+                      <DataList
+                        inputSelected={inputSelected}
+                        options={workType}
+                        getdata={getdata1}
+                        fieldName={"workType"}
+                        value={workType}
+                        onInput={handleInputValue}
+                        getKey={getKey}
+                      />
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
                     <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
-                      <DataList options={Value} fieldName={"Value"} />
+                      <DataList
+                        inputSelected={inputSelected}
+                        options={dataDivision}
+                        fieldName={"Division"}
+                        getKey={getKey}
+                      />
+                    </div>
+                  </GridItem>
+                  <GridItem xs={4} md={4} lg={4} sm={4}>
+                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                      <DataList
+                        inputSelected={inputSelected}
+                        options={Module}
+                        fieldName={"Module"}
+                        getKey={getKey}
+                      />
+                    </div>
+                  </GridItem>
+                  <GridItem xs={4} md={4} lg={4} sm={4}>
+                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                      <DataList
+                        inputSelected={inputSelected}
+                        options={Value}
+                        fieldName={"Value"}
+                        getKey={getKey}
+                      />
                     </div>
                   </GridItem>
 
@@ -261,12 +397,20 @@ export default function CreateTask() {
                       name="taskDescription"
                       rows="4"
                       className="bg-stone-100 w-full text-gray-800 shadow-sm tracking-wide overflow-auto scroll-smooth custom-scrollbar transition-all duration-200 ease-in-out resize-none hover:resize-y caret-blue-400 focus:caret-blue-500 font-medium text-xs p-2 mb-2  ring-0 ring-blue-500 focus:ring-2 focus:ring-blue-600 border border-gray-300 rounded"
+                      value={taskDescription}
+                      onInput={handleInputValue}
+                      getKey={getKey}
                     />
                   </GridItem>
 
                   <GridItem xs={4} md={4} lg={4} sm={4}>
                     <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
-                      <DataList options={emp} fieldName={"Employee"} />
+                      <DataList
+                        inputSelected={inputSelected}
+                        options={emp}
+                        fieldName={"Employee"}
+                        getKey={getKey}
+                      />
                     </div>
                   </GridItem>
 
@@ -278,7 +422,12 @@ export default function CreateTask() {
                       >
                         Priority
                       </label>
-                      <DataList options={Priority} fieldName={"Priority"} />
+                      <DataList
+                        inputSelected={inputSelected}
+                        options={Priority}
+                        fieldName={"Priority"}
+                        getKey={getKey}
+                      />
                     </div>
                   </GridItem>
                   <GridItem xs={2} md={2} lg={2} sm={2}>
@@ -289,7 +438,12 @@ export default function CreateTask() {
                       >
                         Sprint
                       </label>
-                      <DataList options={week} fieldName={"Sprint"} />
+                      <DataList
+                        inputSelected={inputSelected}
+                        options={week}
+                        fieldName={"Sprint"}
+                        getKey={getKey}
+                      />
                     </div>
                   </GridItem>
 
@@ -354,6 +508,7 @@ export default function CreateTask() {
                   <div className="w-full mt-2">
                     <GridItem xs={12} md={12} lg={12} sm={12}>
                       <button
+                        onClick={handleCreateTask}
                         type="button"
                         id="createTaskButton"
                         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -409,42 +564,30 @@ export default function CreateTask() {
               </div>
             )}
             {activeTab === 3 && (
-              <div className="">
-                <div
-                  id="collapseTaskDetDiv_Tab3"
-                  className="flex items-end space-x-4 mt-2 w-full"
-                >
-                  <div className="bg-white mt-40 w-full flex flex-col items-start">
-                    <input
-                      type="file"
-                      id="imageInput"
-                      className="hidden"
-                      accept="image/*"
-                      multiple=""
-                    />
-                    <label for="imageInput" className="w-full cursor-pointer">
-                      <p className="hover:bg-blue-100 hover:shadow block w-full text-center p-4 text-sm font-semibold text-gray-600 border border-dashed border-gray-300 rounded-md transition duration-300 ease-in-out">
-                        <i className="bi bi-file-earmark-arrow-up mr-1"></i>
-                        Upload Attachment
-                      </p>
-                    </label>
-
-                    <div
-                      id="previewContainer"
-                      className="w-full grid grid-cols-4 gap-3"
-                    ></div>
+              <GridContainer spacing={2}>
+                <GridItem xs={12} md={12} lg={12} sm={12}>
+                  <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                    <input type="file" multiple onChange={handleImageUpload} />
                   </div>
-                </div>
-                <div className="w-full mt-2">
-                  <button
-                    type="button"
-                    id="createTaskButton"
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    Create Task
-                  </button>
-                </div>
-              </div>
+                </GridItem>
+                <GridItem xs={12} md={12} lg={12} sm={12}>
+                  <div className="h-full rounded-md shadow-sm bg-white border-none outline-none flex flex-wrap">
+                    {previewImages.map((image, index) => (
+                      <div key={index} className="relative m-2">
+                        <img
+                          src={image.src}
+                          alt={image.name}
+                          className="h-24 w-24 object-cover"
+                        />
+                        <IoClose
+                          className="absolute top-0 right-0 text-lg cursor-pointer text-red-600"
+                          onClick={() => removeImage(image.name)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </GridItem>
+              </GridContainer>
             )}
           </Typography>
         </Box>
