@@ -84,6 +84,7 @@ const CustomDatalist = (props) => {
         placeholder={`Search for ${props.fieldName}`}
         required
       />
+
       <div className="absolute top-1 right-0 cursor-pointer">
         <IoIosClose onClick={clear} />
       </div>

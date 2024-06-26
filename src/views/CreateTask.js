@@ -481,7 +481,7 @@ export default function CreateTask(props) {
               <>
                 <GridContainer spacing={2}>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                    <div className="relative h-full rounded-md shadow-sm bg-white border-none outline-none">
                       <DataList
                         inputSelected={inputSelected}
                         options={contract}
@@ -490,10 +490,11 @@ export default function CreateTask(props) {
                         fieldName={"contract"}
                         getKey={getKey}
                       />
+                        <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                    <div className="relative h-full rounded-md shadow-sm bg-white border-none outline-none">
                       <DataList
                         inputSelected={inputSelected}
                         options={Complaint}
@@ -502,10 +503,11 @@ export default function CreateTask(props) {
                         refname={"CCmWoTypeName"}
                         refid={"CCMWoTypeIDPK"}
                       />
+                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                    <div className="relative h-full rounded-md shadow-sm bg-white border-none outline-none">
                       <DataList
                         inputSelected={inputSelected}
                         options={workType}
@@ -516,10 +518,11 @@ export default function CreateTask(props) {
                         refname={"DivisionName"}
                         refid={"DivisionIDPK"}
                       />
+                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                    <div className="relative h-full rounded-md shadow-sm bg-white border-none outline-none">
                       <DataList
                         inputSelected={inputSelected}
                         options={dataDivision}
@@ -528,10 +531,11 @@ export default function CreateTask(props) {
                         refname={"ComplaintNatureName"}
                         refid={"ComplaintNatureID"}
                       />
+                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                    <div className="relative h-full rounded-md shadow-sm bg-white border-none outline-none">
                       <DataList
                         inputSelected={inputSelected}
                         options={Module}
@@ -540,10 +544,11 @@ export default function CreateTask(props) {
                         refname={"CCMProTypeName"}
                         refid={"CCMProTypeIDPK"}
                       />
+                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                    <div className="relative h-full rounded-md shadow-sm bg-white border-none outline-none">
                       <DataList
                         inputSelected={inputSelected}
                         options={Value}
@@ -552,10 +557,12 @@ export default function CreateTask(props) {
                         refname={"TaskType"}
                         refid={"TaskType"}
                       />
+                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
 
                   <GridItem xs={8} md={8} lg={8} sm={8}>
+                    <div className="relative">
                     <textarea
                       id="taskDescription"
                       placeholder="write your task description here..."
@@ -566,11 +573,13 @@ export default function CreateTask(props) {
                       value={taskDescription}
                       onInput={handleInputValue}
                       getKey={getKey}
-                    />
+                      />
+                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
+                      </div>
                   </GridItem>
 
                   <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
+                    <div className="relative h-full rounded-md shadow-sm bg-white border-none outline-none">
                       <DataList
                         inputSelected={inputSelected}
                         options={emp}
@@ -579,17 +588,19 @@ export default function CreateTask(props) {
                         refname={"EmpName"}
                         refid={"NSEEMPID"}
                       />
+                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
 
                   <GridItem xs={2} md={2} lg={2} sm={2}>
-                    <div className="p-2 w-full">
+                    <div className=" p-2 w-full">
                       <label
                         htmlFor="PriorityName"
                         className="block text-xs font-medium text-gray-500"
                       >
                         Priority
                       </label>
+                      <div className="relative">
                       <DataList
                         inputSelected={inputSelected}
                         options={Priority}
@@ -597,7 +608,10 @@ export default function CreateTask(props) {
                         refname={"PriorityName"}
                         refid={"PriorityIDPK"}
                         getKey={getKey}
-                      />
+                        />
+                        <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
+                        </div>
+                     
                     </div>
                   </GridItem>
                   <GridItem xs={2} md={2} lg={2} sm={2}>
@@ -608,6 +622,7 @@ export default function CreateTask(props) {
                       >
                         Sprint
                       </label>
+                      <div className="relative">
                       <DataList
                         inputSelected={inputSelected}
                         options={week}
@@ -615,7 +630,9 @@ export default function CreateTask(props) {
                         getKey={getKey}
                         refname={"SprintName"}
                         refid={"SprintIDPK"}
-                      />
+                        />
+                        <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
+                        </div>
                     </div>
                   </GridItem>
 
@@ -660,7 +677,7 @@ export default function CreateTask(props) {
                   </GridItem>
 
                   <GridItem xs={4} md={4} lg={4} sm={4}>
-                    <div className="p-2 w-full">
+                    <div className="p-2 w-full relative">
                       <label
                         htmlFor="ETATime"
                         className="block text-xs font-medium text-gray-500"
@@ -674,6 +691,7 @@ export default function CreateTask(props) {
                         readOnly
                         className=" block w-full  border border-gray-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
+
                     </div>
                   </GridItem>
 
