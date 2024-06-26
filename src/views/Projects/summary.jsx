@@ -160,9 +160,186 @@ const Summary = () => {
           </div>
 
           <div className="w-full mt-4 flex gap-4">
-            <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
+            <div className="w-2/4 min-h-60 max-h-96 bg-white rounded-xl  gap-4 overflow-y-auto">
+              <h6 className="pt-2 text-center w-full">Task Overview</h6>
+              <div className="flex justify-start w-full gap-2.5 flex-wrap text-xs cursor-pointer gap-y-2.5 p-2.5 items-center mt-4">
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-purple-300 hover:opacity-90 transition duration-300 ease-in-out hover:text-white">
+                  <div className="flex justify-center items-center h-4 w-4 text-purple-800">
+                    <p>Total</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-purple-300">
+                    <p>1</p>
+                  </div>
+                </div>
 
-            <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-orange-300 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
+                    <p>DR</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-orange-300 ">
+                    <p>1</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-green-300 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-green-800">
+                    <p>Completed</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-green-300 ">
+                    <p>1</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-yellow-300 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-yellow-800">
+                    <p>Others</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-yellow-300 ">
+                    <p>1</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-sky-300 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-sky-800">
+                    <p>Standby</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-sky-300 ">
+                    <p>1</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1 rounded-lg h-16 hover:bg-red-300 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-red-800">
+                    <p>Overdue</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-red-300 ">
+                    <p>1</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-start gap-2.5 w-full flex-wrap text-xs cursor-pointer items-center p-2.5  gap-y-2.5">
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">7D</p>
+                  <div className=" p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    1
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">14D</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    1
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">30D</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    1
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">60D</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    1
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">90D</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    1
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">120D</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    1
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">+120D</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    1
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-2/4 min-h-60 max-h-96 bg-white rounded-xl  gap-4">
+              <h6 className="pt-2 text-center w-full">Projects Goals</h6>
+              <div className="flex justify-start w-full gap-2.5 flex-wrap text-xs cursor-pointer gap-y-2.5 p-2.5 items-center mt-4">
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-emerald-200 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
+                    <p>V2</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-emerald-200 ">
+                    <p>0</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-fuchsia-200 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
+                    <p>V3</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-fuchsia-200 ">
+                    <p>0</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-amber-200 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
+                    <p>V4</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-amber-200 ">
+                    <p>0</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-blue-200 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
+                    <p>V5</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-blue-200 ">
+                    <p>0</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-violet-200 hover:opacity-90 transition duration-300 ease-in-out">
+                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
+                    <p>V6</p>
+                  </div>
+                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-violet-200 ">
+                    <p>0</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-start gap-2.5 w-full flex-wrap text-xs cursor-pointer items-center p-2.5  gap-y-2.5">
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">B2C</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    0
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">Bill</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    0
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">Proleaz</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    0
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
+                  <p className="text-red-600">All</p>
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                    0
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="w-full mt-4 flex gap-4">

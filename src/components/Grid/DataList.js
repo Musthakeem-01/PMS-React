@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { IoIosClose } from "react-icons/io";
 
 const CustomDatalist = (props) => {
+  // console.log("🚀 ~ CustomDatalist ~ props:", props);
   const [inputValue, setInputValue] = useState("");
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -27,12 +28,7 @@ const CustomDatalist = (props) => {
   }, []);
 
   useEffect(() => {
-    if (inputValue && props.getdata) {
-      props.getdata(inputValue);
-    }
-    if (inputValue) {
-      props.inputSelected(inputValue);
-    }
+    props.inputSelected(inputValue, props.refname);
   }, [inputValue]);
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -43,8 +39,10 @@ const CustomDatalist = (props) => {
 
   const filterOptions = (value) => {
     if (value) {
-      const filtered = props.options.filter((option) =>
-        option.toLowerCase().includes(value.toLowerCase())
+      const filtered = props.options.filter(
+        (option) =>
+          option[props.refname] &&
+          option[props.refname].toLowerCase().includes(value.toLowerCase())
       );
       setFilteredOptions(filtered);
     } else {
@@ -58,10 +56,17 @@ const CustomDatalist = (props) => {
   };
 
   const handleOptionClick = (option) => {
-    // console.log(option["id"], "ref");
-    props.getKey(option["id"]);
-
-    setInputValue(option["name"]);
+    props.getKey(
+      props.refname === "DivisionName"
+        ? {
+            [props.refid]: option[props.refid],
+            [props.refname]: option[props.refname],
+          }
+        : props.refname
+        ? { [props.refid]: option[props.refid] }
+        : option
+    );
+    setInputValue(props.refname ? option[props.refname] : option);
     setIsOpen(false);
   };
   const clear = () => {
@@ -91,11 +96,11 @@ const CustomDatalist = (props) => {
             filteredOptions.map((option, index) => (
               <div
                 id={props.fieldName}
-                key={option["id"]}
+                key={option[props.refid]}
                 onClick={() => handleOptionClick(option)}
                 className="p-1 text-xs cursor-pointer hover:bg-gray-200"
               >
-                {option["name"]}
+                {option[props.refname] ? option[props.refname] : option}
               </div>
             ))
           ) : (

@@ -14,142 +14,280 @@ import GridItem from "../components/Grid/GridItem";
 
 import DataList from "../components/Grid/DataList";
 export default function CreateTask(props) {
-  // console.log(props, "props");
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [activeTab, setActiveTab] = useState(1);
   const [contract, setContract] = useState([]);
-  const [contracts, setContracts] = useState([]);
-
-  // const [Contractdetails, setContractdetails] = useState([]);
-  // console.log("🚀 ~ CreateTask ~ contract:", Contractdetails);
   const [Complaint, setComplint] = useState([]);
   const [workType, setWorkType] = useState([]);
   const [divisionDetails, setDivisionDetails] = useState([]);
-  // console.log("🚀 ~ CreateTask ~ divisionDetails:", divisionDetails);
   const [dataDivision, setdataDivision] = useState([]);
   const [Module, setModule] = useState([]);
-  const [Value, setValue] = useState(["Internal", "Client"]);
+  const [Value, setValue] = useState([
+    { TaskType: "Internal" },
+    { TaskType: "Client" },
+  ]);
   const [Priority, setPriority] = useState([]);
   const [taskDescription, settaskDescription] = useState([]);
   const [week, setweek] = useState([]);
   const [emp, setemp] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
   const [fullResponse, setFullResponse] = useState([]);
-  // console.log("🚀 ~ CreateTask ~ fullResponse:", fullResponse);
   const [selectedcontract, setSelectedcontract] = useState("");
-  // console.log("🚀 ~ CreateTask ~ selectedcontract:", selectedcontract);
-  // console.log("🚀 ~ CreateTask ~ fullResponse:", fullResponse);
   const handleTabClick = (tabNumber) => {
     setActiveTab(tabNumber);
   };
   const [startDate, setStartDate] = useState(null);
-  // console.log("🚀 ~ CreateTask ~ startDate:", startDate);
   const [endDate, setEndDate] = useState(null);
   const [etaTime, setEtaTime] = useState("");
   const [selectedWorkorder, setselectedWorkorder] = useState("");
   const [selectedInput, setSelectedInput] = useState([]);
+  const [createTaskkey, setCreateTaskkey] = useState([]);
+  const [localityID, setLocalityID] = useState([]);
+  const [buildingID, setBuildingID] = useState([]);
+  const [selectedInputValue, setselectedInputValue] = useState([]);
+  console.log("🚀 ~ CreateTask ~ selectedInputValue:", selectedInputValue);
+  const handleInputValue = (value) => {
+    settaskDescription(value.target.value);
+  };
+
+  const inputSelected = (inputValue, refname) => {
+    setselectedInputValue((prevCreateTaskkey) => ({
+      ...prevCreateTaskkey,
+      [refname]: inputValue,
+    }));
+  };
+
   const handleStartDateChange = (date) => {
     setStartDate(date);
     calculateEta(date, endDate);
   };
 
-  const selectedVal = selectedcontract;
-
-  // Find the object with the matching mapkey
-  const selectedObject = fullResponse.find(
-    (item) => item.mapkey === selectedVal
-  );
-
-  // Use the ternary operator to get the mapid if the object is found, otherwise use an empty string
-  const selectedMapid = selectedObject ? selectedObject["mapid"] : "";
-
-  // console.log("🚀 ~ CreateTask ~ selectedInput:", selectedVal);
-  // console.log("Selected mapid:", selectedMapid);
-
   const handleEndDateChange = (date) => {
     setEndDate(date);
     calculateEta(startDate, date);
   };
-  const handleInputValue = (value) => {
-    settaskDescription(value.target.value);
+  const formatDate = (date) => {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
-  const inputSelected = (inputValue) => {
-    console.log("🚀 ~ inputSelected ~ inputValue:", inputValue);
-    setSelectedInput(inputValue);
-    setselectedWorkorder(inputValue);
-    setSelectedcontract(inputValue);
-  };
   const calculateEta = (fromDate, toDate) => {
     if (fromDate && toDate) {
-      const diffInMilliseconds = toDate - fromDate;
+      const startTime = new Date(fromDate);
+      const endTime = new Date(toDate);
+      const diffInMilliseconds = endTime - startTime;
       const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
       setEtaTime(diffInMinutes.toString());
-      // console.log(`ETATime: ${diffInMinutes} minutes`);
     }
   };
-
-  async function getdata1(id) {
-    const selectedDivision = divisionDetails.find(
-      (division) => division.DivisionName === id
-    );
-
-    if (selectedDivision) {
-      await fetchData1(
-        5,
-        setdataDivision,
-        "ComplaintNatureName",
-        selectedDivision.DivisionIDPK
-      );
-    }
-  }
   const removeImage = (name) => {
     setPreviewImages((prev) => prev.filter((image) => image.name !== name));
   };
+  const showAttachmentViewDetTab = () => {};
+  async function imageSave(ImageArray, TaskIDPK, type) {
+    const url = "https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/imageupload.php";
 
+    try {
+      for (const param of ImageArray) {
+        const requestOptions = {
+          method: "POST",
+          body: JSON.stringify(param),
+          headers: { "Content-Type": "multipart/form-data" },
+        };
+
+        const response = await fetch(url, requestOptions);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const responseData = await response.json();
+        const imagePath = responseData.filename;
+
+        const url2 =
+          "https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/AdminImageRegistry.php";
+        const formData = {
+          AdminImageIDPK_int: "",
+          ImageCode_varchar: "",
+          ImageName_varchar: param.filename,
+          ImgActualSize_varchar: "",
+          ImgCompressSize_varchar: "",
+          ImageSource_image: "",
+          ImgPath_varchar: imagePath,
+          ImgType_varchar: "png",
+          TransType_varchar: "",
+          ImgProType_int: "",
+          IsDefault_bit: "",
+          IsDraft_bit: "",
+          Remarks_varchar:
+            type == "refreshAttachment"
+              ? document.getElementById("attchRemarks").value
+              : "Attached While Raising Task",
+          TransID_int: TaskIDPK,
+          ModFormID_int: "",
+          TransTypeID_int: "",
+          IsActive_bit: "1",
+          DeleStat_bit: "",
+          CreatedUserID_int: "",
+          CreatedTtm_datetime: "",
+          UpdatedUserID_int: "",
+          UpdatedTtm_datetime: "",
+        };
+
+        const requestOptions2 = {
+          method: "POST",
+          body: JSON.stringify(formData),
+          headers: { "Content-Type": "multipart/form-data" },
+        };
+
+        const response2 = await fetch(url2, requestOptions2);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      if (type == "refreshAttachment") {
+        showAttachmentViewDetTab(TaskIDPK);
+      }
+    }
+  }
+  function validate() {
+    handleCreateTask();
+  }
   const handleCreateTask = async () => {
-    console.log(document.getElementById("contract"), "ref");
     const param = {
-      NatureOfComplaint: selectedWorkorder, //Division
-      UserID: localStorage.getItem("eid"), //eid
+      NatureOfComplaint: createTaskkey.DivisionName, // Division
+      UserID: localStorage.getItem("eid"), // eid
       Email: null,
-      Description: taskDescription, //taskDescription
-      ContractID: contract, //contractName
-      // LocalityID: document.getElementById("CT_Locality_ID").value,
-      // BuildingID: document.getElementById("CT_Building_ID").value,
+      Description: taskDescription, // taskDescription
+      ContractID: createTaskkey.ContractID, // contractName
+      LocalityID: localityID,
+      BuildingID: buildingID,
       FloorID: 0,
       SpotID: 0,
       ComplainerName: localStorage.getItem("username"),
       ContactNo: null,
       PortalType: 2,
       DocID: null,
-      DivisionID: workType, //workType
-      PriorityID: Priority ? Priority : 1,
-      EmpID: localStorage.getItem("eid"),
-      ProDate: Value == "Client" ? "" : startDate,
-      ProDate: startDate,
-      TaskType: Value == "Internal" ? 2 : 1,
-      EndDate: endDate,
-      // EndDate: taskType == 'client' ? '' : toDateInput.value,
-      WoTypeID: Complaint, //Complaint id
-      WoProTypeID: Module, //Module
-      TradeGrpID: 0, //parentTId ? parentTId : 0
-      IsBMS: Value == "Client" ? 1 : 0,
+      DivisionID: createTaskkey.DivisionIDPK, // workType
+      PriorityID: createTaskkey.PriorityIDPK ? createTaskkey.PriorityIDPK : 1,
+      EmpID: createTaskkey.NSEEMPID,
+      ProDate: createTaskkey.TaskType == "Client" ? "" : formatDate(startDate),
+      TaskType: createTaskkey.TaskType == "Internal" ? 2 : 1,
+      EndDate: formatDate(endDate),
+      WoTypeID: createTaskkey.CCMWoTypeIDPK, // Complaint id
+      WoProTypeID: createTaskkey.CCMProTypeIDPK, // Module
+      TradeGrpID: 0, // parentTId ? parentTId : 0
+      IsBMS: createTaskkey.TaskType == "Client" ? 1 : 0,
     };
-    console.log(param);
+
+    if (!param.Description || param.Description.length === 0) {
+      alert("Kindly Fill Task Details");
+      return false;
+    }
+
+    const apiUrl =
+      "https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/NsetrackComplaintRegistry.php";
+    const formData = new FormData();
+
+    Object.keys(param).forEach((key) => formData.append(key, param[key]));
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.text();
+      console.log("🚀 ~ handleCreateTask ~ data:", data);
+
+      if (data === "Failed") {
+        window.alert("Contract Expired, Kindly check with Admin");
+        return false;
+      }
+
+      if (data && data.length > 0) {
+        const TaskIDPKURL = `https://smartfm.in/NSEIPLSERVICE/SupportStaffAssign.php?EmployeeID=null&CCMComplaintID=${data}&DivisionExe=STAFFASIGN`;
+        const TaskIDPKResponse = await fetch(TaskIDPKURL);
+
+        const previewContainer = document.getElementById("previewContainer");
+        const imagePreviews = previewContainer.querySelectorAll("img");
+        const images = [];
+
+        imagePreviews.forEach((img) => {
+          // console.log("🚀 ~ handleCreateTask ~ response:", response);
+          // console.log("🚀 ~ handleCreateTask ~ response:", response);
+          const fileType = img.src.split(";")[0].split("/")[1];
+          images.push({
+            filename: img.alt,
+            type: fileType,
+            base64data: img.src.split(",")[1],
+          });
+        });
+
+        if (images.length > 0) {
+          await imageSave(images, data);
+        }
+      } else {
+        window.alert(2, "Unable to Create Task");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      window.alert("error");
+    } finally {
+    }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let ContractID = createTaskkey.ContractID;
+        if (ContractID) {
+          const localityURL = `https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/WebPortalLocDetailsNew.php?TypeID=102&UserID=${localStorage.getItem(
+            "UserIDPK"
+          )}&ContractID=${ContractID}`;
+          const localityResponse = await fetch(localityURL);
+          if (!localityResponse.ok) {
+            throw new Error(
+              `HTTP error for URL ${localityURL}! Status: ${localityResponse.status}`
+            );
+          }
+          const localityData = await localityResponse.json();
+          const LocalityID = localityData[0].LocalityID;
+          setLocalityID(LocalityID);
+          const buildingURL = `https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/WebPortalLocDetailsNew.php?TypeID=103&UserID=${localStorage.getItem(
+            "UserIDPK"
+          )}&ContractID=${ContractID}&LocalityID=${LocalityID}`;
+          const buildingResponse = await fetch(buildingURL);
+          if (!buildingResponse.ok) {
+            throw new Error(
+              `HTTP error for URL ${buildingURL}! Status: ${buildingResponse.status}`
+            );
+          }
+          const buildingData = await buildingResponse.json();
+          const BuildingIDPK = buildingData[0].BuildingIDPK;
+          setBuildingID(BuildingIDPK);
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    };
+
+    fetchData();
+  }, [createTaskkey.ContractID]);
   const fetchData1 = async (typeID, setState, mapKey, DivisionIDPK, mapId) => {
-    //console.log("🚀 ~ fetchData1 ~ DivisionIDPK:", DivisionIDPK);
     try {
       if (DivisionIDPK) {
         const url = `https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/WebPortalLocDetailsNew.php?TypeID=${typeID}&DivisionID=${DivisionIDPK}&CategoryID=1`;
         const response = await fetch(url);
         const data = await response.json();
         let value = data.map((e) => ({
-          name: e[mapKey],
-          id: e[mapId],
+          [mapKey]: e[mapKey],
+          [mapId]: e[mapId],
         }));
         setState(value);
       } else {
@@ -160,15 +298,28 @@ export default function CreateTask(props) {
     }
   };
   const getKey = (key) => {
-    console.log(key, "key");
+    let keys = key;
+    for (let k in keys) {
+      setCreateTaskkey((prevCreateTaskkey) => ({
+        ...prevCreateTaskkey,
+        [k]: keys[k],
+      }));
+    }
+    if (Object.keys(key)[0] == "DivisionIDPK") {
+      fetchData1(
+        5,
+        setdataDivision,
+        "ComplaintNatureName",
+        key.DivisionIDPK,
+        "ComplaintNatureID"
+      );
+    }
   };
 
   useEffect(() => {
     const fetchData = async (typeID, setState, mapKey, mapId) => {
-      // console.log("🚀 ~ useEffect ~ mapKey:", mapId);
       try {
         let NstUserID = localStorage.getItem("UserIDPK");
-        // console.log("🚀 ~ fetchData ~ NstUserID:", NstUserID);
         if (NstUserID) {
           const url = `https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/WebPortalLocDetailsNew.php?TypeID=${typeID}&UserID=${NstUserID}`;
           const response = await fetch(url);
@@ -178,8 +329,8 @@ export default function CreateTask(props) {
           );
           setFullResponse(responses);
           let value = data.map((e) => ({
-            name: e[mapKey],
-            id: e[mapId],
+            [mapKey]: e[mapKey],
+            [mapId]: e[mapId],
           }));
           setState(value);
         } else {
@@ -201,8 +352,8 @@ export default function CreateTask(props) {
           Output: { status, data },
         } = response;
         if (response.Output.status.code === "200") {
-          let responses = data.map((e) => e.EmpName);
-          setemp(responses);
+          let responses = response;
+          setemp(responses.Output.data);
         } else {
           console.error("Error fetching data:", status.message);
         }
@@ -215,12 +366,12 @@ export default function CreateTask(props) {
       await fetchData(101, setContract, "ContractName", "ContractID");
       // await fetchData(101, setContractdetails);
       await fetchData(10, setComplint, "CCmWoTypeName", "CCMWoTypeIDPK");
-      await fetchData(8, setWorkType, "DivisionName");
-      await fetchData(8, setDivisionDetails);
+      await fetchData(8, setWorkType, "DivisionName", "DivisionIDPK");
+      await fetchData(8, setDivisionDetails, "ComplaintNatureName");
 
       await fetchData(11, setModule, "CCMProTypeName", "CCMProTypeIDPK");
-      await fetchData(13, setweek, "SprintName");
-      await fetchData(12, setPriority, "PriorityName");
+      await fetchData(13, setweek, "SprintName", "SprintIDPK");
+      await fetchData(12, setPriority, "PriorityName", "PriorityIDPK");
       await fetchEmployeeData();
     };
 
@@ -330,6 +481,8 @@ export default function CreateTask(props) {
                       <DataList
                         inputSelected={inputSelected}
                         options={contract}
+                        refname={"ContractName"}
+                        refid={"ContractID"}
                         fieldName={"contract"}
                         getKey={getKey}
                       />
@@ -342,6 +495,8 @@ export default function CreateTask(props) {
                         options={Complaint}
                         fieldName={"Complaint"}
                         getKey={getKey}
+                        refname={"CCmWoTypeName"}
+                        refid={"CCMWoTypeIDPK"}
                       />
                     </div>
                   </GridItem>
@@ -350,11 +505,12 @@ export default function CreateTask(props) {
                       <DataList
                         inputSelected={inputSelected}
                         options={workType}
-                        getdata={getdata1}
                         fieldName={"workType"}
                         value={workType}
                         onInput={handleInputValue}
                         getKey={getKey}
+                        refname={"DivisionName"}
+                        refid={"DivisionIDPK"}
                       />
                     </div>
                   </GridItem>
@@ -365,6 +521,8 @@ export default function CreateTask(props) {
                         options={dataDivision}
                         fieldName={"Division"}
                         getKey={getKey}
+                        refname={"ComplaintNatureName"}
+                        refid={"ComplaintNatureID"}
                       />
                     </div>
                   </GridItem>
@@ -375,6 +533,8 @@ export default function CreateTask(props) {
                         options={Module}
                         fieldName={"Module"}
                         getKey={getKey}
+                        refname={"CCMProTypeName"}
+                        refid={"CCMProTypeIDPK"}
                       />
                     </div>
                   </GridItem>
@@ -385,6 +545,8 @@ export default function CreateTask(props) {
                         options={Value}
                         fieldName={"Value"}
                         getKey={getKey}
+                        refname={"TaskType"}
+                        refid={"TaskType"}
                       />
                     </div>
                   </GridItem>
@@ -410,6 +572,8 @@ export default function CreateTask(props) {
                         options={emp}
                         fieldName={"Employee"}
                         getKey={getKey}
+                        refname={"EmpName"}
+                        refid={"NSEEMPID"}
                       />
                     </div>
                   </GridItem>
@@ -426,6 +590,8 @@ export default function CreateTask(props) {
                         inputSelected={inputSelected}
                         options={Priority}
                         fieldName={"Priority"}
+                        refname={"PriorityName"}
+                        refid={"PriorityIDPK"}
                         getKey={getKey}
                       />
                     </div>
@@ -443,6 +609,8 @@ export default function CreateTask(props) {
                         options={week}
                         fieldName={"Sprint"}
                         getKey={getKey}
+                        refname={"SprintName"}
+                        refid={"SprintIDPK"}
                       />
                     </div>
                   </GridItem>
@@ -508,7 +676,7 @@ export default function CreateTask(props) {
                   <div className="w-full mt-2">
                     <GridItem xs={12} md={12} lg={12} sm={12}>
                       <button
-                        onClick={handleCreateTask}
+                        onClick={validate}
                         type="button"
                         id="createTaskButton"
                         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
