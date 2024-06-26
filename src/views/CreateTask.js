@@ -34,7 +34,6 @@ export default function CreateTask(props) {
   const [emp, setemp] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
   const [fullResponse, setFullResponse] = useState([]);
-  const [selectedcontract, setSelectedcontract] = useState("");
   const handleTabClick = (tabNumber) => {
     setActiveTab(tabNumber);
   };
@@ -240,6 +239,11 @@ export default function CreateTask(props) {
       window.alert("error");
     } finally {
     }
+    if (selectedInputValue.inputValue)
+      {
+      selectedInputValue.inputValue = null
+      Window.alert("please fill the mandatory fields ")
+      }
   };
 
   useEffect(() => {
