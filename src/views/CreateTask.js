@@ -7,16 +7,22 @@ import { IoClose } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 import getData from "../components/customcomponents/commonAPISelect";
 import GridContainer from "../components/Grid/GridContainer";
 import GridItem from "../components/Grid/GridItem";
-
 import DataList from "../components/Grid/DataList";
-export default function CreateTask(props) {
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
+import Projects from "./projects";
+export default function CreateTask() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setStartDate("");
+    setEndDate("");
+    setEtaTime("");
+  };
   const [activeTab, setActiveTab] = useState(1);
   const [contract, setContract] = useState([]);
   const [Complaint, setComplint] = useState([]);
@@ -37,16 +43,17 @@ export default function CreateTask(props) {
   const handleTabClick = (tabNumber) => {
     setActiveTab(tabNumber);
   };
-  const [startDate, setStartDate] = useState(null);
+  const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState(null);
   const [etaTime, setEtaTime] = useState("");
-  const [selectedWorkorder, setselectedWorkorder] = useState("");
-  const [selectedInput, setSelectedInput] = useState([]);
   const [createTaskkey, setCreateTaskkey] = useState([]);
   const [localityID, setLocalityID] = useState([]);
   const [buildingID, setBuildingID] = useState([]);
   const [selectedInputValue, setselectedInputValue] = useState([]);
-  console.log("🚀 ~ CreateTask ~ selectedInputValue:", selectedInputValue);
+  const [alertValue, setAlertValue] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [base64, setBase64] = useState("");
+
   const handleInputValue = (value) => {
     settaskDescription(value.target.value);
   };
@@ -155,8 +162,61 @@ export default function CreateTask(props) {
       }
     }
   }
+  const handleAlert = (value) => {
+    setAlertValue(value);
+    setShowAlert(true);
+    // Hide the alert after 2 seconds
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 2000);
+  };
   function validate() {
-    handleCreateTask();
+    if (!selectedInputValue.ContractName) {
+      handleAlert("Contract Name");
+      //window.alert("please enter Contract Name");
+      return false;
+    } else if (!selectedInputValue.CCmWoTypeName) {
+      handleAlert("Complient Name");
+      // window.alert("please enter Complient Name");
+      return false;
+    } else if (!selectedInputValue.DivisionName) {
+      handleAlert("Division Name");
+      // window.alert("please enter Division Name");
+      return false;
+    } else if (
+      !selectedInputValue.ComplaintNatureName ||
+      selectedInputValue.ComplaintNatureName == ""
+    ) {
+      handleAlert("ComplaintNature Name");
+      // window.alert("please enter ComplaintNature Name");
+      return false;
+    } else if (!selectedInputValue.CCMProTypeName) {
+      handleAlert("Module Name");
+      // window.alert("please enter Module Name");
+      return false;
+    } else if (!selectedInputValue.TaskType) {
+      handleAlert("please enter TaskType");
+      // window.alert("please enter TaskType");
+      return false;
+    } else if (!taskDescription || taskDescription.length === 0) {
+      handleAlert("Kindly Fill Task Description");
+      // window.alert("Kindly Fill Task Description");
+      return false;
+    } else if (!selectedInputValue.EmpName) {
+      handleAlert("Employee Name");
+      // window.alert("please enter Employee Name");
+      return false;
+    } else if (!selectedInputValue.PriorityName) {
+      handleAlert("Priority");
+      // window.alert("please enter Priority");
+      return false;
+    } else if (!selectedInputValue.SprintName) {
+      handleAlert("Sprint");
+      // window.alert("please enter Sprint");
+      return false;
+    } else {
+      handleCreateTask();
+    }
   }
   const handleCreateTask = async () => {
     const param = {
@@ -185,24 +245,18 @@ export default function CreateTask(props) {
       IsBMS: createTaskkey.TaskType == "Client" ? 1 : 0,
     };
 
-    if (!param.Description || param.Description.length === 0) {
-      alert("Kindly Fill Task Details");
-      return false;
-    }
-
     const apiUrl =
       "https://smartfm.in/NSEIPLWEBANDMOBILEPORTAL/NsetrackComplaintRegistry.php";
     const formData = new FormData();
 
     Object.keys(param).forEach((key) => formData.append(key, param[key]));
-
     try {
       const response = await fetch(apiUrl, {
         method: "POST",
         body: formData,
       });
       const data = await response.text();
-      console.log("🚀 ~ handleCreateTask ~ data:", data);
+      // console.log("🚀 ~ handleCreateTask ~ data:", data);
 
       if (data === "Failed") {
         window.alert("Contract Expired, Kindly check with Admin");
@@ -212,10 +266,15 @@ export default function CreateTask(props) {
       if (data && data.length > 0) {
         const TaskIDPKURL = `https://smartfm.in/NSEIPLSERVICE/SupportStaffAssign.php?EmployeeID=null&CCMComplaintID=${data}&DivisionExe=STAFFASIGN`;
         const TaskIDPKResponse = await fetch(TaskIDPKURL);
+        console.log(
+          "🚀 ~ handleCreateTask ~ TaskIDPKResponse:",
+          TaskIDPKResponse
+        );
 
-        const previewContainer = document.getElementById("previewContainer");
+        const previewContainer = setBase64;
         const imagePreviews = previewContainer.querySelectorAll("img");
         const images = [];
+        console.log("🚀 ~ handleCreateTask ~ images:", images);
 
         imagePreviews.forEach((img) => {
           // console.log("🚀 ~ handleCreateTask ~ response:", response);
@@ -235,15 +294,16 @@ export default function CreateTask(props) {
         window.alert(2, "Unable to Create Task");
       }
     } catch (error) {
-      console.error("Error:", error);
-      window.alert("error");
+      // console.error("Error:", error);
+      // if (error) {
+      //   window.alert("error");
+      // } else {
+      //   window.alert("Task created successfully");
+      // }
     } finally {
+      window.alert("Task Created Successfully!");
+      settaskDescription("");
     }
-    if (selectedInputValue.inputValue)
-      {
-      selectedInputValue.inputValue = null
-      Window.alert("please fill the mandatory fields ")
-      }
   };
 
   useEffect(() => {
@@ -434,10 +494,20 @@ export default function CreateTask(props) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
+          <div className="relative">
+            {showAlert && (
+              <div className={"animate-popup"}>
+                <Stack sx={{ width: "100%", position: "absolute" }}>
+                  <Alert severity="error">Please Enter {alertValue}.</Alert>
+                </Stack>
+              </div>
+            )}
+          </div>
           <IoClose
             className="absolute top-0 right-0   text-4xl cursor-pointer"
             onClick={handleClose}
           />
+
           <Typography id="modal-modal-title" variant="h6" component="h2">
             <div
               className="hidden md:flex rounded p-1 bg-white text-center leading-none gap-x-1 justify-center mt-2 w-full ring-2 ring-gray-300"
@@ -457,7 +527,7 @@ export default function CreateTask(props) {
               <button
                 id="collapseTaskDetTab_2"
                 type="button"
-                className={`rounded text-xs hover:bg-blue-100 p-1 tab-button w-1/2 focus:outline-none border-none text-blue-600 font-bold ${
+                className={`hidden rounded text-xs hover:bg-blue-100 p-1 tab-button w-1/2 focus:outline-none border-none text-blue-600 font-bold ${
                   activeTab === 2 ? "bg-blue-100" : ""
                 }`}
                 onClick={() => handleTabClick(2)}
@@ -490,7 +560,6 @@ export default function CreateTask(props) {
                         fieldName={"contract"}
                         getKey={getKey}
                       />
-                        <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
@@ -503,7 +572,6 @@ export default function CreateTask(props) {
                         refname={"CCmWoTypeName"}
                         refid={"CCMWoTypeIDPK"}
                       />
-                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
@@ -518,7 +586,6 @@ export default function CreateTask(props) {
                         refname={"DivisionName"}
                         refid={"DivisionIDPK"}
                       />
-                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
@@ -531,7 +598,6 @@ export default function CreateTask(props) {
                         refname={"ComplaintNatureName"}
                         refid={"ComplaintNatureID"}
                       />
-                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
@@ -544,7 +610,6 @@ export default function CreateTask(props) {
                         refname={"CCMProTypeName"}
                         refid={"CCMProTypeIDPK"}
                       />
-                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
                   <GridItem xs={4} md={4} lg={4} sm={4}>
@@ -557,25 +622,23 @@ export default function CreateTask(props) {
                         refname={"TaskType"}
                         refid={"TaskType"}
                       />
-                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
 
                   <GridItem xs={8} md={8} lg={8} sm={8}>
                     <div className="relative">
-                    <textarea
-                      id="taskDescription"
-                      placeholder="write your task description here..."
-                      required=""
-                      name="taskDescription"
-                      rows="4"
-                      className="bg-stone-100 w-full text-gray-800 shadow-sm tracking-wide overflow-auto scroll-smooth custom-scrollbar transition-all duration-200 ease-in-out resize-none hover:resize-y caret-blue-400 focus:caret-blue-500 font-medium text-xs p-2 mb-2  ring-0 ring-blue-500 focus:ring-2 focus:ring-blue-600 border border-gray-300 rounded"
-                      value={taskDescription}
-                      onInput={handleInputValue}
-                      getKey={getKey}
+                      <textarea
+                        id="taskDescription"
+                        placeholder="write your task description here..."
+                        required=""
+                        name="taskDescription"
+                        rows="4"
+                        className="bg-stone-100 w-full text-gray-800 shadow-sm tracking-wide overflow-auto scroll-smooth custom-scrollbar transition-all duration-200 ease-in-out resize-none hover:resize-y caret-blue-400 focus:caret-blue-500 font-medium text-xs p-2 mb-2  ring-0 ring-blue-500 focus:ring-2 focus:ring-blue-600 border border-gray-300 rounded"
+                        value={taskDescription}
+                        onInput={handleInputValue}
+                        getKey={getKey}
                       />
-                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
-                      </div>
+                    </div>
                   </GridItem>
 
                   <GridItem xs={4} md={4} lg={4} sm={4}>
@@ -588,7 +651,6 @@ export default function CreateTask(props) {
                         refname={"EmpName"}
                         refid={"NSEEMPID"}
                       />
-                      <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
                     </div>
                   </GridItem>
 
@@ -601,17 +663,15 @@ export default function CreateTask(props) {
                         Priority
                       </label>
                       <div className="relative">
-                      <DataList
-                        inputSelected={inputSelected}
-                        options={Priority}
-                        fieldName={"Priority"}
-                        refname={"PriorityName"}
-                        refid={"PriorityIDPK"}
-                        getKey={getKey}
+                        <DataList
+                          inputSelected={inputSelected}
+                          options={Priority}
+                          fieldName={"Priority"}
+                          refname={"PriorityName"}
+                          refid={"PriorityIDPK"}
+                          getKey={getKey}
                         />
-                        <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
-                        </div>
-                     
+                      </div>
                     </div>
                   </GridItem>
                   <GridItem xs={2} md={2} lg={2} sm={2}>
@@ -623,16 +683,15 @@ export default function CreateTask(props) {
                         Sprint
                       </label>
                       <div className="relative">
-                      <DataList
-                        inputSelected={inputSelected}
-                        options={week}
-                        fieldName={"Sprint"}
-                        getKey={getKey}
-                        refname={"SprintName"}
-                        refid={"SprintIDPK"}
+                        <DataList
+                          inputSelected={inputSelected}
+                          options={week}
+                          fieldName={"Sprint"}
+                          getKey={getKey}
+                          refname={"SprintName"}
+                          refid={"SprintIDPK"}
                         />
-                        <span class="absolute right-0 top-0 text-red-500 font-bold">*</span>
-                        </div>
+                      </div>
                     </div>
                   </GridItem>
 
@@ -691,7 +750,6 @@ export default function CreateTask(props) {
                         readOnly
                         className=" block w-full  border border-gray-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
-
                     </div>
                   </GridItem>
 
@@ -757,7 +815,12 @@ export default function CreateTask(props) {
               <GridContainer spacing={2}>
                 <GridItem xs={12} md={12} lg={12} sm={12}>
                   <div className="h-full rounded-md shadow-sm bg-white border-none outline-none">
-                    <input type="file" multiple onChange={handleImageUpload} />
+                    <input
+                      value={base64}
+                      type="file"
+                      multiple
+                      onChange={handleImageUpload}
+                    />
                   </div>
                 </GridItem>
                 <GridItem xs={12} md={12} lg={12} sm={12}>

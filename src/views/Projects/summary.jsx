@@ -8,11 +8,54 @@ import { IoCalendar } from "react-icons/io5";
 import { IoIosArrowUp } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoMdInformationCircle } from "react-icons/io";
-
+import getData from "../../components/customcomponents/commonAPISelect";
 const Summary = () => {
   const [projectDetail, setprojectDetail] = useState(false);
   const [greeting, setGreeting] = useState("");
-
+  const [dashboardData, setDashboardData] = useState(null);
+  const [projectData, setProjectData] = useState("");
+  const fetchData = async () => {
+    try {
+      const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+        data: { p1_int: 99, p2_int: localStorage.getItem("eid") },
+      });
+      const {
+        Output: { status, data },
+      } = response;
+      if (response.Output.status.code === "200") {
+        setDashboardData(response.Output.data[0]);
+      } else {
+        console.error("Error fetching data:", status.message);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+    }
+    try {
+      const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+        data: {
+          p1_int: 147,
+          p2_int: null,
+          p3_int: localStorage.getItem("eid"),
+          p5_int: 5,
+          p6_int: null,
+          UserID_int: 0,
+        },
+      });
+      const {
+        Output: { status, data },
+      } = response;
+      if (response.Output.status.code === "200") {
+        setProjectData(response.Output.data[0]);
+      } else {
+        console.error("Error fetching data:", status.message);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
   useEffect(() => {
     const currentGreeting = getGreeting();
     setGreeting(currentGreeting);
@@ -44,7 +87,7 @@ const Summary = () => {
               {localStorage.getItem("username")}
             </h1>
             <div className="flex gap-2 items-center text-white cursor-pointer px-3 bg-transparent rounded hover:bg-ShareHoveBG">
-              <button className="flex items-center gap-1 text-sm font-medium text-white">
+              <button className="hidden flex items-center gap-1 text-sm font-medium text-white">
                 <IoShareSocialSharp /> Share
               </button>
             </div>
@@ -168,7 +211,7 @@ const Summary = () => {
                     <p>Total</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-purple-300">
-                    <p>1</p>
+                    {dashboardData?.OpenTaks || 0}
                   </div>
                 </div>
 
@@ -177,7 +220,7 @@ const Summary = () => {
                     <p>DR</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-orange-300 ">
-                    <p>1</p>
+                    {dashboardData?.DR || 0}
                   </div>
                 </div>
 
@@ -186,7 +229,7 @@ const Summary = () => {
                     <p>Completed</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-green-300 ">
-                    <p>1</p>
+                    {dashboardData?.Completed || 0}
                   </div>
                 </div>
 
@@ -195,7 +238,7 @@ const Summary = () => {
                     <p>Others</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-yellow-300 ">
-                    <p>1</p>
+                    {dashboardData?.ORT || 0}
                   </div>
                 </div>
 
@@ -204,7 +247,7 @@ const Summary = () => {
                     <p>Standby</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-sky-300 ">
-                    <p>1</p>
+                    {dashboardData?.StandBy || 0}
                   </div>
                 </div>
 
@@ -213,7 +256,7 @@ const Summary = () => {
                     <p>Overdue</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-red-300 ">
-                    <p>1</p>
+                    {dashboardData?.overDue || 0}
                   </div>
                 </div>
               </div>
@@ -222,43 +265,43 @@ const Summary = () => {
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">7D</p>
                   <div className=" p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    1
+                    {dashboardData?.["7D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">14D</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    1
+                    {dashboardData?.["14D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">30D</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    1
+                    {dashboardData?.["30D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">60D</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    1
+                    {dashboardData?.["60D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">90D</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    1
+                    {dashboardData?.["90D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">120D</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    1
+                    {dashboardData?.["120D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">+120D</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    1
+                    {dashboardData?.["120PD"] || 0}
                   </div>
                 </div>
               </div>
@@ -272,7 +315,7 @@ const Summary = () => {
                     <p>V2</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-emerald-200 ">
-                    <p>0</p>
+                    {projectData?.v2 || 0}
                   </div>
                 </div>
 
@@ -281,7 +324,7 @@ const Summary = () => {
                     <p>V3</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-fuchsia-200 ">
-                    <p>0</p>
+                    {projectData?.v3 || 0}
                   </div>
                 </div>
 
@@ -290,7 +333,7 @@ const Summary = () => {
                     <p>V4</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-amber-200 ">
-                    <p>0</p>
+                    {projectData?.v4 || 0}
                   </div>
                 </div>
 
@@ -299,7 +342,7 @@ const Summary = () => {
                     <p>V5</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-blue-200 ">
-                    <p>0</p>
+                    {projectData?.v5 || 0}
                   </div>
                 </div>
 
@@ -308,7 +351,7 @@ const Summary = () => {
                     <p>V6</p>
                   </div>
                   <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-violet-200 ">
-                    <p>0</p>
+                    {projectData?.v6 || 0}
                   </div>
                 </div>
               </div>
@@ -317,25 +360,25 @@ const Summary = () => {
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">B2C</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    0
+                    {projectData?.B2C || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">Bill</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    0
+                    {projectData?.billing || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">Proleaz</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    0
+                    {projectData?.Proleaz || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">All</p>
                   <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    0
+                    {projectData?.Total || 0}
                   </div>
                 </div>
               </div>
