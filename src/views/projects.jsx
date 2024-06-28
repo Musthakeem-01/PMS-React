@@ -23,9 +23,9 @@ import DescView from "../views/selectedDescView";
 let values;
 
 const ProjectLinks = [
-  { key: "Summary", label: "Summary", icon: IoFolderOutline },
-  { key: "Board", label: "Board", icon: MdOutlineSpaceDashboard },
   { key: "List", label: "List", icon: IoIosList },
+  { key: "Board", label: "Board", icon: MdOutlineSpaceDashboard },
+  { key: "Summary", label: "Summary", icon: IoFolderOutline },
   { key: "Calendar", label: "Calendar", icon: FaRegCalendarAlt },
   { key: "Timeline", label: "Timeline", icon: MdOutlineBarChart },
   // { key: "Approvals", label: "Approvals", icon: TbArrowRampRight },
@@ -40,7 +40,7 @@ const ProjectLinks = [
 function Projects(props) {
   // console.log("🚀 ~ Projects ~ props:", props);
   const [response, setResponse] = useState();
-  const [activeLink, setActiveLink] = useState("Summary");
+  const [activeLink, setActiveLink] = useState("List");
   const [hoverState, setHoverState] = useState(
     ProjectLinks.reduce((acc, link) => ({ ...acc, [link.key]: false }), {})
   );

@@ -87,7 +87,7 @@ const Summary = () => {
               {localStorage.getItem("username")}
             </h1>
             <div className="flex gap-2 items-center text-white cursor-pointer px-3 bg-transparent rounded hover:bg-ShareHoveBG">
-              <button className="hidden flex items-center gap-1 text-sm font-medium text-white">
+              <button className="hidden  items-center gap-1 text-sm font-medium text-white">
                 <IoShareSocialSharp /> Share
               </button>
             </div>
@@ -270,37 +270,37 @@ const Summary = () => {
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">14D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {dashboardData?.["14D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">30D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {dashboardData?.["30D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">60D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {dashboardData?.["60D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">90D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {dashboardData?.["90D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">120D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {dashboardData?.["120D"] || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">+120D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {dashboardData?.["120PD"] || 0}
                   </div>
                 </div>
@@ -359,25 +359,25 @@ const Summary = () => {
               <div className="flex justify-start gap-2.5 w-full flex-wrap text-xs cursor-pointer items-center p-2.5  gap-y-2.5">
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">B2C</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {projectData?.B2C || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">Bill</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {projectData?.billing || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">Proleaz</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {projectData?.Proleaz || 0}
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
                   <p className="text-red-600">All</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
+                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
                     {projectData?.Total || 0}
                   </div>
                 </div>

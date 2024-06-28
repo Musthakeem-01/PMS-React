@@ -19,11 +19,13 @@
     "components": "^0.1.0",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.11",
+    "flatpickr": "^4.6.13",
     "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
     "react-calendar-timeline": "^0.28.0",
     "react-datepicker": "^7.1.0",
     "react-dom": "^18.3.1",
+    "react-flatpickr": "^3.10.13",
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
@@ -56,6 +58,6 @@
     ]
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.3"
+    "tailwindcss": "^3.4.4"
   }
 }
