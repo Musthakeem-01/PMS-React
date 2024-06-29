@@ -14,6 +14,8 @@ import DataList from "../components/Grid/DataList";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import Projects from "./projects";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/material_green.css";
 export default function CreateTask() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
@@ -492,6 +494,7 @@ export default function CreateTask() {
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
+        disableEnforceFocus
       >
         <Box sx={style}>
           <div className="relative">
@@ -703,13 +706,15 @@ export default function CreateTask() {
                       >
                         Task Start
                       </label>
-                      <DatePicker
+                      <Flatpickr
                         selected={startDate}
                         onChange={handleStartDateChange}
                         showTimeSelect
-                        timeFormat="h:mm aa"
-                        timeIntervals={15}
-                        dateFormat="yyyy-MM-dd h:mm aa"
+                        options={{
+                          enableTime: true,
+                          dateFormat: "Y-m-d H:i",
+                          allowInput: true,
+                        }}
                         className=" block w-full border border-gray-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
                     </div>
@@ -723,13 +728,15 @@ export default function CreateTask() {
                       >
                         Task End
                       </label>
-                      <DatePicker
+                      <Flatpickr
                         selected={endDate}
                         onChange={handleEndDateChange}
                         showTimeSelect
-                        timeFormat="h:mm aa"
-                        timeIntervals={15}
-                        dateFormat="yyyy-MM-dd h:mm aa"
+                        options={{
+                          enableTime: true,
+                          dateFormat: "Y-m-d H:i",
+                          allowInput: true,
+                        }}
                         className=" block w-full  border border-gray-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
                     </div>

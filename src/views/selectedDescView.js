@@ -14,8 +14,9 @@ import { AiOutlineUser } from "react-icons/ai";
 import { FaPlay, FaPause, FaTimes } from "react-icons/fa";
 import { FcDepartment } from "react-icons/fc";
 import Flatpickr from "react-flatpickr";
-import "flatpickr/dist/flatpickr.min.css";
-
+import "flatpickr/dist/themes/material_green.css";
+import DataList from "../components/Grid/DataList";
+import InfoIcon from "@mui/icons-material/Info";
 const style = {
   position: "absolute",
   top: "50%",
@@ -51,7 +52,17 @@ const sectionContainer = {
 const HeaderGrid = [
   { field: "Projects", headerName: "Projects-Name", width: 150 },
   { field: "ComplaintNo", headerName: "ComplaintNo", width: 100 },
-  { field: "RequestDetailsDesc", headerName: "Summary", width: 400 },
+  {
+    field: "RequestDetailsDesc",
+    headerName: "Summary",
+    width: 400,
+    renderCell: (params) => (
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {params.value}
+        <InfoIcon style={{ marginLeft: 8 }} />
+      </div>
+    ),
+  },
   { field: "ETADate", headerName: "ETADate", width: 150 },
   { field: "ETATime", headerName: "ETATime", width: 150 },
   { field: "ComplainerName", headerName: "ComplainerName", width: 150 },
@@ -70,8 +81,15 @@ export default function DataTable(props) {
   const handleClose = () => setOpen(false);
   const [comment, setComment] = useState("");
   const [showdept, setshowdept] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [complaintIDPK, setComplaintIDPK] = useState([]);
+  const [cardHTML, setCardHTML] = useState([]);
+  const [emp, setEmp] = useState([]);
+  const [isListVisible, setIsListVisible] = useState(false);
+  const [name, setName] = useState();
+  const [selectedInputValue, setselectedInputValue] = useState([]);
+  const [createTaskkey, setCreateTaskkey] = useState([]);
 
   const dept = [
     { name: "BA", color: "bg-red-500" },
@@ -85,7 +103,7 @@ export default function DataTable(props) {
     if (response.length === 0) {
       fetchData();
     }
-  }, []);
+  }, [props.id]);
 
   const fetchData = async () => {
     try {
@@ -128,12 +146,83 @@ export default function DataTable(props) {
         PriorityName: item?.PriorityName || "",
         CCMProTypeName: item?.CCMProTypeName || "",
         CCmWoTypeName: item?.CCmWoTypeName || "",
+        ComplaintIDPK: item?.ComplaintIDPK || "",
       }))
     : [];
 
-  const handleRowClick = (params) => {
+  const handleRowClick = async (params) => {
     setSelectedRow(params.row);
     handleOpen();
+    setComplaintIDPK(params.row.ComplaintIDPK);
+    try {
+      const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+        data: {
+          p1_int: 91,
+          p2_int: localStorage.getItem("eid"),
+          p3_int: 0,
+          p4_int: 0,
+          p5_int: 0,
+          p6_int: 0,
+          P7_date: null,
+          P8_date: null,
+        },
+      });
+      const {
+        Output: {
+          status: { code },
+          data,
+        },
+      } = response;
+
+      if (data.length > 0) {
+        setCardHTML(data);
+      }
+    } catch (error) {
+      console.error("Error in handleSchedule:", error);
+      // Handle error as needed
+    }
+    try {
+      const response = await getData("DashboardService/VwAPINSEIPLALL/", {
+        data: {
+          QryType_int: 21,
+          p3_int: 0,
+          p4_int: 0,
+          p5_int: 0,
+          p6_int: 0,
+          P7_date: null,
+          P8_date: null,
+        },
+      });
+      const {
+        Output: {
+          status: { code },
+          data,
+        },
+      } = response;
+
+      if (data.length > 0) {
+        setEmp(data);
+      }
+    } catch (error) {
+      console.error("Error in handleSchedule:", error);
+      // Handle error as needed
+    }
+  };
+
+  const inputSelected = (inputValue, refname) => {
+    setselectedInputValue((prevCreateTaskkey) => ({
+      ...prevCreateTaskkey,
+      [refname]: inputValue,
+    }));
+  };
+  const getKey = (key) => {
+    let keys = key;
+    for (let k in keys) {
+      setCreateTaskkey((prevCreateTaskkey) => ({
+        ...prevCreateTaskkey,
+        [k]: keys[k],
+      }));
+    }
   };
   const handleShowDiv = () => {
     // if (showDiv) {
@@ -149,7 +238,114 @@ export default function DataTable(props) {
   const handleComments = (comment) => {
     setComment(comment.target.value);
   };
-  const handleCommentCick = () => {};
+  const formatDate = (date) => {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}/${month}/${day} ${hours}:${minutes}`;
+  };
+  const handleSchedule = async (complaintIDPK) => {
+    let from = startDate;
+    let to = endDate;
+    let fromDate = new Date(from);
+    let toDate = new Date(to);
+    let timeDifferenceInMinutes = Math.abs((toDate - fromDate) / (1000 * 60));
+    const FromformattedDate = formatDate(fromDate); // Assuming formatDate is defined elsewhere
+    const ToformattedDate = formatDate(toDate); // Assuming formatDate is defined elsewhere
+
+    let urls = [
+      `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${complaintIDPK}&CCMStartTime=${FromformattedDate}&CCMEndTime=${ToformattedDate}&OberVation=&Rootcause=&EmployeeID=${localStorage.getItem(
+        "eid"
+      )}&ResolutionTime=&MaintenanceHrs=&CorrectiveAction=&ServiceCarriedOut=&ExecEmpID=&TotalMin=${timeDifferenceInMinutes}&Type=EmpWorkAssign`,
+      `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${localStorage.getItem(
+        "eid"
+      )}&CCMStartTime=${FromformattedDate}&CCMEndTime=${ToformattedDate}&TotalMin=${timeDifferenceInMinutes}`,
+      `https://smartfm.in/NSEIPLSERVICE/HoldETA.php?ComplaintType=9&MaintenanceRemarks=${timeDifferenceInMinutes}&ETADate=null&ComplaintIDPK=${complaintIDPK}&ProDate=null&TypeID=0&TypeProID=0`,
+    ];
+
+    try {
+      const fetchResponses = await Promise.all(
+        urls.map((url) => fetch(url))
+      ).then((response) => {
+        if (response[0].status == 200) {
+          window.alert("Task Scheduled Successfully");
+        }
+        // console.log(response, "rese");
+      });
+      // console.log("🚀 ~ handleSchedule ~ fetchResponses:", fetchResponses);
+
+      // Assuming getData returns a Promise or can be awaited
+
+      // const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+      //   data: {
+      //     p1_int: 91,
+      //     p2_int: localStorage.getItem("eid"),
+      //     p3_int: 0,
+      //     p4_int: 0,
+      //     p5_int: 0,
+      //     p6_int: 0,
+      //     P7_date: null,
+      //     P8_date: null,
+      //   },
+      // });
+      // const {
+      //   Output: {
+      //     status: { code },
+      //     data,
+      //   },
+      // } = response;
+
+      // if (data.length > 0) {
+      //   setCardHTML(data);
+      // }
+    } catch (error) {
+      console.error("Error in handleSchedule:", error);
+      // Handle error as needed
+    }
+  };
+
+  async function ScheduleB4startWorkTask(urls, final) {
+    try {
+      const responses = await Promise.all(urls.map((url) => fetch(url)));
+      const results = await Promise.all(
+        responses.map(async (response, index) => {
+          if (!response.ok) {
+            throw new Error(
+              `HTTP error for URL ${urls[index]}! Status: ${response.status}`
+            );
+          }
+          return await response.text();
+        })
+      );
+      const [result1, result2, wotypedata] = results;
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      if (final && final == "scheduleRefresh") {
+        alert("Task Scheduled Successfully");
+        // showAlert(1,"Task Scheduled Successfully")
+        document.getElementById("scheduleList").innerHTML = getScheduledList();
+      }
+      if (final && final == "sprintChanged") {
+        // useEffect();
+      }
+    }
+  }
+  const getScheduledList = () => {};
+  const handleCommentCick = () => {
+    console.log("add");
+  };
+
+  const handleFocus = () => {
+    setIsListVisible(!isListVisible);
+  };
+
+  const handleassign = () => {};
+  const handleemp = () => {};
   return (
     <>
       <div style={{ height: 400, width: "100%" }}>
@@ -166,6 +362,7 @@ export default function DataTable(props) {
           aria-describedby="transition-modal-description"
           open={open}
           onClose={handleClose}
+          disableEnforceFocus
           closeAfterTransition
           slots={{ backdrop: Backdrop }}
           slotProps={{
@@ -321,21 +518,24 @@ export default function DataTable(props) {
                       </div>
                     </div>
                   )}
+
                   <div className="grid grid-cols-2 gap-2 mt-4">
-                    <div className="relative">
+                    <div className="">
                       <label className="block text-sm font-medium text-gray-700">
                         Start
                       </label>
-                      <Flatpickr
-                        className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs"
-                        value={startDate}
-                        onChange={([date]) => setStartDate(date)}
-                        options={{
-                          enableTime: true,
-                          dateFormat: "Y-m-d H:i",
-                          allowInput: true,
-                        }}
-                      />
+                      <div>
+                        <Flatpickr
+                          className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs"
+                          value={startDate}
+                          onChange={([date]) => setStartDate(date)}
+                          options={{
+                            enableTime: true,
+                            dateFormat: "Y-m-d H:i",
+                            allowInput: true,
+                          }}
+                        />
+                      </div>
                     </div>
                     <div className="relative">
                       <label className="block text-sm font-medium text-gray-700">
@@ -353,19 +553,75 @@ export default function DataTable(props) {
                       />
                     </div>
                   </div>
+                  <div className="flex justify-end mt-2	">
+                    <button
+                      className="bg-amber-500 text-xs text-white px-4 py-1 font-medium rounded-full hover:bg-amber-600"
+                      onClick={() => {
+                        if (!startDate || !endDate) {
+                          window.alert("Please fill in the Start and End time");
+                        } else {
+                          handleSchedule(complaintIDPK);
+                        }
+                      }}
+                    >
+                      Schedule
+                    </button>
+                  </div>
+                  <div className="h-[25vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 overflow-y-auto  mt-4">
+                    <p className=" text-sm font-medium text-gray-700">
+                      Work Details
+                    </p>
+                    <div className="flex flex-col mt-2  ">
+                      <div className="flex w-full text-white bg-purple-600 p-1">
+                        <p className="text-xs w-1/3">
+                          <strong>Work Start Time</strong>
+                        </p>
+                        <p className="text-xs w-1/3">
+                          <strong>Work End Time</strong>
+                        </p>
+                        <p className="text-xs w-1/3">
+                          <strong>Work Total Minutes</strong>
+                        </p>
+                      </div>
+                      {cardHTML.map((e, index) => (
+                        <div
+                          className="flex flex-col p-1 sm:flex-row"
+                          key={index}
+                        >
+                          <div className="flex w-full text-gray-900">
+                            <p className="text-xs w-1/3">{e.WorkStartTime}</p>
+                            <p className="text-xs w-1/3">{e.WorkEndTime}</p>
+                            <p className="text-xs w-1/3">{e.WorkTotalMin}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <div className="flex items-center mt-4">
                     <label htmlFor="assignee" className="mr-2">
                       Assign To:
                     </label>
+                    <div className="relative h-full rounded-md shadow-sm bg-white border-none outline-none">
+                      <div className="relative">
+                        <DataList
+                          inputSelected={inputSelected}
+                          options={emp}
+                          fieldName={"Employee"}
+                          refname={"EmpName"}
+                          refid={"NSEEMPID"}
+                          getKey={getKey}
+                        />
+                      </div>
+                    </div>
 
-                    <select
-                      id="assignee"
-                      className="border border-gray-300 rounded px-2 py-1"
-                    >
-                      <option value="">Select Assignee</option>
-                      <option value="user1">User 1</option>
-                      <option value="user2">User 2</option>
-                    </select>
+                    <div className="ml-1">
+                      <button
+                        className="bg-blue-800 text-xs text-white px-4 py-1 font-medium rounded-full hover:bg-blue-600"
+                        onClick={handleassign}
+                      >
+                        Assign
+                      </button>
+                    </div>
                   </div>
                 </Box>
               </Box>

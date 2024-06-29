@@ -8,7 +8,6 @@ import { IoMdSearch } from "react-icons/io";
 import CreateTask from "../CreateTask";
 import { useNavigate } from "react-router-dom";
 import { CiLogout } from "react-icons/ci";
-
 const Header = () => {
   const [activeLink, setActiveLink] = useState("Dashboards");
   const [clickedDes, setclickedDes] = useState(null);
