@@ -227,8 +227,8 @@ export default function DataTable(props) {
       console.error("Error fetching data:", error.message);
     }
   };
-  const handleStartTask = useCallback(async () => {
-    setActiveTaskId(complaintIDPK);
+  const handleStartTask = useCallback(async (taskId) => {
+    setActiveTaskId(taskId);
     const date = new Date();
     const currentDateTime = formatDate(date);
 
@@ -236,7 +236,7 @@ export default function DataTable(props) {
       const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
         data: {
           p1_int: 83,
-          p2_int: complaintIDPK,
+          p2_int: taskId,
           p3_int: localStorage.getItem("eid"),
           p4_int: 0,
           p5_int: 0,
@@ -265,7 +265,7 @@ export default function DataTable(props) {
       console.error("Error fetching data:", error);
       window.alert("An error occurred while starting the task.");
     }
-  }, [complaintIDPK]);
+  }, []);
 
   const handlePauseTask = (taskId) => {
     // Confirm the user's intent to pause the task
@@ -381,7 +381,7 @@ export default function DataTable(props) {
   };
   const handleCellClick = (params) => {
     const clickedField = params.field;
-    setComplaintIDPK(params.row.ComplaintIDPK);
+
     if (clickedField === "Projects" || clickedField === "ComplaintNo") {
       setModalVisibility(true);
     } else {
