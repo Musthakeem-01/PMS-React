@@ -68,15 +68,17 @@ export default function CreateTask() {
   };
 
   const handleStartDateChange = (date) => {
-    setStartDate(date);
+    console.log(date, "date");
+    setStartDate(new Date(date));
     calculateEta(date, endDate);
   };
 
   const handleEndDateChange = (date) => {
-    setEndDate(date);
+    setEndDate(new Date(date));
     calculateEta(startDate, date);
   };
   const formatDate = (date) => {
+    console.log(date, "date");
     if (!date) return null;
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");

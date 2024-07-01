@@ -23,6 +23,8 @@ import PauseIcon from "@mui/icons-material/Pause";
 import Button from "@mui/material/Button";
 import DisabledByDefaultIcon from "@mui/icons-material/DisabledByDefault";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
+import GridItem from "../components/Grid/GridItem";
+import GridContainer from "../components/Grid/GridContainer";
 const style = {
   position: "absolute",
   top: "50%",
@@ -42,6 +44,7 @@ const sectionStyle = {
   overflowY: "auto",
   height: "70vh",
 };
+
 const sectionStyle1 = {
   width: "40%",
   padding: "10px",
@@ -77,6 +80,11 @@ export default function DataTable(props) {
   const [taskStatuses, setTaskStatuses] = useState({});
   const [modalVisibility, setModalVisibility] = useState(false);
   const [closed, setClosed] = useState(null);
+  const [checkPoint, setCheckPoint] = useState(false);
+  const [activeTask, setActiveTask] = useState(null);
+  const [checkpointsName, setCheckpointsName] = useState("");
+  const [checkpointType, setCheckpointType] = useState("");
+  const [checkpointDes, setCheckpointDes] = useState([]);
   const dept = [
     { name: "BA", color: "bg-red-500" },
     { name: "DB", color: "bg-pink-400" },
@@ -86,16 +94,14 @@ export default function DataTable(props) {
     { name: "DEP", color: "bg-orange-400" },
   ];
   const HeaderGrid = [
-    { field: "Projects", headerName: "Projects-Name", width: 150 },
-    { field: "ComplaintNo", headerName: "ComplaintNo", width: 100 },
     {
-      field: "RequestDetailsDesc",
-      headerName: "Summary",
-      width: 400,
+      field: "Projects",
+      headerName: "Projects-Name",
+      width: 150,
       renderCell: (params) => (
         <div style={{ display: "flex", alignItems: "center" }}>
           {params.value}
-          {activeTaskId === params.row.ComplaintIDPK ? (
+          {activeTask === params.row.ComplaintIDPK ? (
             <ManIcon style={{ marginLeft: 8, color: "green" }} />
           ) : (
             <InfoIcon style={{ marginLeft: 8 }} />
@@ -103,10 +109,16 @@ export default function DataTable(props) {
         </div>
       ),
     },
+    { field: "ComplaintNo", headerName: "ComplaintNo", width: 100 },
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 100,
+      field: "RequestDetailsDesc",
+      headerName: "Summary",
+      width: 400,
+    },
+    {
+      field: "taskActions",
+      headerName: "Task Actions",
+      width: 200,
       renderCell: (params) => (
         <div
           style={{
@@ -118,7 +130,18 @@ export default function DataTable(props) {
         >
           <Button
             onClick={() => {
-              if (activeTaskId === params.row.ComplaintIDPK) {
+              setResponse(
+                response.map((item) => {
+                  return {
+                    ...item,
+                    status:
+                      item.ComplaintIDPK == activeTask ? "Active" : "Inactive",
+                  };
+                })
+              );
+              // fetchData();
+              // refresh();
+              if (activeTask === params.row.ComplaintIDPK) {
                 handlePauseTask(params.row.ComplaintIDPK);
               } else {
                 handleStartTask(params.row.ComplaintIDPK);
@@ -126,14 +149,13 @@ export default function DataTable(props) {
             }}
             disabled={
               closedTaskIds.has(params.row.ComplaintIDPK) ||
-              (activeTaskId !== null &&
-                activeTaskId !== params.row.ComplaintIDPK)
+              (activeTask !== null && activeTask !== params.row.ComplaintIDPK)
             }
           >
-            {activeTaskId === params.row.ComplaintIDPK ? "Pause" : "Start"}
+            {activeTask === params.row.ComplaintIDPK ? "Pause" : "Start"}
           </Button>
 
-          {activeTaskId === params.row.ComplaintIDPK ? (
+          {activeTask === params.row.ComplaintIDPK ? (
             <PauseIcon />
           ) : (
             <PlayArrowIcon />
@@ -147,6 +169,37 @@ export default function DataTable(props) {
       width: 100,
       renderCell: (params) => getIconForTask(params.row),
     },
+    {
+      field: "closeActions",
+      headerName: "Close Actions",
+      width: 200,
+      renderCell: (params) => (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <Button
+            onClick={() => {
+              if (activeTask === params.row.ComplaintIDPK) {
+                handleCloseTask(params.row.ComplaintIDPK);
+              } else {
+                handleCloseTask(params.row.ComplaintIDPK);
+              }
+            }}
+            disabled={
+              closedTaskIds.has(params.row.ComplaintIDPK) ||
+              (activeTask !== null && activeTask !== params.row.ComplaintIDPK)
+            }
+          >
+            {"Close"}
+          </Button>
+        </div>
+      ),
+    },
     { field: "ETADate", headerName: "ETADate", width: 150 },
     { field: "ETATime", headerName: "ETATime", width: 150 },
     { field: "ComplainerName", headerName: "ComplainerName", width: 150 },
@@ -154,7 +207,8 @@ export default function DataTable(props) {
     { field: "CCMProTypeName", headerName: "Module", width: 100 },
     { field: "CCmWoTypeName", headerName: "Dept", width: 100 },
   ];
-  const allTaskIds = response.map((task) => task.ComplaintIDPK);
+
+  // const allTaskIds = response.map((task) => task.ComplaintIDPK);
   //const closedTaskIds = new Set(closed.map((task) => task.ComplaintIDPK));
   const closedTaskIds = new Set(
     (closed || []).map((task) => task.ComplaintIDPK)
@@ -172,7 +226,9 @@ export default function DataTable(props) {
       fetchData();
     }
   }, [props.id]);
-
+  const refresh = () => {
+    fetchData();
+  };
   const fetchData = async () => {
     try {
       const result = await getData("DashboardService/VwAPINSEIPLDetailsNew/", {
@@ -228,7 +284,8 @@ export default function DataTable(props) {
     }
   };
   const handleStartTask = useCallback(async (taskId) => {
-    setActiveTaskId(taskId);
+    setActiveTask(taskId);
+
     const date = new Date();
     const currentDateTime = formatDate(date);
 
@@ -266,17 +323,65 @@ export default function DataTable(props) {
       window.alert("An error occurred while starting the task.");
     }
   }, []);
-
+  useEffect(() => {
+    {
+      try {
+        const response = getData("DashboardService/VwAPINSEIPLDetails/", {
+          data: {
+            p1_int: 97,
+            p2_int: localStorage.getItem("eid"),
+            UserID_int: 0,
+          },
+        }).then((res) => {
+          if (res.Output.status.code === "200") {
+            setActiveTask(
+              res.Output.data.length > 0
+                ? res.Output.data[0].ComplaintIDPK
+                : null
+            );
+          } else {
+            console.log("1console");
+            console.error("Error fetching data:", res.Output.status.message);
+          }
+        });
+        // const {
+        //   Output: { status, data },
+        // } = response;
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    }
+  }, []);
+  const handleFinalCloseTask = () => {};
+  const handleCloseTask = (taskid) => {
+    // console.log(taskid, "taskid");
+    checkpointsSelect(taskid);
+    setCheckpointsName("");
+  };
+  const checkpointsSelect = (taskid) => {
+    getData("DashboardService/VwAPINSEIPLDetails/", {
+      data: {
+        p1_int: 100,
+        p2_int: taskid,
+        p3_int: 0,
+        p4_int: 0,
+        p5_int: 0,
+        p6_int: 0,
+        P7_date: null,
+        P8_date: null,
+      },
+    }).then((res) => {
+      setCheckpointDes(res.Output.data);
+    });
+  };
   const handlePauseTask = (taskId) => {
-    // Confirm the user's intent to pause the task
     const isConfirmed = window.confirm(
       "Are you certain you would like to temporarily pause this task?"
     );
 
     if (isConfirmed) {
-      // Call API to pause the task, then update state
-      if (taskId === activeTaskId) {
-        setActiveTaskId(null);
+      if (taskId === activeTask) {
+        setActiveTask(null);
       }
 
       const date = new Date();
@@ -284,7 +389,7 @@ export default function DataTable(props) {
 
       const url = `https://smartfm.in/NSEIPLSERVICE/HoldETA.php?ComplaintType=11&MaintenanceRemarks=${localStorage.getItem(
         "eid"
-      )}&ETADate=${currentDateTime}&ComplaintIDPK=${activeTaskId}&ProDate=null&TypeID=0&TypeProID=0`;
+      )}&ETADate=${currentDateTime}&ComplaintIDPK=${taskId}&ProDate=null&TypeID=0&TypeProID=0`;
 
       fetch(url)
         .then((response) => {
@@ -296,7 +401,6 @@ export default function DataTable(props) {
           return response.json();
         })
         .then((data) => {
-          // Handle the response data if needed
           window.alert("Task paused successfully:", data);
         })
         .catch((error) => {
@@ -323,6 +427,7 @@ export default function DataTable(props) {
 
   const handleRowClick = async (params) => {
     setSelectedRow(params.row);
+    setComplaintIDPK(params.row.ComplaintIDPK);
     handleOpen();
 
     try {
@@ -381,11 +486,18 @@ export default function DataTable(props) {
   };
   const handleCellClick = (params) => {
     const clickedField = params.field;
+    // console.log("🚀 ~ handleCellClick ~ clickedField:", clickedField);
 
-    if (clickedField === "Projects" || clickedField === "ComplaintNo") {
+    if (clickedField === "Projects") {
+      //|| clickedField === "ComplaintNo"
       setModalVisibility(true);
     } else {
       setModalVisibility(false);
+    }
+    if (clickedField === "closeActions") {
+      setCheckPoint(true);
+    } else {
+      setCheckPoint(false);
     }
   };
 
@@ -430,6 +542,7 @@ export default function DataTable(props) {
     return `${year}/${month}/${day} ${hours}:${minutes} ${period}`;
   };
   const handleSchedule = async (activeTaskId) => {
+    console.log(activeTaskId, "activeTaskId");
     let from = startDate;
     let to = endDate;
     let fromDate = new Date(from);
@@ -518,8 +631,22 @@ export default function DataTable(props) {
     }
   }
   const getScheduledList = () => {};
-  const handleCommentCick = () => {
-    console.log("add");
+  const handleAddButtonClick = (params) => {
+    let checkpointsName = document.getElementById("CheckpointsName");
+    let checkpointType = document.getElementById("checkpointType").value;
+    // console.log("🚀 ~ handleAddButtonClick ~ checkpointType:", checkpointType);
+    if (checkpointsName.length > 0) {
+      let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${activeTask}&OberVation=${
+        checkpointsName.value
+      }&EmployeeID=${localStorage.getItem(
+        "eid"
+      )}&ResolutionTime=0&MaintenanceHrs=0&TotalMin=0&CorrectiveAction=${checkpointType}&Type=ChkInsert&ExecEmpID=0`;
+      const ress = fetch(url);
+      checkpointsSelect(activeTask);
+      setCheckpointsName("");
+    } else {
+      window.alert("Enter checkpoints");
+    }
   };
 
   const handleFocus = () => {
@@ -528,6 +655,14 @@ export default function DataTable(props) {
 
   const handleassign = () => {};
   const handleemp = () => {};
+  const handleChangeCheckpoints = (key, selectedCol, idpk, complaintIDPK) => {
+    return (event) => {
+      console.log(event.target.value, "key, selectedCol, idpk, complaintIDPK");
+      let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${key}&ServiceCarriedOut=${selectedCol}&Type=CHKSINGLEUPDATE&ExecEmpID=${idpk}`;
+      const res = fetch(url);
+      // ScheduleB4startWorkTask([url]);
+    };
+  };
 
   return (
     <>
@@ -575,86 +710,7 @@ export default function DataTable(props) {
                   sx={sectionContainer}
                   className="scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200"
                 >
-                  <Box
-                    sx={sectionStyle}
-                    style={{ borderRight: "1px solid #000" }}
-                    className="scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200"
-                  >
-                    <div id="transition-modal-description" sx={{ mt: 2 }}>
-                      <div className="w-full h-[30vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200">
-                        <div>
-                          <p>CheckPoint </p>
-                        </div>
-                        <div className="w-full mx-auto ">
-                          <div className="flex items-start mb-4">
-                            <div className="flex-grow">
-                              <textarea
-                                value={comment}
-                                onChange={handleComments}
-                                placeholder="Add your CheckPoint..."
-                                className="w-full border border-gray-300 rounded-lg py-2 px-4 min-h-[100px] resize-none"
-                              />
-                              <div className="flex justify-between items-center mt-2">
-                                <div className="flex space-x-2">
-                                  <FcDepartment onClick={handleshowdept} />
-                                </div>
-                                <button
-                                  onClick={handleCommentCick}
-                                  className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm"
-                                >
-                                  ADD
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            {showdept &&
-                              dept.map((deptItem, index) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center cursor-pointer"
-                                >
-                                  <div
-                                    className={`w-6 h-6 rounded-full ${deptItem.color} mr-2`}
-                                  ></div>
-                                  <span>{deptItem.name}</span>
-                                </div>
-                              ))}
-                          </div>
-                          <div className="border border-s-amber-500 h-[40vh]"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </Box>
                   <Box sx={sectionStyle1}>
-                    <div className="flex w-full space-x-4 mb-2">
-                      <div className="w-1/4">
-                        <button
-                          className="flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
-                          onClick={handleStartTask}
-                        >
-                          Start
-                          <FaPlay className="ml-2" />
-                        </button>
-                      </div>
-                      <div className="w-1/4">
-                        <button
-                          className="flex items-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded"
-                          onClick={handlePauseTask}
-                        >
-                          Pause
-                          <FaPause className="ml-2" />
-                        </button>
-                      </div>
-                      <div className="w-1/4">
-                        <button className="flex items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">
-                          Close
-                          <FaTimes className="ml-2" />
-                        </button>
-                      </div>
-                    </div>
-
                     <div
                       onClick={handleShowDiv}
                       className="border border-blue-600 h-[8vh] cursor-pointer bg-white focus:outline-none ring-1 focus:ring-3 focus:ring-blue-600 flex justify-between"
@@ -820,6 +876,445 @@ export default function DataTable(props) {
                     </div>
                   </Box>
                 </Box>
+              </Box>
+            </Fade>
+          </Modal>
+        )}
+        {checkPoint && (
+          <Modal
+            aria-labelledby="transition-modal-title"
+            aria-describedby="transition-modal-description"
+            open={open}
+            onClose={handleClose}
+            disableEnforceFocus
+            closeAfterTransition
+            slots={{ backdrop: Backdrop }}
+            slotProps={{
+              backdrop: {
+                timeout: 500,
+              },
+            }}
+          >
+            <Fade in={open}>
+              <Box sx={style}>
+                <div className="relative">
+                  <Typography
+                    id="transition-modal-title"
+                    variant="h6"
+                    component="h2"
+                  >
+                    {selectedRow?.Projects || "No Title"}
+                  </Typography>
+                </div>
+                <IoClose
+                  className="absolute top-0 right-0 text-4xl cursor-pointer"
+                  onClick={handleClose}
+                />
+
+                <div className="w-full">
+                  <div>
+                    <p>CheckPoint </p>
+                  </div>
+                  <GridContainer spacing={1}>
+                    <GridItem xs={10} md={10} lg={10} sm={10}>
+                      <textarea
+                        rows="1"
+                        id="CheckpointsName"
+                        className="block rounded-md w-full h-[15vh] py-1 px-2 text-sm text-gray-800 bg-transparent border-2 border-gray-300 focus:outline-none focus:border-blue-600"
+                        placeholder="Enter New Checkpoints here..."
+                        value={checkpointsName}
+                        onChange={(e) => setCheckpointsName(e.target.value)}
+                      />
+                    </GridItem>
+                    <GridItem xs={1} md={1} lg={1} sm={1}>
+                      <select
+                        id="checkpointType"
+                        className="block mt-7 w-auto py-2 px-4 text-sm text-gray-700 bg-transparent border-b-2 border-gray-300 focus:outline-none"
+                        value={checkpointType}
+                        onChange={(e) => setCheckpointType(e.target.value)}
+                      >
+                        <option value="1">BA</option>
+                        <option value="2">DB</option>
+                        <option value="3">DEV</option>
+                        <option value="4">QA</option>
+                        <option value="5">IMP</option>
+                        <option value="6">DEP</option>
+                      </select>
+                    </GridItem>
+                    <GridItem xs={1} md={1} lg={1} sm={1}>
+                      <button
+                        onClick={() => handleAddButtonClick(activeTask)}
+                        className="px-4 mt-7 py-2 text-sm font-semibold text-white bg-blue-500 hover:bg-gradient-to-br focus:ring-2 focus:outline-none focus:ring-blue-300 rounded-md transition duration-300 ease-in-out"
+                      >
+                        Add
+                      </button>
+                    </GridItem>
+                  </GridContainer>
+                </div>
+                <div className="mt-3 custom-scrollbar overflow-auto  borderborder-gray-100	h-[50vh]">
+                  {checkpointDes.length > 0
+                    ? checkpointDes.map((des) => {
+                        return (
+                          <table
+                            id=""
+                            className="relative tracking-wider w-full border text-left text-xs text-slate-500"
+                          >
+                            <thead className="text-xs text-green-600 uppercase">
+                              <tr>
+                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                  Checkpoint Description
+                                </th>
+                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                  BA
+                                </th>
+                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                  DB
+                                </th>
+                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                  DEV
+                                </th>
+                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                  QA
+                                </th>
+                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                  IMP
+                                </th>
+                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                  DEP
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody
+                              id="checkpointsTable"
+                              className="divide-y bg-blue-50 text-slate-800 bg-white"
+                            >
+                              <tr
+                                className="bg-white border-b hover:bg-blue-100 hover:text-blue-600 cursor-pointer false"
+                                data-idpk="6123"
+                              >
+                                <td className="py-1 px-2">
+                                  <textarea
+                                    className="custom-scrollbar h-full overflow-auto border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none focus:bg-amber-100"
+                                    rows="4"
+                                    onChange="handleChangeName(this.value, 'CMChkName', 6123)"
+                                  >
+                                    {des?.CMChkName || null}
+                                  </textarea>
+                                </td>
+                                <td className="py-1 px-2 w-24">
+                                  <div className="relative">
+                                    <select
+                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                      onChange={handleChangeCheckpoints(
+                                        1,
+                                        "BAStatus",
+                                        activeTask,
+                                        "CMCheckPointsIDPK"
+                                      )}
+                                    >
+                                      <option
+                                        className="text-gray-600"
+                                        value="1"
+                                        selected=""
+                                      >
+                                        NYT
+                                      </option>
+                                      <option
+                                        className="text-green-600"
+                                        value="2"
+                                      >
+                                        Pass
+                                      </option>
+                                      <option
+                                        className="text-red-600"
+                                        value="3"
+                                      >
+                                        Fail
+                                      </option>
+                                      <option
+                                        className="text-amber-600"
+                                        value="4"
+                                      >
+                                        OnHold
+                                      </option>
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                      <svg
+                                        className="w-4 h-4 fill-current"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M5 7l5 5 5-5z"></path>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 w-24">
+                                  <div className="relative">
+                                    <select
+                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                      onChange={handleChangeCheckpoints(
+                                        2,
+                                        "DBStatus",
+                                        "CMCheckPointsIDPK",
+                                        activeTask
+                                      )}
+                                    >
+                                      <option
+                                        className="text-gray-600"
+                                        value="1"
+                                        selected=""
+                                      >
+                                        NYT
+                                      </option>
+                                      <option
+                                        className="text-green-600"
+                                        value="2"
+                                      >
+                                        Pass
+                                      </option>
+                                      <option
+                                        className="text-red-600"
+                                        value="3"
+                                      >
+                                        Fail
+                                      </option>
+                                      <option
+                                        className="text-amber-600"
+                                        value="4"
+                                      >
+                                        OnHold
+                                      </option>
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                      <svg
+                                        className="w-4 h-4 fill-current"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M5 7l5 5 5-5z"></path>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 w-24">
+                                  <div className="relative">
+                                    <select
+                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                      onChange={handleChangeCheckpoints(
+                                        3,
+                                        "DevStatus",
+                                        "CMCheckPointsIDPK",
+                                        activeTask
+                                      )}
+                                    >
+                                      <option
+                                        className="text-gray-600"
+                                        value="1"
+                                        selected=""
+                                      >
+                                        NYT
+                                      </option>
+                                      <option
+                                        className="text-green-600"
+                                        value="2"
+                                      >
+                                        Pass
+                                      </option>
+                                      <option
+                                        className="text-red-600"
+                                        value="3"
+                                      >
+                                        Fail
+                                      </option>
+                                      <option
+                                        className="text-amber-600"
+                                        value="4"
+                                      >
+                                        OnHold
+                                      </option>
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                      <svg
+                                        className="w-4 h-4 fill-current"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M5 7l5 5 5-5z"></path>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 w-24">
+                                  <div className="relative">
+                                    <select
+                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                      onChange={handleChangeCheckpoints(
+                                        4,
+                                        "QAStatus",
+                                        "CMCheckPointsIDPK",
+                                        activeTask
+                                      )}
+                                    >
+                                      <option
+                                        className="text-gray-600"
+                                        value="1"
+                                        selected=""
+                                      >
+                                        NYT
+                                      </option>
+                                      <option
+                                        className="text-green-600"
+                                        value="2"
+                                      >
+                                        Pass
+                                      </option>
+                                      <option
+                                        className="text-red-600"
+                                        value="3"
+                                      >
+                                        Fail
+                                      </option>
+                                      <option
+                                        className="text-amber-600"
+                                        value="4"
+                                      >
+                                        OnHold
+                                      </option>
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                      <svg
+                                        className="w-4 h-4 fill-current"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M5 7l5 5 5-5z"></path>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 w-24">
+                                  <div className="relative">
+                                    <select
+                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                      onChange={handleChangeCheckpoints(
+                                        5,
+                                        "ImpStatus",
+                                        "CMCheckPointsIDPK",
+                                        activeTask
+                                      )}
+                                    >
+                                      <option
+                                        className="text-gray-600"
+                                        value="1"
+                                        selected=""
+                                      >
+                                        NYT
+                                      </option>
+                                      <option
+                                        className="text-green-600"
+                                        value="2"
+                                      >
+                                        Pass
+                                      </option>
+                                      <option
+                                        className="text-red-600"
+                                        value="3"
+                                      >
+                                        Fail
+                                      </option>
+                                      <option
+                                        className="text-amber-600"
+                                        value="4"
+                                      >
+                                        OnHold
+                                      </option>
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                      <svg
+                                        className="w-4 h-4 fill-current"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M5 7l5 5 5-5z"></path>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-1 px-2 w-24">
+                                  <div className="relative">
+                                    <select
+                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                      onChange={handleChangeCheckpoints(
+                                        6,
+                                        "DEPStatus",
+                                        "CMCheckPointsIDPK",
+                                        activeTask
+                                      )}
+                                    >
+                                      <option
+                                        className="text-gray-600"
+                                        value="1"
+                                        selected=""
+                                      >
+                                        NYT
+                                      </option>
+                                      <option
+                                        className="text-green-600"
+                                        value="2"
+                                      >
+                                        Pass
+                                      </option>
+                                      <option
+                                        className="text-red-600"
+                                        value="3"
+                                      >
+                                        Fail
+                                      </option>
+                                      <option
+                                        className="text-amber-600"
+                                        value="4"
+                                      >
+                                        OnHold
+                                      </option>
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                      <svg
+                                        className="w-4 h-4 fill-current"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M5 7l5 5 5-5z"></path>
+                                      </svg>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        );
+                      })
+                    : null}
+                </div>
+                <div
+                  id="closeTask_div"
+                  className="flex  justify-end space-x-1 "
+                >
+                  <input
+                    type="text"
+                    id="closeRemarks"
+                    style={{ width: "30%" }}
+                    placeholder="Enter Close Remarks..."
+                    className="bg-white border border-gray-300 text-slate-900 text-xs  rounded-lg focus:outline-none focus:ring-blue-600 ring-1 focus:border-blue-500 block  p-2	"
+                  />
+                  <button
+                    onClick={handleFinalCloseTask(activeTask)}
+                    type="button"
+                    className="rounded bg-red-500  px-3 py-1 text-white hover:bg-red-700 focus:outline-none text-xs"
+                  >
+                    Close Task
+                  </button>
+                </div>
               </Box>
             </Fade>
           </Modal>
