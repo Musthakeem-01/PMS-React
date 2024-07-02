@@ -50,6 +50,11 @@ const sectionStyle1 = {
   padding: "10px",
   boxSizing: "border-box",
 };
+const sectionStyle2 = {
+  width: "60%",
+  padding: "10px",
+  boxSizing: "border-box",
+};
 
 const sectionContainer = {
   display: "flex",
@@ -72,19 +77,26 @@ export default function DataTable(props) {
   const [endDate, setEndDate] = useState("");
   const [complaintIDPK, setComplaintIDPK] = useState([]);
   const [cardHTML, setCardHTML] = useState([]);
-  const [emp, setEmp] = useState([]);
+  const [emp, setemp] = useState([]);
+  // console.log("🚀 ~ DataTable ~ emp:", emp);
   const [isListVisible, setIsListVisible] = useState(false);
   const [selectedInputValue, setselectedInputValue] = useState([]);
   const [createTaskkey, setCreateTaskkey] = useState([]);
+  // console.log("🚀 ~ DataTable ~ createTaskkey:", createTaskkey);
   const [activeTaskId, setActiveTaskId] = useState(null);
   const [taskStatuses, setTaskStatuses] = useState({});
   const [modalVisibility, setModalVisibility] = useState(false);
   const [closed, setClosed] = useState(null);
   const [checkPoint, setCheckPoint] = useState(false);
   const [activeTask, setActiveTask] = useState(null);
+  // console.log("🚀 ~ DataTable ~ activeTask:", activeTask);
   const [checkpointsName, setCheckpointsName] = useState("");
+  // console.log("🚀 ~ DataTable ~ checkpointsName:", checkpointsName);
   const [checkpointType, setCheckpointType] = useState("");
   const [checkpointDes, setCheckpointDes] = useState([]);
+  // console.log("🚀 ~ DataTable ~ checkpointDes:", checkpointDes);
+  const [checkPointIdpk, setCheckPointIdpk] = useState([]);
+  // console.log("🚀 ~ DataTable ~ checkPintIdpk:", checkPointIdpk);
   const dept = [
     { name: "BA", color: "bg-red-500" },
     { name: "DB", color: "bg-pink-400" },
@@ -192,7 +204,9 @@ export default function DataTable(props) {
             }}
             disabled={
               closedTaskIds.has(params.row.ComplaintIDPK) ||
-              (activeTask !== null && activeTask !== params.row.ComplaintIDPK)
+              (activeTask !== null &&
+                activeTask !== params.row.ComplaintIDPK) ||
+              (!activeTask ? true : false)
             }
           >
             {"Close"}
@@ -352,7 +366,137 @@ export default function DataTable(props) {
       }
     }
   }, []);
-  const handleFinalCloseTask = () => {};
+
+  const handleFinalCloseTask = async (id) => {
+    const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+      data: {
+        p1_int: 118,
+        p2_int: id,
+        p3_int: localStorage.getItem("eid"),
+        p4_int: 0,
+        p5_int: 0,
+        p6_int: 0,
+        P7_date: null,
+        P8_date: null,
+      },
+    });
+
+    const {
+      Output: {
+        status: { code },
+        data,
+      },
+    } = response;
+
+    function getCurrentDateAndTime() {
+      const date = new Date();
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      return `${day}-${month}-${year} ${hours}:${minutes}`;
+    }
+
+    function getMinuteDifference(startDate, endDate) {
+      const parseDate = (dateString) => {
+        const [day, month, year, hours, minutes] = dateString
+          .match(/\d+/g)
+          .map(Number);
+        return new Date(year, month - 1, day, hours, minutes);
+      };
+
+      const startDateTime = parseDate(startDate);
+      const endDateTime = parseDate(endDate);
+
+      const timeDifference = endDateTime - startDateTime;
+      const minuteDifference = Math.floor(timeDifference / (1000 * 60));
+
+      return minuteDifference;
+    }
+    function formatDateTime12(dateString) {
+      const [day, month, year, hours, minutes] = dateString
+        .match(/\d+/g)
+        .map(Number);
+      const formattedDateTime = `${year}/${month}/${day} ${hours}:${minutes} ${
+        hours >= 12 ? "PM" : "AM"
+      }`;
+      return formattedDateTime;
+    }
+
+    async function getStartDate(complaintIDPK) {
+      const params = {
+        data: {
+          p1_int: 85,
+          p2_int: complaintIDPK,
+          p3_int: localStorage.getItem("eid"),
+          p4_int: 0,
+          p5_int: 0,
+          p6_int: 0,
+          P7_date: null,
+          P8_date: null,
+        },
+      };
+      const response = await getData(
+        "DashboardService/VwAPINSEIPLDetails/",
+        params
+      );
+      const {
+        Output: {
+          status: { code },
+          data,
+        },
+      } = response;
+      return data[0]["StartDate"] || null;
+    }
+
+    const { ChekStatus, Message } = data[0];
+    const closeRemarks = document.getElementById("closeRemarks").value;
+
+    if (ChekStatus === 0) {
+      window.alert(Message);
+      return false;
+    } else if (!closeRemarks) {
+      window.alert("Please enter Remarks");
+      return false;
+    }
+
+    const isConfirmed = window.confirm("Are you sure to close this task?");
+    if (isConfirmed) {
+      let currentDateTime = getCurrentDateAndTime();
+      let startDate = await getStartDate(id);
+
+      if (!startDate) {
+        window.alert("Kindly Start this Task");
+        return false;
+      }
+
+      const diff = getMinuteDifference(startDate, currentDateTime);
+      startDate = formatDateTime12(startDate); // Format for CCMStartTime
+      currentDateTime = formatDateTime12(currentDateTime); // Format for CCMEndTime
+
+      const eid = localStorage.getItem("eid");
+      const url1 = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysis.php?CCMEmployeeIDPK=${eid}&EmployeeID=${eid}&CCMComplaintID=${id}&OberVation=${closeRemarks}&Rootcause=`;
+      const url2 = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${id}&CCMStartTime=${startDate}&CCMEndTime=${currentDateTime}&OberVation=${closeRemarks}&Rootcause=&EmployeeID=${eid}&ResolutionTime=${diff}&MaintenanceHrs=${diff}&TotalMin=${diff}&CorrectiveAction=&ServiceCarriedOut=&Type=AnalizeCloseYes&ExecEmpID=`;
+      const urls = [url1, url2];
+
+      Promise.all(urls.map((url) => fetch(url)))
+        .then((responses) =>
+          Promise.all(responses.map((response) => response.json()))
+        )
+        .then((data) => {
+          // Handle the array of data from both URLs
+          console.log(data);
+        })
+        .catch((error) => {
+          // Handle any errors
+          console.error("Error fetching data:", error);
+        });
+
+      window.alert("Task Closed Successfully");
+    }
+  };
+
   const handleCloseTask = (taskid) => {
     // console.log(taskid, "taskid");
     checkpointsSelect(taskid);
@@ -372,8 +516,10 @@ export default function DataTable(props) {
       },
     }).then((res) => {
       setCheckpointDes(res.Output.data);
+      setCheckPointIdpk(res.Output.data.map((item) => item.CMCheckPointsIDPK));
     });
   };
+
   const handlePauseTask = (taskId) => {
     const isConfirmed = window.confirm(
       "Are you certain you would like to temporarily pause this task?"
@@ -461,27 +607,19 @@ export default function DataTable(props) {
       const response = await getData("DashboardService/VwAPINSEIPLALL/", {
         data: {
           QryType_int: 21,
-          p3_int: 0,
-          p4_int: 0,
-          p5_int: 0,
-          p6_int: 0,
-          P7_date: null,
-          P8_date: null,
         },
       });
       const {
-        Output: {
-          status: { code },
-          data,
-        },
+        Output: { status, data },
       } = response;
-
-      if (data.length > 0) {
-        setEmp(data);
+      if (response.Output.status.code === "200") {
+        let responses = response;
+        setemp(responses.Output.data);
+      } else {
+        console.error("Error fetching data:", status.message);
       }
     } catch (error) {
-      console.error("Error in handleSchedule:", error);
-      // Handle error as needed
+      console.error("Error fetching data:", error.message);
     }
   };
   const handleCellClick = (params) => {
@@ -501,7 +639,8 @@ export default function DataTable(props) {
     }
   };
 
-  const inputSelected = (inputValue, refname) => {
+  const inputSelected = (inputValue, refname, refid) => {
+    console.log(inputValue, refname, refid, "inputValue, refname, refid");
     setselectedInputValue((prevCreateTaskkey) => ({
       ...prevCreateTaskkey,
       [refname]: inputValue,
@@ -632,36 +771,64 @@ export default function DataTable(props) {
   }
   const getScheduledList = () => {};
   const handleAddButtonClick = (params) => {
-    let checkpointsName = document.getElementById("CheckpointsName");
-    let checkpointType = document.getElementById("checkpointType").value;
+    // let checkpointsName = document.getElementById("CheckpointsName");
+    // let checkpointType = document.getElementById("checkpointType").value;
     // console.log("🚀 ~ handleAddButtonClick ~ checkpointType:", checkpointType);
     if (checkpointsName.length > 0) {
-      let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${activeTask}&OberVation=${
-        checkpointsName.value
-      }&EmployeeID=${localStorage.getItem(
+      let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${activeTask}&OberVation=${checkpointsName}&EmployeeID=${localStorage.getItem(
         "eid"
       )}&ResolutionTime=0&MaintenanceHrs=0&TotalMin=0&CorrectiveAction=${checkpointType}&Type=ChkInsert&ExecEmpID=0`;
       const ress = fetch(url);
       checkpointsSelect(activeTask);
-      setCheckpointsName("");
     } else {
       window.alert("Enter checkpoints");
     }
+    setCheckpointsName("");
   };
 
   const handleFocus = () => {
     setIsListVisible(!isListVisible);
   };
 
-  const handleassign = () => {};
-  const handleemp = () => {};
-  const handleChangeCheckpoints = (key, selectedCol, idpk, complaintIDPK) => {
-    return (event) => {
-      console.log(event.target.value, "key, selectedCol, idpk, complaintIDPK");
-      let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${key}&ServiceCarriedOut=${selectedCol}&Type=CHKSINGLEUPDATE&ExecEmpID=${idpk}`;
-      const res = fetch(url);
-      // ScheduleB4startWorkTask([url]);
+  const handleassign = () => {
+    const url = "https://smartfm.in/NSEIPLSERVICE/SupportStaffAssign.php";
+
+    const data = new URLSearchParams();
+    data.append("EmployeeID", createTaskkey.NSEEMPID);
+    data.append("CCMComplaintID", complaintIDPK);
+    data.append("DivisionExe", "DivisionExe");
+
+    const requestOptions = {
+      method: "POST",
+      body: data,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
     };
+    fetch(url, requestOptions)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        alert("Task Assigned Successfully");
+        return response.text();
+      })
+      .then((data) => {
+        console.log("Response data:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    setselectedInputValue("");
+  };
+
+  const handleChangeCheckpoints = (event, idpk, status) => {
+    let key = event.target.value;
+    if (key && idpk && status) {
+      let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${key}&ServiceCarriedOut=${status}&Type=CHKSINGLEUPDATE&ExecEmpID=${idpk}`;
+      const res = fetch(url);
+      // handleFinalCloseTask(complaintIDPK);
+    } else {
+      window.alert("invalid input");
+    }
   };
 
   return (
@@ -699,7 +866,7 @@ export default function DataTable(props) {
                     variant="h6"
                     component="h2"
                   >
-                    {selectedRow?.Projects || "No Title"}
+                    {selectedRow?.Projects || ""}
                   </Typography>
                 </div>
                 <IoClose
@@ -711,63 +878,6 @@ export default function DataTable(props) {
                   className="scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200"
                 >
                   <Box sx={sectionStyle1}>
-                    <div
-                      onClick={handleShowDiv}
-                      className="border border-blue-600 h-[8vh] cursor-pointer bg-white focus:outline-none ring-1 focus:ring-3 focus:ring-blue-600 flex justify-between"
-                    >
-                      <p className="mt-2">Details</p>
-                      {showDiv ? (
-                        <IoIosArrowUp className="mt-2" />
-                      ) : (
-                        <IoIosArrowDown className="mt-2" />
-                      )}
-                    </div>
-                    {showDiv && (
-                      <div className="border border-red-500">
-                        <div id="transition-modal-description" className="mt-2">
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Complainer Name:</div>
-                            <div className="flex gap-1">
-                              <AiOutlineUser className="mt-1 text-base bg-slate-400 text-stone-200" />
-                              {selectedRow?.ComplainerName || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Priority:</div>
-                            <div>{selectedRow?.PriorityName || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Module:</div>
-                            <div>
-                              {selectedRow?.CCMProTypeName || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Dept:</div>
-                            <div>{selectedRow?.CCmWoTypeName || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Complaint No:</div>
-                            <div>{selectedRow?.ComplaintNo || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Summary:</div>
-                            <div>
-                              {selectedRow?.RequestDetailsDesc || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>ETA Date:</div>
-                            <div>{selectedRow?.ETADate || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>ETA Time:</div>
-                            <div>{selectedRow?.ETATime || "No Data"}</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     <div className="grid grid-cols-2 gap-2 mt-4">
                       <div className="">
                         <label className="block text-sm font-medium text-gray-700">
@@ -875,6 +985,64 @@ export default function DataTable(props) {
                       </div>
                     </div>
                   </Box>
+                  <Box sx={sectionStyle2}>
+                    <div
+                      onClick={handleShowDiv}
+                      className="border border-blue-600 h-[8vh] cursor-pointer bg-white focus:outline-none ring-1 focus:ring-3 focus:ring-blue-600 flex justify-between"
+                    >
+                      <p className="mt-2">Details</p>
+                      {showDiv ? (
+                        <IoIosArrowUp className="mt-2" />
+                      ) : (
+                        <IoIosArrowDown className="mt-2" />
+                      )}
+                    </div>
+                    {showDiv && (
+                      <div className="border border-red-500">
+                        <div id="transition-modal-description" className="mt-2">
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Complainer Name:</div>
+                            <div className="flex gap-1">
+                              <AiOutlineUser className="mt-1 text-base bg-slate-400 text-stone-200" />
+                              {selectedRow?.ComplainerName || "No Data"}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Priority:</div>
+                            <div>{selectedRow?.PriorityName || "No Data"}</div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Module:</div>
+                            <div>
+                              {selectedRow?.CCMProTypeName || "No Data"}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Dept:</div>
+                            <div>{selectedRow?.CCmWoTypeName || "No Data"}</div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Complaint No:</div>
+                            <div>{selectedRow?.ComplaintNo || "No Data"}</div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Summary:</div>
+                            <div>
+                              {selectedRow?.RequestDetailsDesc || "No Data"}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>ETA Date:</div>
+                            <div>{selectedRow?.ETADate || "No Data"}</div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>ETA Time:</div>
+                            <div>{selectedRow?.ETATime || "No Data"}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             </Fade>
@@ -903,7 +1071,7 @@ export default function DataTable(props) {
                     variant="h6"
                     component="h2"
                   >
-                    {selectedRow?.Projects || "No Title"}
+                    {selectedRow?.Projects || ""}
                   </Typography>
                 </div>
                 <IoClose
@@ -951,7 +1119,7 @@ export default function DataTable(props) {
                     </GridItem>
                   </GridContainer>
                 </div>
-                <div className="mt-3 custom-scrollbar overflow-auto  borderborder-gray-100	h-[50vh]">
+                <div className="mt-4 custom-scrollbar overflow-auto  borderborder-gray-100	h-[40vh]">
                   {checkpointDes.length > 0
                     ? checkpointDes.map((des) => {
                         return (
@@ -1005,35 +1173,48 @@ export default function DataTable(props) {
                                   <div className="relative">
                                     <select
                                       className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={handleChangeCheckpoints(
-                                        1,
-                                        "BAStatus",
-                                        activeTask,
-                                        "CMCheckPointsIDPK"
-                                      )}
+                                      onChange={(e) =>
+                                        handleChangeCheckpoints(
+                                          e,
+                                          des.CMCheckPointsIDPK,
+                                          "BAStatus"
+                                        )
+                                      }
+                                      disabled={!activeTask ? true : false}
                                     >
                                       <option
                                         className="text-gray-600"
                                         value="1"
-                                        selected=""
+                                        selected={
+                                          des.BAStatus === "1" ? true : false
+                                        }
                                       >
                                         NYT
                                       </option>
                                       <option
                                         className="text-green-600"
                                         value="2"
+                                        selected={
+                                          des.BAStatus === "2" ? true : false
+                                        }
                                       >
                                         Pass
                                       </option>
                                       <option
                                         className="text-red-600"
                                         value="3"
+                                        selected={
+                                          des.BAStatus === "3" ? true : false
+                                        }
                                       >
                                         Fail
                                       </option>
                                       <option
                                         className="text-amber-600"
                                         value="4"
+                                        selected={
+                                          des.BAStatus === "4" ? true : false
+                                        }
                                       >
                                         OnHold
                                       </option>
@@ -1053,35 +1234,48 @@ export default function DataTable(props) {
                                   <div className="relative">
                                     <select
                                       className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={handleChangeCheckpoints(
-                                        2,
-                                        "DBStatus",
-                                        "CMCheckPointsIDPK",
-                                        activeTask
-                                      )}
+                                      onChange={(e) =>
+                                        handleChangeCheckpoints(
+                                          e,
+                                          des.CMCheckPointsIDPK,
+                                          "DBStatus"
+                                        )
+                                      }
+                                      disabled={!activeTask ? true : false}
                                     >
                                       <option
                                         className="text-gray-600"
                                         value="1"
-                                        selected=""
+                                        selected={
+                                          des.DBStatus === "1" ? true : false
+                                        }
                                       >
                                         NYT
                                       </option>
                                       <option
                                         className="text-green-600"
                                         value="2"
+                                        selected={
+                                          des.DBStatus === "2" ? true : false
+                                        }
                                       >
                                         Pass
                                       </option>
                                       <option
                                         className="text-red-600"
                                         value="3"
+                                        selected={
+                                          des.DBStatus === "3" ? true : false
+                                        }
                                       >
                                         Fail
                                       </option>
                                       <option
                                         className="text-amber-600"
                                         value="4"
+                                        selected={
+                                          des.DBStatus === "4" ? true : false
+                                        }
                                       >
                                         OnHold
                                       </option>
@@ -1101,35 +1295,48 @@ export default function DataTable(props) {
                                   <div className="relative">
                                     <select
                                       className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={handleChangeCheckpoints(
-                                        3,
-                                        "DevStatus",
-                                        "CMCheckPointsIDPK",
-                                        activeTask
-                                      )}
+                                      onChange={(e) =>
+                                        handleChangeCheckpoints(
+                                          e,
+                                          des.CMCheckPointsIDPK,
+                                          "DevStatus"
+                                        )
+                                      }
+                                      disabled={!activeTask ? true : false}
                                     >
                                       <option
                                         className="text-gray-600"
                                         value="1"
-                                        selected=""
+                                        selected={
+                                          des.DevStatus === "1" ? true : false
+                                        }
                                       >
                                         NYT
                                       </option>
                                       <option
                                         className="text-green-600"
                                         value="2"
+                                        selected={
+                                          des.DevStatus === "2" ? true : false
+                                        }
                                       >
                                         Pass
                                       </option>
                                       <option
                                         className="text-red-600"
                                         value="3"
+                                        selected={
+                                          des.DevStatus === "3" ? true : false
+                                        }
                                       >
                                         Fail
                                       </option>
                                       <option
                                         className="text-amber-600"
                                         value="4"
+                                        selected={
+                                          des.DevStatus === "4" ? true : false
+                                        }
                                       >
                                         OnHold
                                       </option>
@@ -1149,35 +1356,48 @@ export default function DataTable(props) {
                                   <div className="relative">
                                     <select
                                       className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={handleChangeCheckpoints(
-                                        4,
-                                        "QAStatus",
-                                        "CMCheckPointsIDPK",
-                                        activeTask
-                                      )}
+                                      onChange={(e) =>
+                                        handleChangeCheckpoints(
+                                          e,
+                                          des.CMCheckPointsIDPK,
+                                          "QAStatus"
+                                        )
+                                      }
+                                      disabled={!activeTask ? true : false}
                                     >
                                       <option
                                         className="text-gray-600"
                                         value="1"
-                                        selected=""
+                                        selected={
+                                          des.QAStatus === "1" ? true : false
+                                        }
                                       >
                                         NYT
                                       </option>
                                       <option
                                         className="text-green-600"
                                         value="2"
+                                        selected={
+                                          des.QAStatus === "2" ? true : false
+                                        }
                                       >
                                         Pass
                                       </option>
                                       <option
                                         className="text-red-600"
                                         value="3"
+                                        selected={
+                                          des.QAStatus === "3" ? true : false
+                                        }
                                       >
                                         Fail
                                       </option>
                                       <option
                                         className="text-amber-600"
                                         value="4"
+                                        selected={
+                                          des.QAStatus === "4" ? true : false
+                                        }
                                       >
                                         OnHold
                                       </option>
@@ -1197,35 +1417,48 @@ export default function DataTable(props) {
                                   <div className="relative">
                                     <select
                                       className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={handleChangeCheckpoints(
-                                        5,
-                                        "ImpStatus",
-                                        "CMCheckPointsIDPK",
-                                        activeTask
-                                      )}
+                                      onChange={(e) =>
+                                        handleChangeCheckpoints(
+                                          e,
+                                          des.CMCheckPointsIDPK,
+                                          "ImpStatus"
+                                        )
+                                      }
+                                      disabled={!activeTask ? true : false}
                                     >
                                       <option
                                         className="text-gray-600"
                                         value="1"
-                                        selected=""
+                                        selected={
+                                          des.QAStatus === "1" ? true : false
+                                        }
                                       >
                                         NYT
                                       </option>
                                       <option
                                         className="text-green-600"
                                         value="2"
+                                        selected={
+                                          des.QAStatus === "2" ? true : false
+                                        }
                                       >
                                         Pass
                                       </option>
                                       <option
                                         className="text-red-600"
                                         value="3"
+                                        selected={
+                                          des.QAStatus === "3" ? true : false
+                                        }
                                       >
                                         Fail
                                       </option>
                                       <option
                                         className="text-amber-600"
                                         value="4"
+                                        selected={
+                                          des.QAStatus === "4" ? true : false
+                                        }
                                       >
                                         OnHold
                                       </option>
@@ -1245,35 +1478,48 @@ export default function DataTable(props) {
                                   <div className="relative">
                                     <select
                                       className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={handleChangeCheckpoints(
-                                        6,
-                                        "DEPStatus",
-                                        "CMCheckPointsIDPK",
-                                        activeTask
-                                      )}
+                                      onChange={(e) =>
+                                        handleChangeCheckpoints(
+                                          e,
+                                          des.CMCheckPointsIDPK,
+                                          "DEPStatus"
+                                        )
+                                      }
+                                      disabled={!activeTask ? true : false}
                                     >
                                       <option
                                         className="text-gray-600"
                                         value="1"
-                                        selected=""
+                                        selected={
+                                          des.DEPStatus === "1" ? true : false
+                                        }
                                       >
                                         NYT
                                       </option>
                                       <option
                                         className="text-green-600"
                                         value="2"
+                                        selected={
+                                          des.DEPStatus === "2" ? true : false
+                                        }
                                       >
                                         Pass
                                       </option>
                                       <option
                                         className="text-red-600"
                                         value="3"
+                                        selected={
+                                          des.DEPStatus === "3" ? true : false
+                                        }
                                       >
                                         Fail
                                       </option>
                                       <option
                                         className="text-amber-600"
                                         value="4"
+                                        selected={
+                                          des.DEPStatus === "4" ? true : false
+                                        }
                                       >
                                         OnHold
                                       </option>
@@ -1298,7 +1544,7 @@ export default function DataTable(props) {
                 </div>
                 <div
                   id="closeTask_div"
-                  className="flex  justify-end space-x-1 "
+                  className="flex mt-3  justify-end space-x-1 "
                 >
                   <input
                     type="text"
@@ -1308,7 +1554,11 @@ export default function DataTable(props) {
                     className="bg-white border border-gray-300 text-slate-900 text-xs  rounded-lg focus:outline-none focus:ring-blue-600 ring-1 focus:border-blue-500 block  p-2	"
                   />
                   <button
-                    onClick={handleFinalCloseTask(activeTask)}
+                    onClick={() => {
+                      if (activeTask === activeTask) {
+                        handleFinalCloseTask(activeTask);
+                      }
+                    }}
                     type="button"
                     className="rounded bg-red-500  px-3 py-1 text-white hover:bg-red-700 focus:outline-none text-xs"
                   >

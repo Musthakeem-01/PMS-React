@@ -20,10 +20,13 @@ import getData from "../components/customcomponents/commonAPISelect";
 import Calendar from "./Projects/calendar";
 import Timeline from "./Projects/timeline";
 import DescView from "../views/selectedDescView";
+import { IoTodaySharp } from "react-icons/io5";
+import DayCard from "./DayCard";
 let values;
 
 const ProjectLinks = [
   { key: "List", label: "List", icon: IoIosList },
+  { key: "DayCard", label: "DayCard", icon: IoTodaySharp },
   { key: "Board", label: "Board", icon: MdOutlineSpaceDashboard },
   { key: "Summary", label: "Summary", icon: IoFolderOutline },
   { key: "Calendar", label: "Calendar", icon: FaRegCalendarAlt },
@@ -41,6 +44,7 @@ function Projects(props) {
   // console.log("🚀 ~ Projects ~ props:", props);
   const [response, setResponse] = useState();
   const [activeLink, setActiveLink] = useState("List");
+  console.log("🚀 ~ Projects ~ activeLink:", activeLink);
   const [hoverState, setHoverState] = useState(
     ProjectLinks.reduce((acc, link) => ({ ...acc, [link.key]: false }), {})
   );
@@ -53,6 +57,7 @@ function Projects(props) {
     Summary,
     Board,
     List: () => <DescView id={props.id} desc={props.desc} />,
+    DayCard,
     Calendar,
     Timeline,
     Approvals: () => (
