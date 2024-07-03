@@ -1,8 +1,8 @@
 import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { useState, useEffect, useCallback } from "react";
-import getData from "../../src/components/customcomponents/commonAPISelect";
-import { getCurrentWeekDate } from "../../src/components/function/getCurrentWeekDate";
+import getData from "../components/customcomponents/commonAPISelect";
+import { getCurrentWeekDate } from "../components/function/getCurrentWeekDate";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Modal from "@mui/material/Modal";
@@ -58,7 +58,7 @@ const sectionStyle2 = {
 
 const sectionContainer = {
   display: "flex",
-  border: "1px solid #000",
+  border: "1px solid #0000000f",
   height: "70vh",
   overflowY: "auto",
 };
@@ -68,7 +68,7 @@ export default function DataTable(props) {
   const { weekNumber, year } = getCurrentWeekDate();
   const [open, setOpen] = React.useState(false);
   const [selectedRow, setSelectedRow] = React.useState(null);
-  const [showDiv, setShowDiv] = useState(false);
+  const [showDiv, setShowDiv] = useState(true);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [comment, setComment] = useState("");
@@ -451,12 +451,20 @@ export default function DataTable(props) {
     }
 
     const { ChekStatus, Message } = data[0];
-    const closeRemarks = document.getElementById("closeRemarks").value;
-
-    if (ChekStatus === 0) {
+    if (ChekStatus == 0) {
       window.alert(Message);
       return false;
-    } else if (!closeRemarks) {
+    }
+    const closeRemarks = document.getElementById("closeRemarks").value;
+    //  else if (closeRemarks.length > 0) {
+    //   window.alert("please Update CheckPoints");
+    //   return false;
+    // }
+    //     if (!closeRemarks) {
+    //   window.alert("please Update CheckPoints");
+    //   return false;
+    // } else
+    if (!closeRemarks) {
       window.alert("Please enter Remarks");
       return false;
     }
@@ -494,6 +502,7 @@ export default function DataTable(props) {
         });
 
       window.alert("Task Closed Successfully");
+      handleClose();
     }
   };
 
@@ -572,10 +581,11 @@ export default function DataTable(props) {
     : [];
 
   const handleRowClick = async (params) => {
-    setSelectedRow(params.row);
-    setComplaintIDPK(params.row.ComplaintIDPK);
-    handleOpen();
-
+    if (params) {
+      setSelectedRow(params.row);
+      setComplaintIDPK(params.row.ComplaintIDPK);
+      handleOpen();
+    }
     try {
       const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
         data: {
@@ -708,6 +718,9 @@ export default function DataTable(props) {
         if (response[0].status == 200) {
           window.alert("Task Scheduled Successfully");
         }
+        setStartDate("");
+        setEndDate("");
+        handleRowClick();
         // console.log(response, "rese");
       });
       // console.log("🚀 ~ handleSchedule ~ fetchResponses:", fetchResponses);
@@ -817,7 +830,7 @@ export default function DataTable(props) {
       .catch((error) => {
         console.error("Error:", error);
       });
-    setselectedInputValue("");
+    handleClose();
   };
 
   const handleChangeCheckpoints = (event, idpk, status) => {
@@ -988,7 +1001,7 @@ export default function DataTable(props) {
                   <Box sx={sectionStyle2}>
                     <div
                       onClick={handleShowDiv}
-                      className="border border-blue-600 h-[8vh] cursor-pointer bg-white focus:outline-none ring-1 focus:ring-3 focus:ring-blue-600 flex justify-between"
+                      className="border  h-[8vh] cursor-pointer bg-white focus:outline-none ring-1 focus:ring-3 focus:ring-blue-600 flex justify-between"
                     >
                       <p className="mt-2">Details</p>
                       {showDiv ? (
@@ -998,7 +1011,7 @@ export default function DataTable(props) {
                       )}
                     </div>
                     {showDiv && (
-                      <div className="border border-red-500">
+                      <div className="border ">
                         <div id="transition-modal-description" className="mt-2">
                           <div className="grid grid-cols-[40%_60%] mt-3">
                             <div>Complainer Name:</div>

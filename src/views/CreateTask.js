@@ -21,9 +21,6 @@ export default function CreateTask() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setStartDate("");
-    setEndDate("");
-    setEtaTime("");
   };
   const [activeTab, setActiveTab] = useState(1);
   const [contract, setContract] = useState([]);
@@ -46,16 +43,23 @@ export default function CreateTask() {
     setActiveTab(tabNumber);
   };
   const [startDate, setStartDate] = useState("");
+  // console.log("🚀 ~ CreateTask ~ startDate:", startDate);
   const [endDate, setEndDate] = useState(null);
   const [etaTime, setEtaTime] = useState("");
+  // console.log("🚀 ~ CreateTask ~ etaTime:", etaTime);
   const [createTaskkey, setCreateTaskkey] = useState([]);
+  // console.log("🚀 ~ CreateTask ~ createTaskkey:", createTaskkey);
   const [localityID, setLocalityID] = useState([]);
   const [buildingID, setBuildingID] = useState([]);
   const [selectedInputValue, setselectedInputValue] = useState([]);
   const [alertValue, setAlertValue] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [base64, setBase64] = useState("");
-
+  const [toDay, setToday] = useState([]);
+  // console.log("🚀 ~ CreateTask ~ toDay:", toDay);
+  const [endDateBe, setEndDateBe] = useState([]);
+  const [etaBe, setEtaBe] = useState([]);
+  // console.log("🚀 ~ CreateTa sk ~ etaBe:", etaBe);
   const handleInputValue = (value) => {
     settaskDescription(value.target.value);
   };
@@ -77,24 +81,29 @@ export default function CreateTask() {
     setEndDate(new Date(date));
     calculateEta(startDate, date);
   };
-  const formatDate = (date) => {
-    console.log(date, "date");
+  const formatDate = (date, EndDates) => {
+    let hoursAddon = EndDates ? EndDates : 0;
+    // console.log(date, "date");
     if (!date) return null;
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
+    const hours = String(date.getHours() + hoursAddon).padStart(2, "0");
+    // console.log("🚀 ~ formatDate ~ hours:", hours);
     const minutes = String(date.getMinutes()).padStart(2, "0");
     const seconds = String(date.getSeconds()).padStart(2, "0");
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
   const calculateEta = (fromDate, toDate) => {
+    // console.log(fromDate, toDate, "check");
     if (fromDate && toDate) {
       const startTime = new Date(fromDate);
+      // console.log("🚀 ~ calculateEta ~ startTime:", startTime);
       const endTime = new Date(toDate);
       const diffInMilliseconds = endTime - startTime;
       const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
+      // console.log("🚀 ~ calculateEta ~ diffInMinutes:", diffInMinutes);
       setEtaTime(diffInMinutes.toString());
     }
   };
@@ -240,9 +249,14 @@ export default function CreateTask() {
       DivisionID: createTaskkey.DivisionIDPK, // workType
       PriorityID: createTaskkey.PriorityIDPK ? createTaskkey.PriorityIDPK : 1,
       EmpID: createTaskkey.NSEEMPID,
-      ProDate: createTaskkey.TaskType == "Client" ? "" : formatDate(startDate),
+      ProDate:
+        createTaskkey.TaskType == "Client"
+          ? ""
+          : startDate
+          ? formatDate(startDate)
+          : toDay,
       TaskType: createTaskkey.TaskType == "Internal" ? 2 : 1,
-      EndDate: formatDate(endDate),
+      EndDate: endDate ? formatDate(endDate) : endDateBe,
       WoTypeID: createTaskkey.CCMWoTypeIDPK, // Complaint id
       WoProTypeID: createTaskkey.CCMProTypeIDPK, // Module
       TradeGrpID: 0, // parentTId ? parentTId : 0
@@ -260,25 +274,26 @@ export default function CreateTask() {
         body: formData,
       });
       const data = await response.text();
-      // console.log("🚀 ~ handleCreateTask ~ data:", data);
+      // console.log("🚀 ~ handleCreateTask ~ data:", Number(data));
 
-      if (data === "Failed") {
+      if (data === "Failed" || isNaN(Number(data))) {
         window.alert("Contract Expired, Kindly check with Admin");
         return false;
+      } else {
+        window.alert("Task Created Successfully!");
       }
-
       if (data && data.length > 0) {
         const TaskIDPKURL = `https://smartfm.in/NSEIPLSERVICE/SupportStaffAssign.php?EmployeeID=null&CCMComplaintID=${data}&DivisionExe=STAFFASIGN`;
         const TaskIDPKResponse = await fetch(TaskIDPKURL);
-        console.log(
-          "🚀 ~ handleCreateTask ~ TaskIDPKResponse:",
-          TaskIDPKResponse
-        );
+        // console.log(
+        //   "🚀 ~ handleCreateTask ~ TaskIDPKResponse:",
+        //   TaskIDPKResponse
+        // );
 
         const previewContainer = setBase64;
         const imagePreviews = previewContainer.querySelectorAll("img");
         const images = [];
-        console.log("🚀 ~ handleCreateTask ~ images:", images);
+        // console.log("🚀 ~ handleCreateTask ~ images:", images);
 
         imagePreviews.forEach((img) => {
           // console.log("🚀 ~ handleCreateTask ~ response:", response);
@@ -305,8 +320,8 @@ export default function CreateTask() {
       //   window.alert("Task created successfully");
       // }
     } finally {
-      window.alert("Task Created Successfully!");
       settaskDescription("");
+      handleClose();
     }
   };
 
@@ -344,6 +359,16 @@ export default function CreateTask() {
         console.error("An error occurred:", error);
       }
     };
+    const date = new Date();
+    let currentDate = startDate ? startDate : formatDate(date);
+
+    let currentEnd = endDate ? endDate : formatDate(date, 1);
+    // console.log("🚀 ~ useEffect ~ currentEnd:", currentEnd);
+    let etaBe = calculateEta(currentDate, currentEnd);
+
+    setToday(currentDate);
+    setEndDateBe(currentEnd);
+    setEtaBe(etaBe);
 
     fetchData();
   }, [createTaskkey.ContractID]);
@@ -711,6 +736,7 @@ export default function CreateTask() {
                       <Flatpickr
                         selected={startDate}
                         onChange={handleStartDateChange}
+                        value={toDay}
                         showTimeSelect
                         options={{
                           enableTime: true,
@@ -733,6 +759,7 @@ export default function CreateTask() {
                       <Flatpickr
                         selected={endDate}
                         onChange={handleEndDateChange}
+                        value={endDateBe}
                         showTimeSelect
                         options={{
                           enableTime: true,

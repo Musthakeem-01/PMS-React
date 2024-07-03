@@ -7,6 +7,7 @@ export default function CustomTable(props) {
   const { weekNumber, year, date } = getCurrentWeekDate();
   const eid = localStorage.getItem("eid");
   const [TableBody, setTableBody] = useState([]);
+  // console.log("🚀 ~ CustomTable ~ TableBody:", TableBody);
   const [selectDescription, setSelectDescription] = useState(null);
 
   const header = [
@@ -96,6 +97,7 @@ export default function CustomTable(props) {
     });
 
     let bodyData = [...[total], ...data];
+    // console.log("🚀 ~ fetchData ~ bodyData:", bodyData);
 
     setTableBody(bodyData);
   } // weekNumber,year, eid, x["Descriptions"], key, x["WorkOrderID"];
@@ -110,7 +112,7 @@ export default function CustomTable(props) {
   ) => {
     //props.changeTab();
     if (props.changeTab) {
-      props.changeTab();
+      props.changeTab(true, WorkOrderID, Descriptions);
     }
     setSelectDescription(Descriptions);
     if (props.onClickData) {
@@ -167,6 +169,7 @@ export default function CustomTable(props) {
                 (row) => row[Object.keys(row).find((key) => key.endsWith("ID"))]
               ).map((x, i) => {
                 const rowColumns = header.map(({ key }) => {
+                  // console.log(x, x[key], typeof x[key], "check x");
                   if (key.startsWith("Is")) {
                     return (
                       <td key={key} className="py-1 px-1">
@@ -234,7 +237,7 @@ export default function CustomTable(props) {
                               x[key]
                             )} hover:tr text-center rounded font-semibold`}
                           >
-                            {x[key] === 0 ? "" : x[key]}
+                            {x[key] == 0 ? "" : x[key]}
                           </p>
                         ) : x[key] === 0 ? (
                           ""

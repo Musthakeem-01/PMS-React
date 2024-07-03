@@ -11,18 +11,24 @@ import { CiLogout } from "react-icons/ci";
 const Header = () => {
   const [activeLink, setActiveLink] = useState("Dashboards");
   const [clickedDes, setclickedDes] = useState(null);
+  // console.log("🚀 ~ Header ~ clickedDes:", clickedDes);
   const [workid, setWorkId] = useState(null);
   // console.log("🚀 ~ Header ~ workid:", workid);
-  const handlechangetab = () => {
+  const handlechangetab = (changeTab, id, description) => {
+    // console.log(changeTab, id, description, "changeTab,id,description");
     setActiveLink("Projects");
-  };
-  const selecteddes = (desc) => {
-    setclickedDes(desc);
-  };
-  const selectworkid = (id) => {
-    // console.log(id, "id from dashboard");
     setWorkId(id);
+    setclickedDes(description);
   };
+  // const selecteddes = (desc) => {
+  //   console.log("🚀 ~ selecteddes ~ desc:", desc);
+  //   setclickedDes(desc);
+  // };
+  // const selectworkid = (id) => {
+  //   console.log("🚀 ~ selectworkid ~ id:", id);
+  //   // console.log(id, "id from dashboard");
+  //   setWorkId(id);
+  // };
 
   const navigate = useNavigate();
 
@@ -66,13 +72,17 @@ const Header = () => {
               </div>
             </form>
           </div>
-          <CiLogout
-            className="mt-5 ml-2 text-lg cursor-pointer"
+          {/* <div className="flex items-center justify-center  bg-gray-100"> */}
+          <div
+            className="flex items-center justify-center w-8 h-8 mt-3 ml-2 bg-red-500 rounded-lg cursor-pointer hover:bg-red-600"
             onClick={() => {
               navigate("/");
               localStorage.clear();
             }}
-          />
+          >
+            <CiLogout className="text-white text-lg" />
+          </div>
+          {/* </div> */}
         </nav>
       </div>
 
@@ -81,11 +91,7 @@ const Header = () => {
           <Projects id={workid} desc={clickedDes} />
         )}
         {activeLink === "Dashboards" && (
-          <Dashboard
-            selecteddes={selecteddes}
-            selectworkid={selectworkid}
-            changeTab={handlechangetab}
-          />
+          <Dashboard changeTab={handlechangetab} />
         )}
       </div>
     </div>

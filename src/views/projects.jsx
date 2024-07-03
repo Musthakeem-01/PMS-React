@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Summary from "./Projects/summary";
 import Board from "./Projects/board";
-import CustomTable from "./Projects/list";
+import CustomTable from "./Projects/CustomTable";
 import { LuSettings } from "react-icons/lu";
 import { CgLayoutGridSmall } from "react-icons/cg";
 import { IoFolderOutline } from "react-icons/io5";
@@ -19,7 +19,7 @@ import { GrAttachment } from "react-icons/gr";
 import getData from "../components/customcomponents/commonAPISelect";
 import Calendar from "./Projects/calendar";
 import Timeline from "./Projects/timeline";
-import DescView from "../views/selectedDescView";
+import DescView from "./DataTable";
 import { IoTodaySharp } from "react-icons/io5";
 import DayCard from "./DayCard";
 let values;
@@ -41,7 +41,7 @@ const ProjectLinks = [
 ];
 
 function Projects(props) {
-  // console.log("🚀 ~ Projects ~ props:", props);
+  console.log("🚀 ~ Projects ~ props:", props);
   const [response, setResponse] = useState();
   const [activeLink, setActiveLink] = useState("List");
   console.log("🚀 ~ Projects ~ activeLink:", activeLink);

@@ -3,9 +3,9 @@ import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { DataGrid } from "@mui/x-data-grid";
 import getData from "../components/customcomponents/commonAPISelect";
-import CustomTable from "./Projects/list";
+import CustomTable from "./Projects/CustomTable";
 import { Description } from "@mui/icons-material";
-
+import Summary from "./Projects/summary";
 const TailwindStyledButton = styled(Button)(() => ({
   fontSize: "12px",
   fontWeight: 600,
@@ -57,16 +57,28 @@ function Dashboard(props) {
 
   const [response, setResponse] = useState([]);
   const [greeting, setGreeting] = useState("");
+  const [clickedDes, setclickedDes] = useState(null);
+  console.log("🚀 ~ Dashboard ~ clickedDes:", clickedDes);
+  const [workid, setWorkId] = useState(null);
 
   const onClickData = (description) => {
     props.selecteddes(description);
   };
-  const WorkOrderID = (id) => {
-    props.selectworkid(id);
-    // console.log(id, "id from list");
-    // setworkid(id);
+  useEffect(() => {
+    if (clickedDes) {
+      props.selecteddes(clickedDes);
+    }
+  }, [clickedDes]);
+  const selectworkid = (id) => {
+    console.log("🚀 ~ selectworkid ~ id:", id);
+    // console.log(id, "id from dashboard");
+    setWorkId(id);
   };
+  const selecteddes = (desc) => {
+    setclickedDes(desc);
 
+    console.log("🚀 ~ selecteddes ~ desc:", desc);
+  };
   useEffect(() => {
     fetchData();
     const currentGreeting = getGreeting();
@@ -112,37 +124,51 @@ function Dashboard(props) {
       console.error("Error fetching data:", error.message);
     }
   };
+  const WorkOrderID = (id) => {
+    props.selectworkid(id);
+    // console.log(id, "id from list");
+    // setworkid(id);
+  };
 
   return (
-    <div className="w-full h-screen pt-20 pr-7 pl-7 pb-3 bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3">
-      <div className="w-full pb-7">
-        <div className="flex justify-start py-4">
-          <h1 className="text-2xl font-medium text-white text-center">
-            {greeting ? greeting : "Welcome"},{" "}
-            {localStorage.getItem("username")}
-          </h1>
-        </div>
-
-        <div className="w-full pt-4 flex justify-between items-center">
-          <h1 className="text-defaultDashborderText font-medium cursor-pointer text-white">
-            Dashboards
-          </h1>
-          <div className="flex justify-center items-center">
+    <div className="w-full h-auto pt-20 pr-7 pl-7 pb-3 bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3">
+      {/* <div className="w-full pb-7"> */}
+      <div className="flex justify-start py-4">
+        <h1 className="text-2xl font-medium text-white text-center">
+          {greeting ? greeting : "Welcome"}, {localStorage.getItem("username")}
+        </h1>
+      </div>
+      <div className="flex justify-start py-4">
+        <Summary
+          selecteddes={selecteddes}
+          selectworkid={selectworkid}
+          WorkOrderID={WorkOrderID}
+          onClickData={onClickData}
+          changeTab={props.changeTab}
+        />
+      </div>
+      {/* <div className="w-full pt-4 flex justify-between items-center"> */}
+      {/* <h1 className="text-defaultDashborderText font-medium cursor-pointer text-white">
+          Dashboards
+        </h1> */}
+      {/* <div className="flex justify-center items-center">
             <TailwindStyledButton variant="contained">
               Create contract
             </TailwindStyledButton>
-          </div>
-        </div>
+          </div> */}
+      {/* </div> */}
 
+      {/* 
         <div className="w-full pt-6 h-96">
           <CustomTable
             WorkOrderID={WorkOrderID}
             onClickData={onClickData}
             changeTab={props.changeTab}
           />
-        </div>
-      </div>
+        </div> */}
     </div>
+    //{" "}
+    // </div>
   );
 }
 

@@ -9,7 +9,8 @@ import { IoIosArrowUp } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoMdInformationCircle } from "react-icons/io";
 import getData from "../../components/customcomponents/commonAPISelect";
-const Summary = () => {
+import CustomTable from "./CustomTable";
+const Summary = (props) => {
   const [projectDetail, setprojectDetail] = useState(false);
   const [greeting, setGreeting] = useState("");
   const [dashboardData, setDashboardData] = useState(null);
@@ -75,12 +76,21 @@ const Summary = () => {
       return "Good evening";
     }
   }
+  const onClickData = (description) => {
+    console.log("🚀 ~ onClickData ~ description:", description);
+    props.selecteddes(description);
+  };
+  const WorkOrderID = (id) => {
+    props.selectworkid(id);
+    // console.log(id, "id from list");
+    // setworkid(id);
+  };
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full h-auto flex justify-center">
       <div className="w-full max-w-screen-lg text-center ">
-        <div>
-          <div className="flex justify-between py-4">
+        {/* <div> */}
+        {/* <div className="flex justify-between py-4">
             <span></span>
             <h1 className="text-2xl font-medium text-white text-center">
               {greeting ? greeting : "Welcome"},
@@ -91,14 +101,14 @@ const Summary = () => {
                 <IoShareSocialSharp /> Share
               </button>
             </div>
-          </div>
+          </div> */}
 
-          <span className="text-base text-white py-2">
+        {/* <span className="text-base text-white py-2">
             Here's where you'll view a summary of Project 1's status,
             priorities, workload, and more.
-          </span>
+          </span> */}
 
-          <div
+        {/* <div
             className="flex gap-1 justify-center items-center font-medium text-projectDetailTextClr cursor-pointer py-4"
             onClick={() => ProjectDetailClick()}
           >
@@ -132,10 +142,10 @@ const Summary = () => {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
 
         <div className="w-full mt-5">
-          <div className="w-full flex gap-4">
+          {/* <div className="w-full flex gap-4">
             <div className="w-1/4 h-24 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group">
               <div className="w-12 h-12 rounded-full bg-green-200 flex justify-center items-center text-lg font-extrabold">
                 <MdOutlineDone className="w-5 h-5 transition-all duration-100 group-hover:w-6 group-hover:h-6" />
@@ -200,8 +210,7 @@ const Summary = () => {
                 </div>
               </div>
             </div>
-          </div>
-
+          </div> */}
           <div className="w-full mt-4 flex gap-4">
             <div className="w-2/4 min-h-60 max-h-96 bg-white rounded-xl  gap-4 overflow-y-auto">
               <h6 className="pt-2 text-center w-full">Task Overview</h6>
@@ -384,32 +393,38 @@ const Summary = () => {
               </div>
             </div>
           </div>
+          <div className="w-full pt-6 h-90">
+            <CustomTable
+              WorkOrderID={WorkOrderID}
+              onClickData={onClickData}
+              changeTab={props.changeTab}
+            />
+          </div>{" "}
+          {/* <div className="w-full mt-4 flex gap-4">
+            <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
 
+            <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
+          </div> */}
+          {/* 
           <div className="w-full mt-4 flex gap-4">
             <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
 
             <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
-          </div>
-
-          <div className="w-full mt-4 flex gap-4">
-            <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
-
-            <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
-          </div>
+          </div> */}
         </div>
 
-        <div className="w-full flex justify-center pt-7">
-          <div className="flex items-center gap-2 text-white">
-            <IoMdInformationCircle className="w-6 h-6 text-stone-100" />
-            <span className="text-sm">
-              Was the information shown in this page useful?
-            </span>
-            <span className="text-sm font-medium cursor-pointer hover:underline">
-              {" "}
-              Give us feedback
-            </span>
-          </div>
-        </div>
+        {/* <div className="w-full flex justify-center pt-7">
+            <div className="flex items-center gap-2 text-white">
+              <IoMdInformationCircle className="w-6 h-6 text-stone-100" />
+              <span className="text-sm">
+                Was the information shown in this page useful?
+              </span>
+              <span className="text-sm font-medium cursor-pointer hover:underline">
+              
+                Give us feedback
+              </span>
+            </div>
+          </div> */}
       </div>
     </div>
   );
