@@ -11,10 +11,15 @@ import { IoMdInformationCircle } from "react-icons/io";
 import getData from "../../components/customcomponents/commonAPISelect";
 import CustomTable from "./CustomTable";
 const Summary = (props) => {
+  // console.log("🚀 ~ Summary ~ props:", props);
   const [projectDetail, setprojectDetail] = useState(false);
   const [greeting, setGreeting] = useState("");
   const [dashboardData, setDashboardData] = useState(null);
   const [projectData, setProjectData] = useState("");
+  const [activeTask, setActiveTask] = useState([]);
+  const [selectDescription, setSelectDescription] = useState(null);
+
+  // console.log("🚀 ~ Summary ~ activeTask:", activeTask);
   const fetchData = async () => {
     try {
       const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
@@ -53,6 +58,25 @@ const Summary = (props) => {
     } catch (error) {
       console.error("Error fetching data:", error.message);
     }
+    try {
+      const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+        data: {
+          p1_int: 97,
+          p2_int: localStorage.getItem("eid"),
+          UserID_int: 0,
+        },
+      });
+      const {
+        Output: { status, data },
+      } = response;
+      if (response.Output.status.code === "200") {
+        setActiveTask(response.Output.data[0]);
+      } else {
+        console.error("Error fetching data:", status.message);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+    }
   };
   useEffect(() => {
     fetchData();
@@ -84,6 +108,12 @@ const Summary = (props) => {
     props.selectworkid(id);
     // console.log(id, "id from list");
     // setworkid(id);
+  };
+  const handleActiveTaskClick = () => {
+    //props.changeTab();
+    if (props.changeTab) {
+      props.changeTab(true);
+    }
   };
 
   return (
@@ -211,7 +241,7 @@ const Summary = (props) => {
               </div>
             </div>
           </div> */}
-          <div className="w-full mt-4 flex gap-4">
+          <div className="w-full mt-2 flex gap-4">
             <div className="w-2/4 min-h-60 max-h-96 bg-white rounded-xl  gap-4 overflow-y-auto">
               <h6 className="pt-2 text-center w-full">Task Overview</h6>
               <div className="flex justify-start w-full gap-2.5 flex-wrap text-xs cursor-pointer gap-y-2.5 p-2.5 items-center mt-4">
@@ -393,13 +423,91 @@ const Summary = (props) => {
               </div>
             </div>
           </div>
-          <div className="w-full pt-6 h-90">
+          {activeTask == null ? (
+            <div className="border h-16 mt-4 bg-white rounded-xl flex items-center justify-center p-4 shadow-lg">
+              <h1 className="animate-bounce text-orange-500 text-lg font-semibold flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-6 h-6 mr-2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13 16h-1v-4h-1m1 4v-4h-1m5.232-1.732a2 2 0 11-2.928 0 2 2 0 012.928 0zM21 21l-4-4m-4 0a5 5 0 100-10 5 5 0 000 10z"
+                  />
+                </svg>
+                Currently, you haven't started any tasks!
+              </h1>
+            </div>
+          ) : (
+            <div
+              className="border h-20 mt-1 bg-white rounded-xl flex flex-col p-1 shadow-lg cursor-pointer relative"
+              onClick={handleActiveTaskClick}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1 text-xs">
+                  {activeTask ? (
+                    <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-green-600 animate-pulse ring-4 ring-green-400 ring-opacity-50 shadow-lg shadow-green-500/50"></div>
+                  ) : null}
+                  <h2 className="text-md font-semibold text-gray-800">
+                    Task No. {activeTask?.ComplaintNo || ""}
+                  </h2>
+                  <span
+                    title="Contract Name"
+                    className="hidden md:flex ml-1 pl-2 bg-blue-100 text-xs text-blue-700 py-1 border-blue-700 border-l-2 px-1 rounded-md"
+                  >
+                    {activeTask?.ContractName || ""}
+                  </span>
+                </div>
+                <div className="flex items-center gap-x-4 text-xs">
+                  <div className="flex items-center">
+                    <i className="bi bi-stopwatch mr-1 text-green-600 font-bold"></i>
+                    <span className="font-medium text-gray-700">
+                      ETA: {activeTask?.ETATime || ""}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <i className="bi bi-calendar-fill mr-1 text-blue-600"></i>
+                    <span className="font-medium text-gray-700">
+                      {activeTask?.ETADate || ""}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs font-semibold text-gray-700 leading-relaxed">
+                {activeTask?.Description || ""}
+              </p>
+              <div
+                id="closeTaskMain_div"
+                className="flex justify-end space-x-1 pb-2"
+              >
+                <button
+                  type="button"
+                  className="rounded bg-white border-2 border-gray-200 px-3 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none text-xs hidden"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="rounded border-2 border-gray-200 px-3 py-1 text-red-600 hover:bg-gray-100 focus:outline-none text-xs hidden"
+                >
+                  Pause
+                </button>
+              </div>
+            </div>
+          )}
+          <div className="w-full pt-1 h-90">
             <CustomTable
               WorkOrderID={WorkOrderID}
               onClickData={onClickData}
               changeTab={props.changeTab}
             />
-          </div>{" "}
+          </div>
+
           {/* <div className="w-full mt-4 flex gap-4">
             <div className="w-2/4 h-96 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group"></div>
 

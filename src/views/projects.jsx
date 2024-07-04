@@ -28,7 +28,7 @@ const ProjectLinks = [
   { key: "List", label: "List", icon: IoIosList },
   { key: "DayCard", label: "DayCard", icon: IoTodaySharp },
   { key: "Board", label: "Board", icon: MdOutlineSpaceDashboard },
-  { key: "Summary", label: "Summary", icon: IoFolderOutline },
+  // { key: "Summary", label: "Summary", icon: IoFolderOutline },
   { key: "Calendar", label: "Calendar", icon: FaRegCalendarAlt },
   { key: "Timeline", label: "Timeline", icon: MdOutlineBarChart },
   // { key: "Approvals", label: "Approvals", icon: TbArrowRampRight },
@@ -41,10 +41,10 @@ const ProjectLinks = [
 ];
 
 function Projects(props) {
-  console.log("🚀 ~ Projects ~ props:", props);
+  // console.log("🚀 ~ Projects ~ props:", props);
   const [response, setResponse] = useState();
   const [activeLink, setActiveLink] = useState("List");
-  console.log("🚀 ~ Projects ~ activeLink:", activeLink);
+  // console.log("🚀 ~ Projects ~ activeLink:", activeLink);
   const [hoverState, setHoverState] = useState(
     ProjectLinks.reduce((acc, link) => ({ ...acc, [link.key]: false }), {})
   );

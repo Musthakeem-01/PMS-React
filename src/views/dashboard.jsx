@@ -6,6 +6,9 @@ import getData from "../components/customcomponents/commonAPISelect";
 import CustomTable from "./Projects/CustomTable";
 import { Description } from "@mui/icons-material";
 import Summary from "./Projects/summary";
+import { FaSun, FaMoon } from "react-icons/fa";
+import { FiCoffee } from "react-icons/fi";
+
 const TailwindStyledButton = styled(Button)(() => ({
   fontSize: "12px",
   fontWeight: 600,
@@ -58,7 +61,7 @@ function Dashboard(props) {
   const [response, setResponse] = useState([]);
   const [greeting, setGreeting] = useState("");
   const [clickedDes, setclickedDes] = useState(null);
-  console.log("🚀 ~ Dashboard ~ clickedDes:", clickedDes);
+  // console.log("🚀 ~ Dashboard ~ clickedDes:", clickedDes);
   const [workid, setWorkId] = useState(null);
 
   const onClickData = (description) => {
@@ -95,7 +98,16 @@ function Dashboard(props) {
       return "Good evening";
     }
   }
-
+  const CurrentIcon = () => {
+    const hours = new Date().getHours();
+    if (hours >= 5 && hours < 12) {
+      return <FiCoffee className="text-xl text-white" />; //FiCoffee
+    } else if (hours >= 12 && hours < 18) {
+      return <FaSun className="text-xl text-white" />;
+    } else {
+      return <FaMoon className="text-xl text-white" />;
+    }
+  };
   const fetchData = async () => {
     try {
       const response = await getData(
@@ -129,13 +141,20 @@ function Dashboard(props) {
     // console.log(id, "id from list");
     // setworkid(id);
   };
-
+  let name = localStorage.getItem("username");
   return (
     <div className="w-full h-auto pt-20 pr-7 pl-7 pb-3 bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3">
       {/* <div className="w-full pb-7"> */}
-      <div className="flex justify-start py-4">
+      <div className="flex justify-start items-center py-4">
         <h1 className="text-2xl font-medium text-white text-center">
-          {greeting ? greeting : "Welcome"}, {localStorage.getItem("username")}
+          {greeting ? greeting : "Welcome"},
+        </h1>
+
+        <h1 className="text-2xl font-medium text-white text-center">
+          {name.charAt(0).toUpperCase() + name.slice(1)}
+        </h1>
+        <h1 className="p-3 text-2xl font-medium  text-center">
+          {CurrentIcon()}
         </h1>
       </div>
       <div className="flex justify-start py-4">

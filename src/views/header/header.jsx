@@ -9,7 +9,7 @@ import CreateTask from "../CreateTask";
 import { useNavigate } from "react-router-dom";
 import { CiLogout } from "react-icons/ci";
 const Header = () => {
-  const [activeLink, setActiveLink] = useState("Dashboards");
+  const [activeLink, setActiveLink] = useState("Dashboard");
   const [clickedDes, setclickedDes] = useState(null);
   // console.log("🚀 ~ Header ~ clickedDes:", clickedDes);
   const [workid, setWorkId] = useState(null);
@@ -41,7 +41,7 @@ const Header = () => {
           </div>
 
           <div className="w-7/12 h-14 flex justify-start items-center">
-            {["Projects", "Dashboards"].map((item) => (
+            {["Dashboard", "Projects"].map((item) => (
               <a
                 key={item}
                 onClick={() => setActiveLink(item)}
@@ -90,7 +90,7 @@ const Header = () => {
         {activeLink === "Projects" && (
           <Projects id={workid} desc={clickedDes} />
         )}
-        {activeLink === "Dashboards" && (
+        {activeLink === "Dashboard" && (
           <Dashboard changeTab={handlechangetab} />
         )}
       </div>

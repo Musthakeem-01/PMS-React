@@ -9,31 +9,11 @@ const tasks = [
 const initialColumns = {
   monday: {
     name: "Monday",
-    items: tasks,
+    items: [],
   },
   tuesday: {
     name: "Tuesday",
-    items: [],
-  },
-  wednesday: {
-    name: "Wednesday",
-    items: [],
-  },
-  thursday: {
-    name: "Thursday",
-    items: [],
-  },
-  friday: {
-    name: "Friday",
-    items: [],
-  },
-  saturday: {
-    name: "Saturday",
-    items: [],
-  },
-  sunday: {
-    name: "Sunday",
-    items: [],
+    items: tasks,
   },
   h1: {
     name: "H1",
@@ -41,30 +21,6 @@ const initialColumns = {
   },
   h2: {
     name: "H2",
-    items: [],
-  },
-  h3: {
-    name: "H3",
-    items: [],
-  },
-  h4: {
-    name: "H4",
-    items: [],
-  },
-  h5: {
-    name: "H5",
-    items: [],
-  },
-  h6: {
-    name: "H6",
-    items: [],
-  },
-  h7: {
-    name: "H7",
-    items: [],
-  },
-  h8: {
-    name: "H8",
     items: [],
   },
 };
@@ -142,7 +98,7 @@ function App() {
                               : "lightgrey",
                             padding: 4,
                             width: 250,
-                            minHeight: 500,
+                            minHeight: 0,
                           }}
                         >
                           {column.items.map((item, index) => {
