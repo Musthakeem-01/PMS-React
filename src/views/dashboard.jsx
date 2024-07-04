@@ -4,10 +4,15 @@ import { styled } from "@mui/material/styles";
 import { DataGrid } from "@mui/x-data-grid";
 import getData from "../components/customcomponents/commonAPISelect";
 import CustomTable from "./Projects/CustomTable";
-import { Description } from "@mui/icons-material";
+import { Description, Height } from "@mui/icons-material";
 import Summary from "./Projects/summary";
 import { FaSun, FaMoon } from "react-icons/fa";
 import { FiCoffee } from "react-icons/fi";
+import { RiPaintFill } from "react-icons/ri";
+import Backdrop from '@mui/material/Backdrop';
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Fade from '@mui/material/Fade';
 
 const TailwindStyledButton = styled(Button)(() => ({
   fontSize: "12px",
@@ -63,10 +68,14 @@ function Dashboard(props) {
   const [clickedDes, setclickedDes] = useState(null);
   // console.log("🚀 ~ Dashboard ~ clickedDes:", clickedDes);
   const [workid, setWorkId] = useState(null);
-
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
   const onClickData = (description) => {
     props.selecteddes(description);
   };
+  const [backgroundColor, setBackgroundColor] = useState('#fff');
+
   useEffect(() => {
     if (clickedDes) {
       props.selecteddes(clickedDes);
@@ -101,11 +110,12 @@ function Dashboard(props) {
   const CurrentIcon = () => {
     const hours = new Date().getHours();
     if (hours >= 5 && hours < 12) {
-      return <FiCoffee className="text-xl text-white" />; //FiCoffee
+      return '☕'  //FiCoffee
     } else if (hours >= 12 && hours < 18) {
-      return <FaSun className="text-xl text-white" />;
+      return <span style={{ color: '#FFA500' }}>☀</span>
     } else {
-      return <FaMoon className="text-xl text-white" />;
+      return '🌔'
+      ;
     }
   };
   const fetchData = async () => {
@@ -142,20 +152,60 @@ function Dashboard(props) {
     // setworkid(id);
   };
   let name = localStorage.getItem("username");
+  const style = {
+    position: 'absolute',
+    top: '60%',
+    left: '20%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    height:'40vh',
+    bgcolor: 'background.paper',
+    // border: '2px solid #000',
+    // boxShadow: 24,
+    p: 4,
+  };
+  
   return (
     <div className="w-full h-auto pt-20 pr-7 pl-7 pb-3 bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3">
+    
       {/* <div className="w-full pb-7"> */}
-      <div className="flex justify-start items-center py-4">
+      <div className="flex justify-start items-center py-4  ">
+        <span className=" text-white text-center mr-2 cursor-pointer"> <RiPaintFill onClick={handleOpen} className="text7xl font-medium"/></span>
+        <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+          },
+        }}
+      >
+        <Fade in={open}>
+          <Box sx={style}>
+            <div id="transition-modal-title" variant="h6" component="h2">
+           
+            </div>
+            <div id="transition-modal-description" sx={{ mt: 2 }}>
+             
+            </div>
+          </Box>
+        </Fade>
+      </Modal>
         <h1 className="text-2xl font-medium text-white text-center">
-          {greeting ? greeting : "Welcome"},
+       
+        {greeting ? greeting : "Welcome"},
         </h1>
 
         <h1 className="text-2xl font-medium text-white text-center">
-          {name.charAt(0).toUpperCase() + name.slice(1)}
+          {name.charAt(0).toUpperCase() + name.slice(1)}  {CurrentIcon()}
         </h1>
-        <h1 className="p-3 text-2xl font-medium  text-center">
+        {/* <h1 className="p-3 text-2xl font-medium  text-center">
           {CurrentIcon()}
-        </h1>
+        </h1> */}
       </div>
       <div className="flex justify-start py-4">
         <Summary
