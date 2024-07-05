@@ -439,8 +439,8 @@ const Board = () => {
     <div className="w-full ">
       {/* Search bar section */}
       <div className="fixed top-36 left-0 right-0 z-30 px-7 pt-7 pb-3 bg-opacity-50 backdrop-filter backdrop-blur-lg ">
-        <div className="flex justify-between  ">
-          <form className="max-w-md">
+        <div className="flex justify-end	  ">
+          {/* <form className="max-w-md">
             <div className="relative">
               <div className="absolute inset-y-0 start-0 flex items-center pl-3 pointer-events-none">
                 <IoMdSearch className="w-5 h-5" />
@@ -453,14 +453,14 @@ const Board = () => {
                 required
               />
             </div>
-          </form>
+          </form> */}
 
           <div className="flex justify-center items-center gap-1 ">
-            <div className="flex gap-2 items-center text-white cursor-pointer">
+            {/* <div className="flex gap-2 items-center text-white cursor-pointer">
               <button className="flex items-center gap-2 text-sm font-medium text-white px-3 h-8 bg-transparent rounded hover:bg-ShareHoveBG">
                 <IoShareSocialSharp className="w-4 h-4" /> Share
               </button>
-            </div>
+            </div> */}
 
             <div className="flex gap-2 items-center cursor-pointer">
               <button
@@ -506,7 +506,7 @@ const Board = () => {
               )}
             </div>
 
-            <div className="flex gap-2 items-center text-white cursor-pointer">
+            {/* <div className="flex gap-2 items-center text-white cursor-pointer">
               <button className="flex items-center gap-2 text-sm font-medium text-white px-3 h-8 bg-transparent rounded hover:bg-ShareHoveBG">
                 <IoMdMenu className="w-4 h-4" />
                 Group by : Status
@@ -518,7 +518,7 @@ const Board = () => {
                 <LuMoreHorizontal className="w-4 h-4" />
                 More
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { IoMdInformationCircle } from "react-icons/io";
 import getData from "../../components/customcomponents/commonAPISelect";
 import CustomTable from "./CustomTable";
+import moment from "moment";
 const Summary = (props) => {
   // console.log("🚀 ~ Summary ~ props:", props);
   const [projectDetail, setprojectDetail] = useState(false);
@@ -100,6 +101,8 @@ const Summary = (props) => {
       return "Good evening";
     }
   }
+  const currentWeek = moment().isoWeek(); // Get the current ISO week number
+
   const onClickData = (description) => {
     console.log("🚀 ~ onClickData ~ description:", description);
     props.selecteddes(description);
@@ -445,25 +448,36 @@ const Summary = (props) => {
             </div>
           ) : (
             <div
-              className="border h-20 mt-1 bg-white rounded-xl flex flex-col p-1 shadow-lg cursor-pointer relative"
+              className="border h-25 mt-1 bg-white rounded-xl flex flex-col p-1 shadow-lg cursor-pointer relative"
               onClick={handleActiveTaskClick}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-xs">
+              <div className="flex items-center justify-between ">
+                <div className="flex items-center gap-2">
                   {activeTask ? (
-                    <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-green-600 animate-pulse ring-4 ring-green-400 ring-opacity-50 shadow-lg shadow-green-500/50"></div>
-                  ) : null}
-                  <h2 className="text-md font-semibold text-gray-800">
-                    Task No. {activeTask?.ComplaintNo || ""}
-                  </h2>
-                  <span
-                    title="Contract Name"
-                    className="hidden md:flex ml-1 pl-2 bg-blue-100 text-xs text-blue-700 py-1 border-blue-700 border-l-2 px-1 rounded-md"
-                  >
-                    {activeTask?.ContractName || ""}
-                  </span>
+                    <div className="flex justify-center items-center rounded-full p-2 h-8 w-8 border-solid border-2 bg-green-600 animate-pulse ring-4 ring-green-400 ring-opacity-50 shadow-lg shadow-green-500/50"></div>
+                  ) : (
+                    <div className="flex justify-center items-center rounded-full p-2 h-8 w-8 border-solid border-2 bg-gray-300"></div>
+                  )}
+                  <div>
+                    <h2 className="text-xs font-semibold text-gray-800">
+                      Task No. {activeTask?.ComplaintNo || ""}
+                    </h2>
+                    <span
+                      title="Contract Name"
+                      className="hidden md:inline-block ml-2 pl-2 bg-blue-100 text-xs text-blue-700 py-1 border-blue-700 border-l-2 px-1 rounded-md"
+                    >
+                      {activeTask?.ContractName || ""}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-x-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-md shadow-inner">
+                    <h1 className="text-sm font-bold">
+                      Welcome to Week {currentWeek}
+                    </h1>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
                   <div className="flex items-center">
                     <i className="bi bi-stopwatch mr-1 text-green-600 font-bold"></i>
                     <span className="font-medium text-gray-700">
@@ -478,26 +492,10 @@ const Summary = (props) => {
                   </div>
                 </div>
               </div>
+
               <p className="text-xs font-semibold text-gray-700 leading-relaxed">
                 {activeTask?.Description || ""}
               </p>
-              <div
-                id="closeTaskMain_div"
-                className="flex justify-end space-x-1 pb-2"
-              >
-                <button
-                  type="button"
-                  className="rounded bg-white border-2 border-gray-200 px-3 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none text-xs hidden"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  className="rounded border-2 border-gray-200 px-3 py-1 text-red-600 hover:bg-gray-100 focus:outline-none text-xs hidden"
-                >
-                  Pause
-                </button>
-              </div>
             </div>
           )}
           <div className="w-full pt-1 h-90">

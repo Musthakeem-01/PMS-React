@@ -46,13 +46,12 @@ const sectionStyle = {
 };
 
 const sectionStyle1 = {
-  width: "40%",
-  padding: "10px",
+  width: "60%",
   boxSizing: "border-box",
 };
 const sectionStyle2 = {
-  width: "60%",
-  padding: "10px",
+  width: "40%",
+  padding: "5px",
   boxSizing: "border-box",
 };
 
@@ -68,7 +67,7 @@ export default function DataTable(props) {
   const { weekNumber, year } = getCurrentWeekDate();
   const [open, setOpen] = React.useState(false);
   const [selectedRow, setSelectedRow] = React.useState(null);
-  const [showDiv, setShowDiv] = useState(true);
+  const [showDiv, setShowDiv] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [comment, setComment] = useState("");
@@ -636,7 +635,11 @@ export default function DataTable(props) {
     const clickedField = params.field;
     // console.log("🚀 ~ handleCellClick ~ clickedField:", clickedField);
 
-    if (clickedField === "Projects") {
+    if (
+      clickedField === "Projects" ||
+      clickedField === "RequestDetailsDesc" ||
+      clickedField === "closeActions"
+    ) {
       //|| clickedField === "ComplaintNo"
       setModalVisibility(true);
     } else {
@@ -886,11 +889,598 @@ export default function DataTable(props) {
                   className="absolute top-0 right-0 text-4xl cursor-pointer"
                   onClick={handleClose}
                 />
+                {selectedRow?.RequestDetailsDesc || "No Data"}
                 <Box
                   sx={sectionContainer}
                   className="scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200"
                 >
                   <Box sx={sectionStyle1}>
+                    <div className="w-full flex space-x-4">
+                      <div className="flex-grow">
+                        <textarea
+                          rows="1"
+                          id="CheckpointsName"
+                          className="block w-full h-[13vh] py-2 px-3 text-sm text-gray-800 bg-transparent border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-600 resize-none"
+                          placeholder="Enter New Checkpoints here..."
+                          value={checkpointsName}
+                          onChange={(e) => setCheckpointsName(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <select
+                          id="checkpointType"
+                          className="py-2 px-3 text-sm text-gray-700 bg-transparent border-2 border-gray-300 rounded-md focus:outline-none focus:border-blue-600"
+                          value={checkpointType}
+                          onChange={(e) => setCheckpointType(e.target.value)}
+                        >
+                          <option value="1">BA</option>
+                          <option value="2">DB</option>
+                          <option value="3">DEV</option>
+                          <option value="4">QA</option>
+                          <option value="5">IMP</option>
+                          <option value="6">DEP</option>
+                        </select>
+                        <button
+                          onClick={() => handleAddButtonClick(activeTask)}
+                          className="py-2 px-4 text-sm font-semibold text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-4 custom-scrollbar overflow-auto  borderborder-gray-100	h-[40vh]">
+                      {checkpointDes.length > 0
+                        ? checkpointDes.map((des) => {
+                            return (
+                              <table
+                                id=""
+                                className="relative tracking-wider w-full border text-left text-xs text-slate-500"
+                              >
+                                <thead className="text-xs text-green-600 uppercase">
+                                  <tr>
+                                    <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                      Checkpoint Description
+                                    </th>
+                                    <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                      BA
+                                    </th>
+                                    <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                      DB
+                                    </th>
+                                    <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                      DEV
+                                    </th>
+                                    <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                      QA
+                                    </th>
+                                    <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                      IMP
+                                    </th>
+                                    <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                      DEP
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody
+                                  id="checkpointsTable"
+                                  className="divide-y bg-blue-50 text-slate-800 bg-white"
+                                >
+                                  <tr
+                                    className="bg-white border-b hover:bg-blue-100 hover:text-blue-600 cursor-pointer false"
+                                    data-idpk="6123"
+                                  >
+                                    <td className="py-1 px-2">
+                                      <textarea
+                                        className="custom-scrollbar h-full overflow-auto border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none focus:bg-amber-100"
+                                        rows="4"
+                                        onChange="handleChangeName(this.value, 'CMChkName', 6123)"
+                                      >
+                                        {des?.CMChkName || null}
+                                      </textarea>
+                                    </td>
+                                    <td className="py-1 px-2 w-20">
+                                      <div className="relative">
+                                        <select
+                                          className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                          onChange={(e) =>
+                                            handleChangeCheckpoints(
+                                              e,
+                                              des.CMCheckPointsIDPK,
+                                              "BAStatus"
+                                            )
+                                          }
+                                          disabled={!activeTask ? true : false}
+                                        >
+                                          <option
+                                            className="text-gray-600"
+                                            value="1"
+                                            selected={
+                                              des.BAStatus === "1"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            NYT
+                                          </option>
+                                          <option
+                                            className="text-green-600"
+                                            value="2"
+                                            selected={
+                                              des.BAStatus === "2"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Pass
+                                          </option>
+                                          <option
+                                            className="text-red-600"
+                                            value="3"
+                                            selected={
+                                              des.BAStatus === "3"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Fail
+                                          </option>
+                                          <option
+                                            className="text-amber-600"
+                                            value="4"
+                                            selected={
+                                              des.BAStatus === "4"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            OnHold
+                                          </option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                          <svg
+                                            className="w-4 h-4 fill-current"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M5 7l5 5 5-5z"></path>
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="py-1 px-2 w-20">
+                                      <div className="relative">
+                                        <select
+                                          className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                          onChange={(e) =>
+                                            handleChangeCheckpoints(
+                                              e,
+                                              des.CMCheckPointsIDPK,
+                                              "DBStatus"
+                                            )
+                                          }
+                                          disabled={!activeTask ? true : false}
+                                        >
+                                          <option
+                                            className="text-gray-600"
+                                            value="1"
+                                            selected={
+                                              des.DBStatus === "1"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            NYT
+                                          </option>
+                                          <option
+                                            className="text-green-600"
+                                            value="2"
+                                            selected={
+                                              des.DBStatus === "2"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Pass
+                                          </option>
+                                          <option
+                                            className="text-red-600"
+                                            value="3"
+                                            selected={
+                                              des.DBStatus === "3"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Fail
+                                          </option>
+                                          <option
+                                            className="text-amber-600"
+                                            value="4"
+                                            selected={
+                                              des.DBStatus === "4"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            OnHold
+                                          </option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                          <svg
+                                            className="w-4 h-4 fill-current"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M5 7l5 5 5-5z"></path>
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="py-1 px-2 w-20">
+                                      <div className="relative">
+                                        <select
+                                          className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                          onChange={(e) =>
+                                            handleChangeCheckpoints(
+                                              e,
+                                              des.CMCheckPointsIDPK,
+                                              "DevStatus"
+                                            )
+                                          }
+                                          disabled={!activeTask ? true : false}
+                                        >
+                                          <option
+                                            className="text-gray-600"
+                                            value="1"
+                                            selected={
+                                              des.DevStatus === "1"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            NYT
+                                          </option>
+                                          <option
+                                            className="text-green-600"
+                                            value="2"
+                                            selected={
+                                              des.DevStatus === "2"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Pass
+                                          </option>
+                                          <option
+                                            className="text-red-600"
+                                            value="3"
+                                            selected={
+                                              des.DevStatus === "3"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Fail
+                                          </option>
+                                          <option
+                                            className="text-amber-600"
+                                            value="4"
+                                            selected={
+                                              des.DevStatus === "4"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            OnHold
+                                          </option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                          <svg
+                                            className="w-4 h-4 fill-current"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M5 7l5 5 5-5z"></path>
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="py-1 px-2 w-20">
+                                      <div className="relative">
+                                        <select
+                                          className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                          onChange={(e) =>
+                                            handleChangeCheckpoints(
+                                              e,
+                                              des.CMCheckPointsIDPK,
+                                              "QAStatus"
+                                            )
+                                          }
+                                          disabled={!activeTask ? true : false}
+                                        >
+                                          <option
+                                            className="text-gray-600"
+                                            value="1"
+                                            selected={
+                                              des.QAStatus === "1"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            NYT
+                                          </option>
+                                          <option
+                                            className="text-green-600"
+                                            value="2"
+                                            selected={
+                                              des.QAStatus === "2"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Pass
+                                          </option>
+                                          <option
+                                            className="text-red-600"
+                                            value="3"
+                                            selected={
+                                              des.QAStatus === "3"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Fail
+                                          </option>
+                                          <option
+                                            className="text-amber-600"
+                                            value="4"
+                                            selected={
+                                              des.QAStatus === "4"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            OnHold
+                                          </option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                          <svg
+                                            className="w-4 h-4 fill-current"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M5 7l5 5 5-5z"></path>
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="py-1 px-2 w-20">
+                                      <div className="relative">
+                                        <select
+                                          className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                          onChange={(e) =>
+                                            handleChangeCheckpoints(
+                                              e,
+                                              des.CMCheckPointsIDPK,
+                                              "ImpStatus"
+                                            )
+                                          }
+                                          disabled={!activeTask ? true : false}
+                                        >
+                                          <option
+                                            className="text-gray-600"
+                                            value="1"
+                                            selected={
+                                              des.QAStatus === "1"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            NYT
+                                          </option>
+                                          <option
+                                            className="text-green-600"
+                                            value="2"
+                                            selected={
+                                              des.QAStatus === "2"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Pass
+                                          </option>
+                                          <option
+                                            className="text-red-600"
+                                            value="3"
+                                            selected={
+                                              des.QAStatus === "3"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Fail
+                                          </option>
+                                          <option
+                                            className="text-amber-600"
+                                            value="4"
+                                            selected={
+                                              des.QAStatus === "4"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            OnHold
+                                          </option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                          <svg
+                                            className="w-4 h-4 fill-current"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M5 7l5 5 5-5z"></path>
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="py-1 px-2 w-20">
+                                      <div className="relative">
+                                        <select
+                                          className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                          onChange={(e) =>
+                                            handleChangeCheckpoints(
+                                              e,
+                                              des.CMCheckPointsIDPK,
+                                              "DEPStatus"
+                                            )
+                                          }
+                                          disabled={!activeTask ? true : false}
+                                        >
+                                          <option
+                                            className="text-gray-600"
+                                            value="1"
+                                            selected={
+                                              des.DEPStatus === "1"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            NYT
+                                          </option>
+                                          <option
+                                            className="text-green-600"
+                                            value="2"
+                                            selected={
+                                              des.DEPStatus === "2"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Pass
+                                          </option>
+                                          <option
+                                            className="text-red-600"
+                                            value="3"
+                                            selected={
+                                              des.DEPStatus === "3"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            Fail
+                                          </option>
+                                          <option
+                                            className="text-amber-600"
+                                            value="4"
+                                            selected={
+                                              des.DEPStatus === "4"
+                                                ? true
+                                                : false
+                                            }
+                                          >
+                                            OnHold
+                                          </option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                          <svg
+                                            className="w-4 h-4 fill-current"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M5 7l5 5 5-5z"></path>
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            );
+                          })
+                        : null}
+                    </div>
+                    <div
+                      id="closeTask_div"
+                      className="flex mt-3  justify-start space-x-1 "
+                    >
+                      <input
+                        type="text"
+                        id="closeRemarks"
+                        style={{ width: "30%" }}
+                        placeholder="Enter Close Remarks..."
+                        className="bg-white border border-gray-300 text-slate-900 text-xs  rounded-lg focus:outline-none focus:ring-blue-600 ring-1 focus:border-blue-500 block  p-2	"
+                      />
+                      <button
+                        onClick={() => {
+                          if (activeTask === activeTask) {
+                            handleFinalCloseTask(activeTask);
+                          }
+                        }}
+                        type="button"
+                        className="rounded bg-red-500  px-3 py-1 text-white hover:bg-red-700 focus:outline-none text-xs"
+                      >
+                        Close Task
+                      </button>
+                    </div>
+                  </Box>
+                  <Box sx={sectionStyle2}>
+                    <div
+                      onClick={handleShowDiv}
+                      className="border  h-[8vh] cursor-pointer bg-white focus:outline-none ring-1 focus:ring-3 focus:ring-blue-600 flex justify-between"
+                    >
+                      <p className="mt-2">Summary</p>
+                      {showDiv ? (
+                        <IoIosArrowUp className="mt-2" />
+                      ) : (
+                        <IoIosArrowDown className="mt-2" />
+                      )}
+                    </div>
+                    {showDiv && (
+                      <div className="border ">
+                        <div id="transition-modal-description" className="mt-2">
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Complainer Name:</div>
+                            <div className="flex gap-1">
+                              <AiOutlineUser className="mt-1 text-base bg-slate-400 text-stone-200" />
+                              {selectedRow?.ComplainerName || "No Data"}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Priority:</div>
+                            <div>{selectedRow?.PriorityName || "No Data"}</div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Module:</div>
+                            <div>
+                              {selectedRow?.CCMProTypeName || "No Data"}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Dept:</div>
+                            <div>{selectedRow?.CCmWoTypeName || "No Data"}</div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Complaint No:</div>
+                            <div>{selectedRow?.ComplaintNo || "No Data"}</div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>Summary:</div>
+                            <div>
+                              {selectedRow?.RequestDetailsDesc || "No Data"}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>ETA Date:</div>
+                            <div>{selectedRow?.ETADate || "No Data"}</div>
+                          </div>
+                          <div className="grid grid-cols-[40%_60%] mt-3">
+                            <div>ETA Time:</div>
+                            <div>{selectedRow?.ETATime || "No Data"}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-2 gap-2 mt-4">
                       <div className="">
                         <label className="block text-sm font-medium text-gray-700">
@@ -998,70 +1588,12 @@ export default function DataTable(props) {
                       </div>
                     </div>
                   </Box>
-                  <Box sx={sectionStyle2}>
-                    <div
-                      onClick={handleShowDiv}
-                      className="border  h-[8vh] cursor-pointer bg-white focus:outline-none ring-1 focus:ring-3 focus:ring-blue-600 flex justify-between"
-                    >
-                      <p className="mt-2">Details</p>
-                      {showDiv ? (
-                        <IoIosArrowUp className="mt-2" />
-                      ) : (
-                        <IoIosArrowDown className="mt-2" />
-                      )}
-                    </div>
-                    {showDiv && (
-                      <div className="border ">
-                        <div id="transition-modal-description" className="mt-2">
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Complainer Name:</div>
-                            <div className="flex gap-1">
-                              <AiOutlineUser className="mt-1 text-base bg-slate-400 text-stone-200" />
-                              {selectedRow?.ComplainerName || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Priority:</div>
-                            <div>{selectedRow?.PriorityName || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Module:</div>
-                            <div>
-                              {selectedRow?.CCMProTypeName || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Dept:</div>
-                            <div>{selectedRow?.CCmWoTypeName || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Complaint No:</div>
-                            <div>{selectedRow?.ComplaintNo || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Summary:</div>
-                            <div>
-                              {selectedRow?.RequestDetailsDesc || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>ETA Date:</div>
-                            <div>{selectedRow?.ETADate || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>ETA Time:</div>
-                            <div>{selectedRow?.ETATime || "No Data"}</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </Box>
                 </Box>
               </Box>
             </Fade>
           </Modal>
         )}
-        {checkPoint && (
+        {/* {checkPoint && (
           <Modal
             aria-labelledby="transition-modal-title"
             aria-describedby="transition-modal-description"
@@ -1091,497 +1623,498 @@ export default function DataTable(props) {
                   className="absolute top-0 right-0 text-4xl cursor-pointer"
                   onClick={handleClose}
                 />
-
-                <div className="w-full">
-                  <div>
-                    <p>CheckPoint </p>
+                <div className="border border-black">
+                  <div className="w-full">
+                    <div>
+                      <p>CheckPoint </p>
+                    </div>
+                    <GridContainer spacing={1}>
+                      <GridItem xs={10} md={10} lg={10} sm={10}>
+                        <textarea
+                          rows="1"
+                          id="CheckpointsName"
+                          className="block rounded-md w-full h-[15vh] py-1 px-2 text-sm text-gray-800 bg-transparent border-2 border-gray-300 focus:outline-none focus:border-blue-600"
+                          placeholder="Enter New Checkpoints here..."
+                          value={checkpointsName}
+                          onChange={(e) => setCheckpointsName(e.target.value)}
+                        />
+                      </GridItem>
+                      <GridItem xs={1} md={1} lg={1} sm={1}>
+                        <select
+                          id="checkpointType"
+                          className=" text-sm text-gray-700 bg-transparent border-b-2 border-gray-300 focus:outline-none"
+                          value={checkpointType}
+                          onChange={(e) => setCheckpointType(e.target.value)}
+                        >
+                          <option value="1">BA</option>
+                          <option value="2">DB</option>
+                          <option value="3">DEV</option>
+                          <option value="4">QA</option>
+                          <option value="5">IMP</option>
+                          <option value="6">DEP</option>
+                        </select>
+                      </GridItem>
+                      <GridItem xs={1} md={1} lg={1} sm={1}>
+                        <button
+                          onClick={() => handleAddButtonClick(activeTask)}
+                          className=" text-sm font-semibold text-white bg-blue-500 hover:bg-gradient-to-br focus:ring-2 focus:outline-none focus:ring-blue-300 rounded-md transition duration-300 ease-in-out"
+                        >
+                          Add
+                        </button>
+                      </GridItem>
+                    </GridContainer>
                   </div>
-                  <GridContainer spacing={1}>
-                    <GridItem xs={10} md={10} lg={10} sm={10}>
-                      <textarea
-                        rows="1"
-                        id="CheckpointsName"
-                        className="block rounded-md w-full h-[15vh] py-1 px-2 text-sm text-gray-800 bg-transparent border-2 border-gray-300 focus:outline-none focus:border-blue-600"
-                        placeholder="Enter New Checkpoints here..."
-                        value={checkpointsName}
-                        onChange={(e) => setCheckpointsName(e.target.value)}
-                      />
-                    </GridItem>
-                    <GridItem xs={1} md={1} lg={1} sm={1}>
-                      <select
-                        id="checkpointType"
-                        className="block mt-7 w-auto py-2 px-4 text-sm text-gray-700 bg-transparent border-b-2 border-gray-300 focus:outline-none"
-                        value={checkpointType}
-                        onChange={(e) => setCheckpointType(e.target.value)}
-                      >
-                        <option value="1">BA</option>
-                        <option value="2">DB</option>
-                        <option value="3">DEV</option>
-                        <option value="4">QA</option>
-                        <option value="5">IMP</option>
-                        <option value="6">DEP</option>
-                      </select>
-                    </GridItem>
-                    <GridItem xs={1} md={1} lg={1} sm={1}>
-                      <button
-                        onClick={() => handleAddButtonClick(activeTask)}
-                        className="px-4 mt-7 py-2 text-sm font-semibold text-white bg-blue-500 hover:bg-gradient-to-br focus:ring-2 focus:outline-none focus:ring-blue-300 rounded-md transition duration-300 ease-in-out"
-                      >
-                        Add
-                      </button>
-                    </GridItem>
-                  </GridContainer>
-                </div>
-                <div className="mt-4 custom-scrollbar overflow-auto  borderborder-gray-100	h-[40vh]">
-                  {checkpointDes.length > 0
-                    ? checkpointDes.map((des) => {
-                        return (
-                          <table
-                            id=""
-                            className="relative tracking-wider w-full border text-left text-xs text-slate-500"
-                          >
-                            <thead className="text-xs text-green-600 uppercase">
-                              <tr>
-                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                  Checkpoint Description
-                                </th>
-                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                  BA
-                                </th>
-                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                  DB
-                                </th>
-                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                  DEV
-                                </th>
-                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                  QA
-                                </th>
-                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                  IMP
-                                </th>
-                                <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                  DEP
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody
-                              id="checkpointsTable"
-                              className="divide-y bg-blue-50 text-slate-800 bg-white"
+                  <div className="mt-4 custom-scrollbar overflow-auto  borderborder-gray-100	h-[40vh]">
+                    {checkpointDes.length > 0
+                      ? checkpointDes.map((des) => {
+                          return (
+                            <table
+                              id=""
+                              className="relative tracking-wider w-full border text-left text-xs text-slate-500"
                             >
-                              <tr
-                                className="bg-white border-b hover:bg-blue-100 hover:text-blue-600 cursor-pointer false"
-                                data-idpk="6123"
+                              <thead className="text-xs text-green-600 uppercase">
+                                <tr>
+                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                    Checkpoint Description
+                                  </th>
+                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                    BA
+                                  </th>
+                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                    DB
+                                  </th>
+                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                    DEV
+                                  </th>
+                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                    QA
+                                  </th>
+                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                    IMP
+                                  </th>
+                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
+                                    DEP
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody
+                                id="checkpointsTable"
+                                className="divide-y bg-blue-50 text-slate-800 bg-white"
                               >
-                                <td className="py-1 px-2">
-                                  <textarea
-                                    className="custom-scrollbar h-full overflow-auto border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none focus:bg-amber-100"
-                                    rows="4"
-                                    onChange="handleChangeName(this.value, 'CMChkName', 6123)"
-                                  >
-                                    {des?.CMChkName || null}
-                                  </textarea>
-                                </td>
-                                <td className="py-1 px-2 w-24">
-                                  <div className="relative">
-                                    <select
-                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={(e) =>
-                                        handleChangeCheckpoints(
-                                          e,
-                                          des.CMCheckPointsIDPK,
-                                          "BAStatus"
-                                        )
-                                      }
-                                      disabled={!activeTask ? true : false}
+                                <tr
+                                  className="bg-white border-b hover:bg-blue-100 hover:text-blue-600 cursor-pointer false"
+                                  data-idpk="6123"
+                                >
+                                  <td className="py-1 px-2">
+                                    <textarea
+                                      className="custom-scrollbar h-full overflow-auto border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none focus:bg-amber-100"
+                                      rows="4"
+                                      onChange="handleChangeName(this.value, 'CMChkName', 6123)"
                                     >
-                                      <option
-                                        className="text-gray-600"
-                                        value="1"
-                                        selected={
-                                          des.BAStatus === "1" ? true : false
+                                      {des?.CMChkName || null}
+                                    </textarea>
+                                  </td>
+                                  <td className="py-1 px-2 w-24">
+                                    <div className="relative">
+                                      <select
+                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                        onChange={(e) =>
+                                          handleChangeCheckpoints(
+                                            e,
+                                            des.CMCheckPointsIDPK,
+                                            "BAStatus"
+                                          )
                                         }
+                                        disabled={!activeTask ? true : false}
                                       >
-                                        NYT
-                                      </option>
-                                      <option
-                                        className="text-green-600"
-                                        value="2"
-                                        selected={
-                                          des.BAStatus === "2" ? true : false
-                                        }
-                                      >
-                                        Pass
-                                      </option>
-                                      <option
-                                        className="text-red-600"
-                                        value="3"
-                                        selected={
-                                          des.BAStatus === "3" ? true : false
-                                        }
-                                      >
-                                        Fail
-                                      </option>
-                                      <option
-                                        className="text-amber-600"
-                                        value="4"
-                                        selected={
-                                          des.BAStatus === "4" ? true : false
-                                        }
-                                      >
-                                        OnHold
-                                      </option>
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                      <svg
-                                        className="w-4 h-4 fill-current"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path d="M5 7l5 5 5-5z"></path>
-                                      </svg>
+                                        <option
+                                          className="text-gray-600"
+                                          value="1"
+                                          selected={
+                                            des.BAStatus === "1" ? true : false
+                                          }
+                                        >
+                                          NYT
+                                        </option>
+                                        <option
+                                          className="text-green-600"
+                                          value="2"
+                                          selected={
+                                            des.BAStatus === "2" ? true : false
+                                          }
+                                        >
+                                          Pass
+                                        </option>
+                                        <option
+                                          className="text-red-600"
+                                          value="3"
+                                          selected={
+                                            des.BAStatus === "3" ? true : false
+                                          }
+                                        >
+                                          Fail
+                                        </option>
+                                        <option
+                                          className="text-amber-600"
+                                          value="4"
+                                          selected={
+                                            des.BAStatus === "4" ? true : false
+                                          }
+                                        >
+                                          OnHold
+                                        </option>
+                                      </select>
+                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                        <svg
+                                          className="w-4 h-4 fill-current"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M5 7l5 5 5-5z"></path>
+                                        </svg>
+                                      </div>
                                     </div>
-                                  </div>
-                                </td>
-                                <td className="py-1 px-2 w-24">
-                                  <div className="relative">
-                                    <select
-                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={(e) =>
-                                        handleChangeCheckpoints(
-                                          e,
-                                          des.CMCheckPointsIDPK,
-                                          "DBStatus"
-                                        )
-                                      }
-                                      disabled={!activeTask ? true : false}
-                                    >
-                                      <option
-                                        className="text-gray-600"
-                                        value="1"
-                                        selected={
-                                          des.DBStatus === "1" ? true : false
+                                  </td>
+                                  <td className="py-1 px-2 w-24">
+                                    <div className="relative">
+                                      <select
+                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                        onChange={(e) =>
+                                          handleChangeCheckpoints(
+                                            e,
+                                            des.CMCheckPointsIDPK,
+                                            "DBStatus"
+                                          )
                                         }
+                                        disabled={!activeTask ? true : false}
                                       >
-                                        NYT
-                                      </option>
-                                      <option
-                                        className="text-green-600"
-                                        value="2"
-                                        selected={
-                                          des.DBStatus === "2" ? true : false
-                                        }
-                                      >
-                                        Pass
-                                      </option>
-                                      <option
-                                        className="text-red-600"
-                                        value="3"
-                                        selected={
-                                          des.DBStatus === "3" ? true : false
-                                        }
-                                      >
-                                        Fail
-                                      </option>
-                                      <option
-                                        className="text-amber-600"
-                                        value="4"
-                                        selected={
-                                          des.DBStatus === "4" ? true : false
-                                        }
-                                      >
-                                        OnHold
-                                      </option>
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                      <svg
-                                        className="w-4 h-4 fill-current"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path d="M5 7l5 5 5-5z"></path>
-                                      </svg>
+                                        <option
+                                          className="text-gray-600"
+                                          value="1"
+                                          selected={
+                                            des.DBStatus === "1" ? true : false
+                                          }
+                                        >
+                                          NYT
+                                        </option>
+                                        <option
+                                          className="text-green-600"
+                                          value="2"
+                                          selected={
+                                            des.DBStatus === "2" ? true : false
+                                          }
+                                        >
+                                          Pass
+                                        </option>
+                                        <option
+                                          className="text-red-600"
+                                          value="3"
+                                          selected={
+                                            des.DBStatus === "3" ? true : false
+                                          }
+                                        >
+                                          Fail
+                                        </option>
+                                        <option
+                                          className="text-amber-600"
+                                          value="4"
+                                          selected={
+                                            des.DBStatus === "4" ? true : false
+                                          }
+                                        >
+                                          OnHold
+                                        </option>
+                                      </select>
+                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                        <svg
+                                          className="w-4 h-4 fill-current"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M5 7l5 5 5-5z"></path>
+                                        </svg>
+                                      </div>
                                     </div>
-                                  </div>
-                                </td>
-                                <td className="py-1 px-2 w-24">
-                                  <div className="relative">
-                                    <select
-                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={(e) =>
-                                        handleChangeCheckpoints(
-                                          e,
-                                          des.CMCheckPointsIDPK,
-                                          "DevStatus"
-                                        )
-                                      }
-                                      disabled={!activeTask ? true : false}
-                                    >
-                                      <option
-                                        className="text-gray-600"
-                                        value="1"
-                                        selected={
-                                          des.DevStatus === "1" ? true : false
+                                  </td>
+                                  <td className="py-1 px-2 w-24">
+                                    <div className="relative">
+                                      <select
+                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                        onChange={(e) =>
+                                          handleChangeCheckpoints(
+                                            e,
+                                            des.CMCheckPointsIDPK,
+                                            "DevStatus"
+                                          )
                                         }
+                                        disabled={!activeTask ? true : false}
                                       >
-                                        NYT
-                                      </option>
-                                      <option
-                                        className="text-green-600"
-                                        value="2"
-                                        selected={
-                                          des.DevStatus === "2" ? true : false
-                                        }
-                                      >
-                                        Pass
-                                      </option>
-                                      <option
-                                        className="text-red-600"
-                                        value="3"
-                                        selected={
-                                          des.DevStatus === "3" ? true : false
-                                        }
-                                      >
-                                        Fail
-                                      </option>
-                                      <option
-                                        className="text-amber-600"
-                                        value="4"
-                                        selected={
-                                          des.DevStatus === "4" ? true : false
-                                        }
-                                      >
-                                        OnHold
-                                      </option>
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                      <svg
-                                        className="w-4 h-4 fill-current"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path d="M5 7l5 5 5-5z"></path>
-                                      </svg>
+                                        <option
+                                          className="text-gray-600"
+                                          value="1"
+                                          selected={
+                                            des.DevStatus === "1" ? true : false
+                                          }
+                                        >
+                                          NYT
+                                        </option>
+                                        <option
+                                          className="text-green-600"
+                                          value="2"
+                                          selected={
+                                            des.DevStatus === "2" ? true : false
+                                          }
+                                        >
+                                          Pass
+                                        </option>
+                                        <option
+                                          className="text-red-600"
+                                          value="3"
+                                          selected={
+                                            des.DevStatus === "3" ? true : false
+                                          }
+                                        >
+                                          Fail
+                                        </option>
+                                        <option
+                                          className="text-amber-600"
+                                          value="4"
+                                          selected={
+                                            des.DevStatus === "4" ? true : false
+                                          }
+                                        >
+                                          OnHold
+                                        </option>
+                                      </select>
+                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                        <svg
+                                          className="w-4 h-4 fill-current"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M5 7l5 5 5-5z"></path>
+                                        </svg>
+                                      </div>
                                     </div>
-                                  </div>
-                                </td>
-                                <td className="py-1 px-2 w-24">
-                                  <div className="relative">
-                                    <select
-                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={(e) =>
-                                        handleChangeCheckpoints(
-                                          e,
-                                          des.CMCheckPointsIDPK,
-                                          "QAStatus"
-                                        )
-                                      }
-                                      disabled={!activeTask ? true : false}
-                                    >
-                                      <option
-                                        className="text-gray-600"
-                                        value="1"
-                                        selected={
-                                          des.QAStatus === "1" ? true : false
+                                  </td>
+                                  <td className="py-1 px-2 w-24">
+                                    <div className="relative">
+                                      <select
+                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                        onChange={(e) =>
+                                          handleChangeCheckpoints(
+                                            e,
+                                            des.CMCheckPointsIDPK,
+                                            "QAStatus"
+                                          )
                                         }
+                                        disabled={!activeTask ? true : false}
                                       >
-                                        NYT
-                                      </option>
-                                      <option
-                                        className="text-green-600"
-                                        value="2"
-                                        selected={
-                                          des.QAStatus === "2" ? true : false
-                                        }
-                                      >
-                                        Pass
-                                      </option>
-                                      <option
-                                        className="text-red-600"
-                                        value="3"
-                                        selected={
-                                          des.QAStatus === "3" ? true : false
-                                        }
-                                      >
-                                        Fail
-                                      </option>
-                                      <option
-                                        className="text-amber-600"
-                                        value="4"
-                                        selected={
-                                          des.QAStatus === "4" ? true : false
-                                        }
-                                      >
-                                        OnHold
-                                      </option>
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                      <svg
-                                        className="w-4 h-4 fill-current"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path d="M5 7l5 5 5-5z"></path>
-                                      </svg>
+                                        <option
+                                          className="text-gray-600"
+                                          value="1"
+                                          selected={
+                                            des.QAStatus === "1" ? true : false
+                                          }
+                                        >
+                                          NYT
+                                        </option>
+                                        <option
+                                          className="text-green-600"
+                                          value="2"
+                                          selected={
+                                            des.QAStatus === "2" ? true : false
+                                          }
+                                        >
+                                          Pass
+                                        </option>
+                                        <option
+                                          className="text-red-600"
+                                          value="3"
+                                          selected={
+                                            des.QAStatus === "3" ? true : false
+                                          }
+                                        >
+                                          Fail
+                                        </option>
+                                        <option
+                                          className="text-amber-600"
+                                          value="4"
+                                          selected={
+                                            des.QAStatus === "4" ? true : false
+                                          }
+                                        >
+                                          OnHold
+                                        </option>
+                                      </select>
+                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                        <svg
+                                          className="w-4 h-4 fill-current"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M5 7l5 5 5-5z"></path>
+                                        </svg>
+                                      </div>
                                     </div>
-                                  </div>
-                                </td>
-                                <td className="py-1 px-2 w-24">
-                                  <div className="relative">
-                                    <select
-                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={(e) =>
-                                        handleChangeCheckpoints(
-                                          e,
-                                          des.CMCheckPointsIDPK,
-                                          "ImpStatus"
-                                        )
-                                      }
-                                      disabled={!activeTask ? true : false}
-                                    >
-                                      <option
-                                        className="text-gray-600"
-                                        value="1"
-                                        selected={
-                                          des.QAStatus === "1" ? true : false
+                                  </td>
+                                  <td className="py-1 px-2 w-24">
+                                    <div className="relative">
+                                      <select
+                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                        onChange={(e) =>
+                                          handleChangeCheckpoints(
+                                            e,
+                                            des.CMCheckPointsIDPK,
+                                            "ImpStatus"
+                                          )
                                         }
+                                        disabled={!activeTask ? true : false}
                                       >
-                                        NYT
-                                      </option>
-                                      <option
-                                        className="text-green-600"
-                                        value="2"
-                                        selected={
-                                          des.QAStatus === "2" ? true : false
-                                        }
-                                      >
-                                        Pass
-                                      </option>
-                                      <option
-                                        className="text-red-600"
-                                        value="3"
-                                        selected={
-                                          des.QAStatus === "3" ? true : false
-                                        }
-                                      >
-                                        Fail
-                                      </option>
-                                      <option
-                                        className="text-amber-600"
-                                        value="4"
-                                        selected={
-                                          des.QAStatus === "4" ? true : false
-                                        }
-                                      >
-                                        OnHold
-                                      </option>
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                      <svg
-                                        className="w-4 h-4 fill-current"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path d="M5 7l5 5 5-5z"></path>
-                                      </svg>
+                                        <option
+                                          className="text-gray-600"
+                                          value="1"
+                                          selected={
+                                            des.QAStatus === "1" ? true : false
+                                          }
+                                        >
+                                          NYT
+                                        </option>
+                                        <option
+                                          className="text-green-600"
+                                          value="2"
+                                          selected={
+                                            des.QAStatus === "2" ? true : false
+                                          }
+                                        >
+                                          Pass
+                                        </option>
+                                        <option
+                                          className="text-red-600"
+                                          value="3"
+                                          selected={
+                                            des.QAStatus === "3" ? true : false
+                                          }
+                                        >
+                                          Fail
+                                        </option>
+                                        <option
+                                          className="text-amber-600"
+                                          value="4"
+                                          selected={
+                                            des.QAStatus === "4" ? true : false
+                                          }
+                                        >
+                                          OnHold
+                                        </option>
+                                      </select>
+                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                        <svg
+                                          className="w-4 h-4 fill-current"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M5 7l5 5 5-5z"></path>
+                                        </svg>
+                                      </div>
                                     </div>
-                                  </div>
-                                </td>
-                                <td className="py-1 px-2 w-24">
-                                  <div className="relative">
-                                    <select
-                                      className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                      onChange={(e) =>
-                                        handleChangeCheckpoints(
-                                          e,
-                                          des.CMCheckPointsIDPK,
-                                          "DEPStatus"
-                                        )
-                                      }
-                                      disabled={!activeTask ? true : false}
-                                    >
-                                      <option
-                                        className="text-gray-600"
-                                        value="1"
-                                        selected={
-                                          des.DEPStatus === "1" ? true : false
+                                  </td>
+                                  <td className="py-1 px-2 w-24">
+                                    <div className="relative">
+                                      <select
+                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
+                                        onChange={(e) =>
+                                          handleChangeCheckpoints(
+                                            e,
+                                            des.CMCheckPointsIDPK,
+                                            "DEPStatus"
+                                          )
                                         }
+                                        disabled={!activeTask ? true : false}
                                       >
-                                        NYT
-                                      </option>
-                                      <option
-                                        className="text-green-600"
-                                        value="2"
-                                        selected={
-                                          des.DEPStatus === "2" ? true : false
-                                        }
-                                      >
-                                        Pass
-                                      </option>
-                                      <option
-                                        className="text-red-600"
-                                        value="3"
-                                        selected={
-                                          des.DEPStatus === "3" ? true : false
-                                        }
-                                      >
-                                        Fail
-                                      </option>
-                                      <option
-                                        className="text-amber-600"
-                                        value="4"
-                                        selected={
-                                          des.DEPStatus === "4" ? true : false
-                                        }
-                                      >
-                                        OnHold
-                                      </option>
-                                    </select>
-                                    <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                      <svg
-                                        className="w-4 h-4 fill-current"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path d="M5 7l5 5 5-5z"></path>
-                                      </svg>
+                                        <option
+                                          className="text-gray-600"
+                                          value="1"
+                                          selected={
+                                            des.DEPStatus === "1" ? true : false
+                                          }
+                                        >
+                                          NYT
+                                        </option>
+                                        <option
+                                          className="text-green-600"
+                                          value="2"
+                                          selected={
+                                            des.DEPStatus === "2" ? true : false
+                                          }
+                                        >
+                                          Pass
+                                        </option>
+                                        <option
+                                          className="text-red-600"
+                                          value="3"
+                                          selected={
+                                            des.DEPStatus === "3" ? true : false
+                                          }
+                                        >
+                                          Fail
+                                        </option>
+                                        <option
+                                          className="text-amber-600"
+                                          value="4"
+                                          selected={
+                                            des.DEPStatus === "4" ? true : false
+                                          }
+                                        >
+                                          OnHold
+                                        </option>
+                                      </select>
+                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
+                                        <svg
+                                          className="w-4 h-4 fill-current"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M5 7l5 5 5-5z"></path>
+                                        </svg>
+                                      </div>
                                     </div>
-                                  </div>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        );
-                      })
-                    : null}
-                </div>
-                <div
-                  id="closeTask_div"
-                  className="flex mt-3  justify-end space-x-1 "
-                >
-                  <input
-                    type="text"
-                    id="closeRemarks"
-                    style={{ width: "30%" }}
-                    placeholder="Enter Close Remarks..."
-                    className="bg-white border border-gray-300 text-slate-900 text-xs  rounded-lg focus:outline-none focus:ring-blue-600 ring-1 focus:border-blue-500 block  p-2	"
-                  />
-                  <button
-                    onClick={() => {
-                      if (activeTask === activeTask) {
-                        handleFinalCloseTask(activeTask);
-                      }
-                    }}
-                    type="button"
-                    className="rounded bg-red-500  px-3 py-1 text-white hover:bg-red-700 focus:outline-none text-xs"
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          );
+                        })
+                      : null}
+                  </div>
+                  <div
+                    id="closeTask_div"
+                    className="flex mt-3  justify-end space-x-1 "
                   >
-                    Close Task
-                  </button>
+                    <input
+                      type="text"
+                      id="closeRemarks"
+                      style={{ width: "30%" }}
+                      placeholder="Enter Close Remarks..."
+                      className="bg-white border border-gray-300 text-slate-900 text-xs  rounded-lg focus:outline-none focus:ring-blue-600 ring-1 focus:border-blue-500 block  p-2	"
+                    />
+                    <button
+                      onClick={() => {
+                        if (activeTask === activeTask) {
+                          handleFinalCloseTask(activeTask);
+                        }
+                      }}
+                      type="button"
+                      className="rounded bg-red-500  px-3 py-1 text-white hover:bg-red-700 focus:outline-none text-xs"
+                    >
+                      Close Task
+                    </button>
+                  </div>
                 </div>
               </Box>
             </Fade>
           </Modal>
-        )}
+        )} */}
       </div>
     </>
   );

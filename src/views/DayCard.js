@@ -433,7 +433,7 @@ const DayCard = () => {
   return (
     <div className="w-full ">
       {/* Search bar section */}
-      <div className="fixed top-36 left-0 right-0 z-30 px-7 pt-7 pb-3 bg-opacity-50 backdrop-filter backdrop-blur-lg ">
+      {/* <div className="fixed top-36 left-0 right-0 z-30 px-7 pt-7 pb-3 bg-opacity-50 backdrop-filter backdrop-blur-lg ">
         <div className="flex justify-between  ">
           <form className="max-w-md">
             <div className="relative">
@@ -482,7 +482,7 @@ const DayCard = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Card view section */}
       <div className="mt-10 overflow-auto custom-scrollbar">
