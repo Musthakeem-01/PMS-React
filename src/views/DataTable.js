@@ -501,6 +501,7 @@ export default function DataTable(props) {
         });
 
       window.alert("Task Closed Successfully");
+      fetchData();
       handleClose();
     }
   };
@@ -630,6 +631,7 @@ export default function DataTable(props) {
     } catch (error) {
       console.error("Error fetching data:", error.message);
     }
+    checkpointsSelect(params.row.ComplaintIDPK);
   };
   const handleCellClick = (params) => {
     const clickedField = params.field;
@@ -723,7 +725,7 @@ export default function DataTable(props) {
         }
         setStartDate("");
         setEndDate("");
-        handleRowClick();
+
         // console.log(response, "rese");
       });
       // console.log("🚀 ~ handleSchedule ~ fetchResponses:", fetchResponses);

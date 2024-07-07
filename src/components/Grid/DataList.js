@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { IoIosClose } from "react-icons/io";
 
 const CustomDatalist = (props) => {
-  // console.log("🚀 ~ CustomDatalist ~ props:", props);
   const [inputValue, setInputValue] = useState("");
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1); // Track selected index
   const inputRef = useRef(null);
   const datalistRef = useRef(null);
 
@@ -30,10 +30,10 @@ const CustomDatalist = (props) => {
   useEffect(() => {
     props.inputSelected(inputValue, props.refname);
   }, [inputValue]);
+
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
-
     filterOptions(value);
   };
 
@@ -45,6 +45,7 @@ const CustomDatalist = (props) => {
           option[props.refname].toLowerCase().includes(value.toLowerCase())
       );
       setFilteredOptions(filtered);
+      setSelectedIndex(-1); // Reset selected index when filtering options
     } else {
       setFilteredOptions(props.options);
     }
@@ -69,15 +70,36 @@ const CustomDatalist = (props) => {
     setInputValue(props.refname ? option[props.refname] : option);
     setIsOpen(false);
   };
+
+  const handleKeyDown = (e) => {
+    if (filteredOptions.length === 0) return;
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prevIndex) =>
+        prevIndex > 0 ? prevIndex - 1 : filteredOptions.length - 1
+      );
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prevIndex) =>
+        prevIndex < filteredOptions.length - 1 ? prevIndex + 1 : 0
+      );
+    } else if (e.key === "Enter" && selectedIndex !== -1) {
+      handleOptionClick(filteredOptions[selectedIndex]);
+    }
+  };
+
   const clear = () => {
     setInputValue("");
   };
+
   return (
     <div className="relative w-full h-full" ref={datalistRef}>
       <input
         type="text"
         value={inputValue}
         onChange={handleInputChange}
+        onKeyDown={handleKeyDown} // Handle keyboard events
         onFocus={handleFocus}
         ref={inputRef}
         className="w-full text-xs p-1 border border-gray-300 rounded"
@@ -95,10 +117,11 @@ const CustomDatalist = (props) => {
           {filteredOptions.length > 0 ? (
             filteredOptions.map((option, index) => (
               <div
-                id={props.fieldName}
                 key={option[props.refid]}
                 onClick={() => handleOptionClick(option)}
-                className="p-1 text-xs cursor-pointer hover:bg-gray-200"
+                className={`p-1 text-xs cursor-pointer ${
+                  index === selectedIndex ? "bg-gray-200" : ""
+                }`}
               >
                 {option[props.refname] ? option[props.refname] : option}
               </div>

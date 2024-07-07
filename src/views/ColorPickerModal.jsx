@@ -66,16 +66,22 @@ const colors = [
 function ColorPickerModal({ onColorChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const modalRef = useRef(null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedGradients, setSelectedGradients] = useState(null);
 
   const handleColorClick = (colorClass) => {
     onColorChange(colorClass);
+    setSelectedColor(colorClass);
+    setSelectedGradients(colorClass);
     setIsOpen(false);
   };
-  const handleRest = () =>
-  {
-    onColorChange('bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3')
-    localStorage.removeItem("selectedColour")
-  }
+
+  const handleRest = () => {
+    onColorChange(
+      "bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3"
+    );
+    localStorage.removeItem("selectedColour");
+  };
   useEffect(() => {
     function handleClickOutside(event) {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -93,16 +99,18 @@ function ColorPickerModal({ onColorChange }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-  const ColorSwatch = ({ color, onClick }) => (
+  const ColorSwatch = ({ color, onClick, isSelected }) => (
     <div
       onClick={() => onClick(color.value)}
-      className={`relative w-full h-6 cursor-pointer ${color.value} rounded transition-all duration-200 hover:border-2 hover:border-gray-600 group`}
-    >
-      <span className="absolute z-10 top-5 flex items-center justify-center text-xs text-black opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-        {color.name}
-      </span>
-    </div>
+      className={`relative w-full h-6 cursor-pointer ${
+        color.value
+      } rounded transition-all duration-200 hover:border-2 hover:border-gray-600 group  ${
+        isSelected ? "border-2 border-blue-700" : ""
+      }`}
+      title={color.name}
+    ></div>
   );
+
   return (
     <div className="relative">
       <RiPaintFill
@@ -125,6 +133,7 @@ function ColorPickerModal({ onColorChange }) {
                 key={gradient.name}
                 color={gradient}
                 onClick={handleColorClick}
+                isSelected={selectedGradients == gradient.value}
               />
             ))}
           </div>
@@ -136,10 +145,16 @@ function ColorPickerModal({ onColorChange }) {
                 key={color.name}
                 color={color}
                 onClick={handleColorClick}
+                isSelected={selectedColor == color.value}
               />
             ))}
           </div>
-          <button className="mt-4 bg-gray-200 hover:bg-gray-300 text-black py-2 px-4 rounded" onClick={handleRest}>Reset</button>
+          <button
+            className="mt-4 bg-gray-200 hover:bg-gray-300 text-black py-2 px-4 rounded"
+            onClick={handleRest}
+          >
+            Reset
+          </button>
         </div>
       )}
     </div>

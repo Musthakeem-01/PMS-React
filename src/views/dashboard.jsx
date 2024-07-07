@@ -77,13 +77,15 @@ function Dashboard(props) {
   // const [backgroundGradient, setBackgroundGradient] = useState(
   //   "bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3"
   // );
-  const [bgClass, setBgClass] = useState( localStorage.getItem("selectedColour")||
-    "bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3"
+  const [bgClass, setBgClass] = useState(
+    localStorage.getItem("selectedColour") ||
+      "bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3"
   );
 
   const handleColorChange = (newColorClass) => {
+    // console.log("🚀 ~ handleColorChange ~ newColorClass:", newColorClass);
     setBgClass(newColorClass);
-    localStorage.setItem("selectedColour",newColorClass)
+    localStorage.setItem("selectedColour", newColorClass);
   };
   useEffect(() => {
     if (clickedDes) {
@@ -121,7 +123,7 @@ function Dashboard(props) {
     if (hours >= 5 && hours < 12) {
       return "☕"; //FiCoffee
     } else if (hours >= 12 && hours < 18) {
-      return <span style={{ color: "#FFA500" }}>☀</span>;
+      return <span style={{ color: "#FFA500" }}>☀️</span>;
     } else {
       return "🌔";
     }
