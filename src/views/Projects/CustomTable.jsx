@@ -40,6 +40,7 @@ export default function CustomTable(props) {
         p4_int: null,
         p5_int: null,
         p6_int: eid,
+        UserID_int: localStorage.getItem("UserIDPK"),
       },
     };
 

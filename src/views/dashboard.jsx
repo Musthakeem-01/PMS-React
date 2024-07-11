@@ -166,7 +166,7 @@ function Dashboard(props) {
   return (
     <div className={`${bgClass} w-full h-auto pt-20 pr-7 pl-7 pb-3`}>
       {/* <div className="w-full pb-7"> */}
-      <div className="flex justify-start items-center py-4  ">
+      {/* <div className="flex justify-start items-center py-4  ">
         <span className="text-white text-center mr-2 cursor-pointer">
           <ColorPickerModal onColorChange={handleColorChange} />
         </span>
@@ -178,11 +178,9 @@ function Dashboard(props) {
         <h1 className="text-2xl font-medium text-white text-center">
           {name.charAt(0).toUpperCase() + name.slice(1)} {CurrentIcon()}
         </h1>
-        {/* <h1 className="p-3 text-2xl font-medium  text-center">
-          {CurrentIcon()}
-        </h1> */}
-      </div>
-      <div className="flex justify-start py-4">
+        
+      </div> */}
+      <div className="flex justify-start ">
         <Summary
           selecteddes={selecteddes}
           selectworkid={selectworkid}

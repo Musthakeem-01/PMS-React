@@ -17,14 +17,25 @@ const Summary = (props) => {
   const [greeting, setGreeting] = useState("");
   const [dashboardData, setDashboardData] = useState(null);
   const [projectData, setProjectData] = useState("");
+  // console.log("🚀 ~ Summary ~ projectData:", projectData);
   const [activeTask, setActiveTask] = useState([]);
   const [selectDescription, setSelectDescription] = useState(null);
-
+  const [activityCount, setActivityCount] = useState([]);
+  console.log("🚀 ~ Summary ~ activityCount:", activityCount);
   // console.log("🚀 ~ Summary ~ activeTask:", activeTask);
   const fetchData = async () => {
     try {
       const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
-        data: { p1_int: 99, p2_int: localStorage.getItem("eid") },
+        data: {
+          p1_int: 103,
+          p2_int: null,
+          p5_int: null,
+          p6_int: null,
+          ProjectID_int: null,
+          TaskTypeID_int: null,
+          UserID_int: localStorage.getItem("UserIDPK"),
+          TypeID_int: 0,
+        },
       });
       const {
         Output: { status, data },
@@ -78,6 +89,27 @@ const Summary = (props) => {
     } catch (error) {
       console.error("Error fetching data:", error.message);
     }
+    try {
+      const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+        data: {
+          p1_int: 107,
+          ProjectID_int: null,
+          TaskTypeID_int: null,
+          UserID_int: localStorage.getItem("UserIDPK"),
+          TypeID_int: 0,
+        },
+      });
+      const {
+        Output: { status, data },
+      } = response;
+      if (response.Output.status.code === "200") {
+        setActivityCount(response.Output.data);
+      } else {
+        console.error("Error fetching data:", status.message);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+    }
   };
   useEffect(() => {
     fetchData();
@@ -122,309 +154,205 @@ const Summary = (props) => {
   return (
     <div className="w-full h-auto flex justify-center">
       <div className="w-full max-w-screen-lg text-center ">
-        {/* <div> */}
-        {/* <div className="flex justify-between py-4">
-            <span></span>
-            <h1 className="text-2xl font-medium text-white text-center">
-              {greeting ? greeting : "Welcome"},
-              {localStorage.getItem("username")}
-            </h1>
-            <div className="flex gap-2 items-center text-white cursor-pointer px-3 bg-transparent rounded hover:bg-ShareHoveBG">
-              <button className="hidden  items-center gap-1 text-sm font-medium text-white">
-                <IoShareSocialSharp /> Share
-              </button>
-            </div>
-          </div> */}
-
-        {/* <span className="text-base text-white py-2">
-            Here's where you'll view a summary of Project 1's status,
-            priorities, workload, and more.
-          </span> */}
-
-        {/* <div
-            className="flex gap-1 justify-center items-center font-medium text-projectDetailTextClr cursor-pointer py-4"
-            onClick={() => ProjectDetailClick()}
-          >
-            <span className="text-sm font-medium text-projectDetailTextClr hover:underline">
-              Project Details
-            </span>
-            {projectDetail ? <IoIosArrowUp /> : <IoIosArrowDown />}
-          </div>
-          {projectDetail && (
-            <div className="flex justify-center">
-              <div className="w-2/8 h-18 bg-projectPopupBG rounded-full flex items-center p-3 pl-4 gap-2">
-                <div className="w-10 h-10 rounded-full bg-white flex justify-center items-center text-2xl font-extrabold">
-                  <span>D</span>
-                </div>
-                <div className="pr-3">
-                  <p className="text-left text-sm text-stone-800 font-medium cursor-pointer hover:underline">
-                    Develop
-                  </p>
-                  <p className="text-left text-xs font-medium text-DoneSubTextClr">
-                    Project Lead
-                  </p>
-                </div>
-                <div className="border-white border-l-2 pl-5 pr-5">
-                  <p className="text-left text-sm text-stone-800 font-medium">
-                    Project key
-                  </p>
-                  <p className="text-left text-xs font-medium text-DoneSubTextClr">
-                    P1
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div> */}
-
-        <div className="w-full mt-5">
-          {/* <div className="w-full flex gap-4">
-            <div className="w-1/4 h-24 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group">
-              <div className="w-12 h-12 rounded-full bg-green-200 flex justify-center items-center text-lg font-extrabold">
-                <MdOutlineDone className="w-5 h-5 transition-all duration-100 group-hover:w-6 group-hover:h-6" />
-              </div>
-              <div>
-                <p className="text-left text-xl text-green-800 font-medium">
-                  1 Done
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-left text-sm font-medium text-DoneSubTextClr">
-                    In the last 7 days
-                  </p>
-                  <MdCelebration />
-                </div>
-              </div>
-            </div>
-
-            <div className="w-1/4 h-24 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group">
-              <div className="w-12 h-12 rounded-full bg-blue-200 flex justify-center items-center text-lg font-extrabold">
-                <FaPen className="w-4 h-4 transition-all duration-100 group-hover:w-5 group-hover:h-5" />
-              </div>
-              <div>
-                <p className="text-left text-xl text-blue-800 font-medium">
-                  3 Updated
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-left text-sm font-medium text-DoneSubTextClr">
-                    In the last 7 days
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="w-1/4 h-24 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group">
-              <div className="w-12 h-12 rounded-full bg-purple-200 flex justify-center items-center text-lg font-extrabold">
-                <GrAdd className="w-5 h-5 transition-all duration-100 group-hover:w-6 group-hover:h-6" />
-              </div>
-              <div>
-                <p className="text-left text-xl text-purple-800 font-medium">
-                  3 Created
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-left text-sm font-medium text-DoneSubTextClr">
-                    In the last 7 days
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="w-1/4 h-24 bg-white rounded-xl flex items-center pl-5 gap-4 cursor-pointer group">
-              <div className="w-12 h-12 rounded-full bg-slate-300 flex justify-center items-center text-lg font-extrabold">
-                <IoCalendar className="w-5 h-5 transition-all duration-100 group-hover:w-6 group-hover:h-6" />
-              </div>
-              <div>
-                <p className="text-left text-xl text-slate-800 font-medium">
-                  0 Due
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-left text-sm font-medium text-DoneSubTextClr">
-                    In the last 7 days
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div> */}
+        <div className="w-full ">
           <div className="w-full mt-2 flex gap-4">
-            <div className="w-2/4 min-h-60 max-h-96 bg-white rounded-xl  gap-4 overflow-y-auto">
-              <h6 className="pt-2 text-center w-full">Task Overview</h6>
-              <div className="flex justify-start w-full gap-2.5 flex-wrap text-xs cursor-pointer gap-y-2.5 p-2.5 items-center mt-4">
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-purple-300 hover:opacity-90 transition duration-300 ease-in-out hover:text-white">
-                  <div className="flex justify-center items-center h-4 w-4 text-purple-800">
-                    <p>Total</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-purple-300">
-                    {dashboardData?.OpenTaks || 0}
-                  </div>
-                </div>
+            <div className="w-full min-h-60 max-h-96 flex  bg-white rounded-xl          overflow-y-auto">
+              <div className="border border-gray-100 w-[15%] p-4">
+                <h2 className="text-lg font-semibold mb-4">Overview</h2>
+                <div className="grid grid-cols-2 gap-2 cursor-pointer">
+                  {[
+                    { label: "Total", key: "OpenTaks" },
+                    { label: "DR", key: "DR" },
+                    { label: "CR", key: "CR" },
+                    { label: "NR", key: "NR" },
+                    { label: "OR", key: "Other" },
+                  ].map(({ label, key }) => {
+                    const value = dashboardData?.[key] || 0;
 
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-orange-300 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
-                    <p>DR</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-orange-300 ">
-                    {dashboardData?.DR || 0}
-                  </div>
-                </div>
+                    const getColorClasses = (val) => {
+                      if (val > 200) return "bg-red-100 text-red-800";
+                      if (val > 150) return "bg-orange-100 text-orange-800";
+                      if (val > 100) return "bg-yellow-100 text-yellow-800";
+                      if (val > 50) return "bg-green-100 text-green-800";
+                      return "bg-purple-100 text-purple-800";
+                    };
 
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-green-300 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-green-800">
-                    <p>Completed</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-green-300 ">
-                    {dashboardData?.Completed || 0}
-                  </div>
-                </div>
+                    const colorClasses = getColorClasses(value);
 
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-yellow-300 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-yellow-800">
-                    <p>Others</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-yellow-300 ">
-                    {dashboardData?.ORT || 0}
-                  </div>
+                    return (
+                      <div key={label} className="flex flex-col items-center">
+                        <span className="text-xs font-medium text-gray-600 mb-1">
+                          {label}
+                        </span>
+                        <div
+                          className={`flex items-center justify-center w-10 h-10 rounded-full ${colorClasses} font-semibold text-sm`}
+                        >
+                          {value}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
+              <div className="border border-gray-100 w-[20%] p-4">
+                <h6 className="text-lg font-semibold mb-4">Task Age</h6>
+                <div className="grid grid-cols-3 gap-2 cursor-pointer">
+                  {[
+                    { label: "7D", key: "7D" },
+                    { label: "14D", key: "14D" },
+                    { label: "30D", key: "30D" },
+                    { label: "60D", key: "60D" },
+                    { label: "90D", key: "90D" },
+                    { label: "120D", key: "120D" },
+                    { label: "120PD", key: "120PD" },
+                  ].map(({ label, key }) => {
+                    const value = dashboardData?.[key] || 0;
 
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-sky-300 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-sky-800">
-                    <p>Standby</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-sky-300 ">
-                    {dashboardData?.StandBy || 0}
-                  </div>
+                    const getColorClasses = (val) => {
+                      if (val > 200) return "bg-red-100 text-red-800";
+                      if (val > 150) return "bg-orange-100 text-orange-800";
+                      if (val > 100) return "bg-yellow-100 text-yellow-800";
+                      if (val > 50) return "bg-green-100 text-green-800";
+                      return "bg-purple-100 text-purple-800";
+                    };
+
+                    const colorClasses = getColorClasses(value);
+
+                    return (
+                      <div key={label} className="flex flex-col items-center">
+                        <span className="text-xs font-medium text-gray-600 mb-1">
+                          {label}
+                        </span>
+                        <div
+                          className={`flex items-center justify-center w-10 h-10 rounded-full ${colorClasses} font-semibold text-sm`}
+                        >
+                          {value}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
+              <div className="border border-gray-100  w-[20%] p-4">
+                <h6 className="text-lg font-semibold mb-4">Goals</h6>
+                <div className="grid grid-cols-3 gap-2 cursor-pointer">
+                  {[
+                    { label: "V2", key: "v2" },
+                    { label: "V3", key: "v3" },
+                    { label: "V4", key: "v4" },
+                    { label: "V5", key: "v5" },
+                    { label: "V6", key: "v6" },
+                    { label: "B2C", key: "B2C" },
+                    { label: "Bill", key: "billing" },
+                    { label: "Proleaz", key: "Proleaz" },
+                    { label: "All", key: "Total" },
+                  ].map(({ label, key }) => {
+                    const value = projectData?.[key] || 0;
 
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1 rounded-lg h-16 hover:bg-red-300 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-red-800">
-                    <p>Overdue</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-red-300 ">
-                    {dashboardData?.overDue || 0}
-                  </div>
+                    const getColorClasses = (val) => {
+                      if (val > 200) return "bg-red-100 text-red-800";
+                      if (val > 150) return "bg-orange-100 text-orange-800";
+                      if (val > 100) return "bg-yellow-100 text-yellow-800";
+                      if (val > 50) return "bg-green-100 text-green-800";
+                      return "bg-purple-100 text-purple-800";
+                    };
+
+                    const colorClasses = getColorClasses(value);
+
+                    return (
+                      <div key={label} className="flex flex-col items-center">
+                        <span className="text-xs font-medium text-gray-600 mb-1">
+                          {label}
+                        </span>
+                        <div
+                          className={`flex items-center justify-center w-10 h-10 rounded-full ${colorClasses} font-semibold text-sm`}
+                        >
+                          {value}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="border border-gray-100 w-[35%] p-4">
+                <h6 className="text-lg font-semibold mb-4">Department</h6>
+
+                <div className="grid grid-cols-5 gap-2 cursor-pointer">
+                  {activityCount.map((item, index) => {
+                    let bgColor = "bg-purple-100";
+                    let textColor = "text-purple-800";
+
+                    if (item.Total > 200) {
+                      bgColor = "bg-red-100";
+                      textColor = "text-red-800";
+                    } else if (item.Total > 150) {
+                      bgColor = "bg-orange-100";
+                      textColor = "text-orange-800";
+                    } else if (item.Total > 100) {
+                      bgColor = "bg-yellow-100";
+                      textColor = "text-yellow-800";
+                    } else if (item.Total > 50) {
+                      bgColor = "bg-green-100";
+                      textColor = "text-green-800";
+                    }
+
+                    return (
+                      <div key={index} className="flex flex-col items-center">
+                        <span className="text-xs font-medium text-gray-600 mb-1">
+                          {item.Department}
+                        </span>
+
+                        <div
+                          className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm ${bgColor} ${textColor}`}
+                        >
+                          {item.Total}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              <div className="flex justify-start gap-2.5 w-full flex-wrap text-xs cursor-pointer items-center p-2.5  gap-y-2.5">
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">7D</p>
-                  <div className=" p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white bg-zinc-300">
-                    {dashboardData?.["7D"] || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">14D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {dashboardData?.["14D"] || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">30D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {dashboardData?.["30D"] || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">60D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {dashboardData?.["60D"] || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">90D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {dashboardData?.["90D"] || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">120D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {dashboardData?.["120D"] || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">+120D</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {dashboardData?.["120PD"] || 0}
-                  </div>
+              <div className="border border-gray-100  w-[10%] p-4">
+                <h6 className="text-lg font-semibold mb-4"> Activities</h6>
+                <div className="grid grid-cols-1 gap-2 cursor-pointer">
+                  {[
+                    { label: "Completed", key: "v2" },
+                    { label: "Standby", key: "v3" },
+                    { label: "Overdue", key: "v4" },
+                  ].map(({ label, key }) => {
+                    const value = dashboardData?.[key] || 0;
+
+                    const getColorClasses = (val) => {
+                      if (val > 200) return "bg-red-100 text-red-800";
+                      if (val > 150) return "bg-orange-100 text-orange-800";
+                      if (val > 100) return "bg-yellow-100 text-yellow-800";
+                      if (val > 50) return "bg-green-100 text-green-800";
+                      return "bg-purple-100 text-purple-800";
+                    };
+
+                    const colorClasses = getColorClasses(value);
+
+                    return (
+                      <div key={label} className="flex flex-col items-center">
+                        <span className="text-xs font-medium text-gray-600 mb-1">
+                          {label}
+                        </span>
+                        <div
+                          className={`flex items-center justify-center w-10 h-10 rounded-full ${colorClasses} font-semibold text-sm`}
+                        >
+                          {value}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
-            <div className="w-2/4 min-h-60 max-h-96 bg-white rounded-xl  gap-4">
+            {/* <div className="w-2/4 min-h-60 max-h-96 bg-white rounded-xl  gap-4">
               <h6 className="pt-2 text-center w-full">Projects Goals</h6>
-              <div className="flex justify-start w-full gap-2.5 flex-wrap text-xs cursor-pointer gap-y-2.5 p-2.5 items-center mt-4">
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-emerald-200 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
-                    <p>V2</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-emerald-200 ">
-                    {projectData?.v2 || 0}
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-fuchsia-200 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
-                    <p>V3</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-fuchsia-200 ">
-                    {projectData?.v3 || 0}
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-amber-200 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
-                    <p>V4</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-amber-200 ">
-                    {projectData?.v4 || 0}
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-blue-200 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
-                    <p>V5</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-blue-200 ">
-                    {projectData?.v5 || 0}
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center bg-stone-100 p-2 flex-1  rounded-lg h-16 hover:bg-violet-200 hover:opacity-90 transition duration-300 ease-in-out">
-                  <div className="flex justify-center items-center h-4 w-4 text-orange-800">
-                    <p>V6</p>
-                  </div>
-                  <div className="flex justify-center items-center rounded-full p-4 h-4 w-4 border-solid border-2 bg-violet-200 ">
-                    {projectData?.v6 || 0}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-start gap-2.5 w-full flex-wrap text-xs cursor-pointer items-center p-2.5  gap-y-2.5">
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">B2C</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {projectData?.B2C || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">Bill</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {projectData?.billing || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">Proleaz</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {projectData?.Proleaz || 0}
-                  </div>
-                </div>
-                <div className="flex-1 flex flex-col items-center p-2 rounded-lg bg-slate-100 border border-slate-100 hover:border-sky-800">
-                  <p className="text-red-600">All</p>
-                  <div className="bg-slate-200 p-4 rounded-lg w-4 h-4 flex justify-center items-center text-center border-white ">
-                    {projectData?.Total || 0}
-                  </div>
-                </div>
-              </div>
-            </div>
+            </div> */}
           </div>
           {activeTask == null ? (
             <div className="border h-16 mt-4 bg-white rounded-xl flex items-center justify-center p-4 shadow-lg">

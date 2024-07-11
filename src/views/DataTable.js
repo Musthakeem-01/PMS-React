@@ -25,6 +25,10 @@ import DisabledByDefaultIcon from "@mui/icons-material/DisabledByDefault";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import GridItem from "../components/Grid/GridItem";
 import GridContainer from "../components/Grid/GridContainer";
+import showNotification from "../components/customcomponents/notificationUtils";
+import { Store } from "react-notifications-component";
+import "react-notifications-component/dist/theme.css";
+
 const style = {
   position: "absolute",
   top: "50%",
@@ -80,6 +84,7 @@ export default function DataTable(props) {
   // console.log("🚀 ~ DataTable ~ emp:", emp);
   const [isListVisible, setIsListVisible] = useState(false);
   const [selectedInputValue, setselectedInputValue] = useState([]);
+  // console.log("🚀 ~ DataTable ~ selectedInputValue:", selectedInputValue);
   const [createTaskkey, setCreateTaskkey] = useState([]);
   // console.log("🚀 ~ DataTable ~ createTaskkey:", createTaskkey);
   const [activeTaskId, setActiveTaskId] = useState(null);
@@ -320,20 +325,28 @@ export default function DataTable(props) {
       if (data?.length > 0) {
         const message = data[0]?.Message;
         if (message) {
-          window.alert(message);
+          // window.alert( message );
+          showNotification("Success", message, "success");
           setTaskStatuses((prevStatuses) => ({
             ...prevStatuses,
             [complaintIDPK]: "Work Start successfully",
           }));
         } else {
-          window.alert("Unexpected response format");
+          showNotification("Alert", "Unexpected response format", "info");
+          // window.alert("Unexpected response format");
         }
       } else {
-        window.alert("Unable to Start Task");
+        showNotification("Alert", "Unable to Start Task", "info");
+        // window.alert("Unable to Start Task");
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      window.alert("An error occurred while starting the task.");
+      // window.alert( "An error occurred while starting the task." );
+      showNotification(
+        "Alert",
+        "An error occurred while starting the task",
+        "info"
+      );
     }
   }, []);
   useEffect(() => {
@@ -451,7 +464,8 @@ export default function DataTable(props) {
 
     const { ChekStatus, Message } = data[0];
     if (ChekStatus == 0) {
-      window.alert(Message);
+      // window.alert( Message );
+      showNotification("Alert", Message, "info");
       return false;
     }
     const closeRemarks = document.getElementById("closeRemarks").value;
@@ -464,7 +478,8 @@ export default function DataTable(props) {
     //   return false;
     // } else
     if (!closeRemarks) {
-      window.alert("Please enter Remarks");
+      showNotification("Alert", "Please enter Remarks", "info");
+      // window.alert("Please enter Remarks");
       return false;
     }
 
@@ -474,7 +489,8 @@ export default function DataTable(props) {
       let startDate = await getStartDate(id);
 
       if (!startDate) {
-        window.alert("Kindly Start this Task");
+        // window.alert( "Kindly Start this Task" );
+        showNotification("Alert", "Kindly Start this Task", "info");
         return false;
       }
 
@@ -500,7 +516,8 @@ export default function DataTable(props) {
           console.error("Error fetching data:", error);
         });
 
-      window.alert("Task Closed Successfully");
+      // window.alert( "Task Closed Successfully" );
+      showNotification("success", "Task Closed Successfully", "success");
       fetchData();
       handleClose();
     }
@@ -556,7 +573,13 @@ export default function DataTable(props) {
           return response.json();
         })
         .then((data) => {
-          window.alert("Task paused successfully:", data);
+          // window.alert( "Task paused successfully:", data );
+          showNotification(
+            "Success",
+            "Task paused successfully",
+            "success",
+            data
+          );
         })
         .catch((error) => {
           console.error("There was a problem with the fetch operation:", error);
@@ -581,13 +604,18 @@ export default function DataTable(props) {
     : [];
 
   const handleRowClick = async (params) => {
-    if (params) {
-      setSelectedRow(params.row);
-      setComplaintIDPK(params.row.ComplaintIDPK);
-      handleOpen();
+    if (!params || !params.row) {
+      console.error("Invalid parameters:", params);
+      return;
     }
+
+    setSelectedRow(params.row);
+    setComplaintIDPK(params.row.ComplaintIDPK);
+    handleOpen();
+
     try {
-      const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+      // Fetch data using getData for DashboardService/VwAPINSEIPLDetails
+      const response1 = await getData("DashboardService/VwAPINSEIPLDetails/", {
         data: {
           p1_int: 91,
           p2_int: localStorage.getItem("eid"),
@@ -599,40 +627,50 @@ export default function DataTable(props) {
           P8_date: null,
         },
       });
-      const {
-        Output: {
-          status: { code },
-          data,
-        },
-      } = response;
 
-      if (data.length > 0) {
+      const {
+        Output: { status, data },
+      } = response1;
+
+      if (status.code === "200" && data.length > 0) {
         setCardHTML(data);
+      } else {
+        console.error("Error fetching data:", status.message);
       }
     } catch (error) {
       console.error("Error in handleSchedule:", error);
       // Handle error as needed
     }
+
     try {
-      const response = await getData("DashboardService/VwAPINSEIPLALL/", {
+      // Fetch data using getData for DashboardService/VwAPINSEIPLALL
+      const response2 = await getData("DashboardService/VwAPINSEIPLALL/", {
         data: {
           QryType_int: 21,
         },
       });
+
       const {
         Output: { status, data },
-      } = response;
-      if (response.Output.status.code === "200") {
-        let responses = response;
-        setemp(responses.Output.data);
+      } = response2;
+
+      if (status.code === "200") {
+        setemp(data);
       } else {
         console.error("Error fetching data:", status.message);
       }
     } catch (error) {
       console.error("Error fetching data:", error.message);
     }
-    checkpointsSelect(params.row.ComplaintIDPK);
+
+    // Call checkpointsSelect with ComplaintIDPK if it exists
+    if (params.row.ComplaintIDPK) {
+      checkpointsSelect(params.row.ComplaintIDPK);
+    } else {
+      console.warn("No ComplaintIDPK found in params.row:", params.row);
+    }
   };
+
   const handleCellClick = (params) => {
     const clickedField = params.field;
     // console.log("🚀 ~ handleCellClick ~ clickedField:", clickedField);
@@ -721,10 +759,12 @@ export default function DataTable(props) {
         urls.map((url) => fetch(url))
       ).then((response) => {
         if (response[0].status == 200) {
-          window.alert("Task Scheduled Successfully");
+          // window.alert( "Task Scheduled Successfully" );
+          showNotification("Success", "Task Scheduled Successfully", "success");
         }
         setStartDate("");
         setEndDate("");
+        handleRowClick();
 
         // console.log(response, "rese");
       });
@@ -778,7 +818,8 @@ export default function DataTable(props) {
       console.error("Error:", error);
     } finally {
       if (final && final == "scheduleRefresh") {
-        alert("Task Scheduled Successfully");
+        // alert( "Task Scheduled Successfully" );
+        showNotification("Success", "Task Scheduled Successfully", "success");
         // showAlert(1,"Task Scheduled Successfully")
         document.getElementById("scheduleList").innerHTML = getScheduledList();
       }
@@ -789,17 +830,19 @@ export default function DataTable(props) {
   }
   const getScheduledList = () => {};
   const handleAddButtonClick = (params) => {
+    console.log("🚀 ~ handleAddButtonClick ~ params:", params);
     // let checkpointsName = document.getElementById("CheckpointsName");
     // let checkpointType = document.getElementById("checkpointType").value;
     // console.log("🚀 ~ handleAddButtonClick ~ checkpointType:", checkpointType);
     if (checkpointsName.length > 0) {
-      let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${activeTask}&OberVation=${checkpointsName}&EmployeeID=${localStorage.getItem(
+      let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${params}&OberVation=${checkpointsName}&EmployeeID=${localStorage.getItem(
         "eid"
       )}&ResolutionTime=0&MaintenanceHrs=0&TotalMin=0&CorrectiveAction=${checkpointType}&Type=ChkInsert&ExecEmpID=0`;
       const ress = fetch(url);
-      checkpointsSelect(activeTask);
+      checkpointsSelect(params);
     } else {
-      window.alert("Enter checkpoints");
+      showNotification("Alert", "Enter checkpoints", "info");
+      // window.alert("Enter checkpoints");
     }
     setCheckpointsName("");
   };
@@ -809,6 +852,13 @@ export default function DataTable(props) {
   };
 
   const handleassign = () => {
+    // console.log("selectedInputValue:", selectedInputValue); // For debugging
+
+    if (selectedInputValue && selectedInputValue.EmpName.length == 0) {
+      showNotification("Error", "Please Select the Employee", "info");
+      return false;
+    }
+
     const url = "https://smartfm.in/NSEIPLSERVICE/SupportStaffAssign.php";
 
     const data = new URLSearchParams();
@@ -821,12 +871,13 @@ export default function DataTable(props) {
       body: data,
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     };
+
     fetch(url, requestOptions)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        alert("Task Assigned Successfully");
+        showNotification("Success", "Task Assigned Successfully", "success");
         return response.text();
       })
       .then((data) => {
@@ -835,6 +886,7 @@ export default function DataTable(props) {
       .catch((error) => {
         console.error("Error:", error);
       });
+
     handleClose();
   };
 
@@ -845,7 +897,8 @@ export default function DataTable(props) {
       const res = fetch(url);
       // handleFinalCloseTask(complaintIDPK);
     } else {
-      window.alert("invalid input");
+      // window.alert( "invalid input" );
+      showNotification("Alert", "invalid input", "info");
     }
   };
 
@@ -923,7 +976,7 @@ export default function DataTable(props) {
                           <option value="6">DEP</option>
                         </select>
                         <button
-                          onClick={() => handleAddButtonClick(activeTask)}
+                          onClick={() => handleAddButtonClick(complaintIDPK)}
                           className="py-2 px-4 text-sm font-semibold text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out"
                         >
                           Add
@@ -1522,8 +1575,13 @@ export default function DataTable(props) {
                         className="bg-amber-500 text-xs text-white px-4 py-1 font-medium rounded-full hover:bg-amber-600"
                         onClick={() => {
                           if (!startDate || !endDate) {
-                            window.alert(
-                              "Please fill in the Start and End time"
+                            // window.alert(
+                            //   // "Please fill in the Start and End time"
+                            // );
+                            showNotification(
+                              "Alert",
+                              "Please fill in the Start and End time",
+                              "info"
                             );
                           } else {
                             handleSchedule(complaintIDPK);

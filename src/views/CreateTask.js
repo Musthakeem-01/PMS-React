@@ -16,6 +16,7 @@ import Stack from "@mui/material/Stack";
 import Projects from "./projects";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_green.css";
+import showNotification from "../components/customcomponents/notificationUtils";
 export default function CreateTask() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
@@ -277,10 +278,16 @@ export default function CreateTask() {
       // console.log("🚀 ~ handleCreateTask ~ data:", Number(data));
 
       if (data === "Failed" || isNaN(Number(data))) {
-        window.alert("Contract Expired, Kindly check with Admin");
+        // window.alert( "Contract Expired, Kindly check with Admin" );
+        showNotification(
+          "danger",
+          "Contract Expired, Kindly check with Admin",
+          "danger"
+        );
         return false;
       } else {
-        window.alert("Task Created Successfully!");
+        // window.alert("Task Created Successfully!");
+        showNotification("Success", "Task Created Successfully!", "success");
       }
       if (data && data.length > 0) {
         const TaskIDPKURL = `https://smartfm.in/NSEIPLSERVICE/SupportStaffAssign.php?EmployeeID=null&CCMComplaintID=${data}&DivisionExe=STAFFASIGN`;
@@ -310,7 +317,8 @@ export default function CreateTask() {
           await imageSave(images, data);
         }
       } else {
-        window.alert(2, "Unable to Create Task");
+        showNotification("warning", "Unable to Create Task", "warning");
+        // window.alert(2, "Unable to Create Task");
       }
     } catch (error) {
       // console.error("Error:", error);

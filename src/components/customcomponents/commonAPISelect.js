@@ -1,13 +1,13 @@
 async function getData(url, param) {
   try {
-    const userparam = {
-      UserID_int: 0,
-    };
+    // const userparam = {
+    //   UserID_int: 0,
+    // };
     const modifiedParam = {
       ...param,
       data: {
         ...param.data,
-        ...userparam,
+        // ...userparam,
       },
     };
 

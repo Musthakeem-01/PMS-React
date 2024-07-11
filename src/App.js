@@ -4,19 +4,21 @@ import Login from "./views/loginPage";
 import Header from "./views/header/header";
 import Dashboard from "./views/dashboard";
 import Check from "./views/check";
-import { ColorProvider } from "./views/ColorContex";
+import { ReactNotifications } from "react-notifications-component";
+import "react-notifications-component/dist/theme.css";
+import { Store } from "react-notifications-component";
+
 function App() {
   return (
     <>
+      <ReactNotifications />
       <Router>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/Home" element={<Header />} />
-          {/* <ColorProvider> */}
           <Route path="/Dashboard" element={<Dashboard />} />
-          {/* </ColorProvider> */}
-          <Route path="/Check" element={<Check />} /> for checking
-          {/* <Route path="*" element={<NotFound />} /> This is a catch-all route for 404 */}
+          <Route path="/Check" element={<Check />} />
+          {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </Router>
     </>
