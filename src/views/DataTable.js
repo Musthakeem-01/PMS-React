@@ -1,6 +1,6 @@
 import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import getData from "../components/customcomponents/commonAPISelect";
 import { getCurrentWeekDate } from "../components/function/getCurrentWeekDate";
 import Backdrop from "@mui/material/Backdrop";
@@ -28,6 +28,7 @@ import GridContainer from "../components/Grid/GridContainer";
 import showNotification from "../components/customcomponents/notificationUtils";
 import { Store } from "react-notifications-component";
 import "react-notifications-component/dist/theme.css";
+import { TiAttachmentOutline } from "react-icons/ti";
 
 const style = {
   position: "absolute",
@@ -37,7 +38,6 @@ const style = {
   width: "90%",
   height: "90vh",
   bgcolor: "background.paper",
-  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
@@ -61,7 +61,7 @@ const sectionStyle2 = {
 
 const sectionContainer = {
   display: "flex",
-  border: "1px solid #0000000f",
+  gap: "20px",
   height: "70vh",
   overflowY: "auto",
 };
@@ -77,8 +77,14 @@ export default function DataTable(props) {
   const [comment, setComment] = useState("");
   const [showdept, setshowdept] = useState(false);
   const [startDate, setStartDate] = useState("");
+  // console.log("🚀 ~ DataTable ~ startDate:", startDate);
+  const [toDay, setToday] = useState([]);
+  // console.log("🚀 ~ DataTable ~ toDay:", toDay);
   const [endDate, setEndDate] = useState("");
+  const [endDateBe, setEndDateBe] = useState([]);
+  // console.log("🚀 ~ DataTable ~ endDateBe:", endDateBe);
   const [complaintIDPK, setComplaintIDPK] = useState([]);
+  // console.log("🚀 ~ DataTable ~ complaintIDPK:", complaintIDPK);
   const [cardHTML, setCardHTML] = useState([]);
   const [emp, setemp] = useState([]);
   // console.log("🚀 ~ DataTable ~ emp:", emp);
@@ -87,7 +93,6 @@ export default function DataTable(props) {
   // console.log("🚀 ~ DataTable ~ selectedInputValue:", selectedInputValue);
   const [createTaskkey, setCreateTaskkey] = useState([]);
   // console.log("🚀 ~ DataTable ~ createTaskkey:", createTaskkey);
-  const [activeTaskId, setActiveTaskId] = useState(null);
   const [taskStatuses, setTaskStatuses] = useState({});
   const [modalVisibility, setModalVisibility] = useState(false);
   const [closed, setClosed] = useState(null);
@@ -100,15 +105,10 @@ export default function DataTable(props) {
   const [checkpointDes, setCheckpointDes] = useState([]);
   // console.log("🚀 ~ DataTable ~ checkpointDes:", checkpointDes);
   const [checkPointIdpk, setCheckPointIdpk] = useState([]);
+  const containerRef = useRef(null);
   // console.log("🚀 ~ DataTable ~ checkPintIdpk:", checkPointIdpk);
-  const dept = [
-    { name: "BA", color: "bg-red-500" },
-    { name: "DB", color: "bg-pink-400" },
-    { name: "DEV", color: "bg-green-400" },
-    { name: "QA", color: "bg-yellow-400" },
-    { name: "IMP", color: "bg-blue-400" },
-    { name: "DEP", color: "bg-orange-400" },
-  ];
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const HeaderGrid = [
     {
       field: "Projects",
@@ -348,6 +348,7 @@ export default function DataTable(props) {
         "info"
       );
     }
+    handleClose();
   }, []);
   useEffect(() => {
     {
@@ -585,6 +586,8 @@ export default function DataTable(props) {
           console.error("There was a problem with the fetch operation:", error);
         });
     }
+    handleClose();
+    fetchData();
   };
 
   const BodyContent = response
@@ -690,6 +693,13 @@ export default function DataTable(props) {
     } else {
       setCheckPoint(false);
     }
+    const date = new Date();
+    let currentDate = startDate ? startDate : formatDate(date);
+
+    let currentEnd = endDate ? endDate : formatDate(date, 1);
+
+    setToday(currentDate);
+    setEndDateBe(currentEnd);
   };
 
   const inputSelected = (inputValue, refname, refid) => {
@@ -716,27 +726,43 @@ export default function DataTable(props) {
     // }
     setShowDiv(!showDiv);
   };
+
+  const handleClickOutside = (event) => {
+    // console.log("🚀 ~ handleClickOutside ~ event:", event);
+    if (containerRef.current && !containerRef.current.contains(event.target)) {
+      setShowDiv(false);
+      setIsModalOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   const handleshowdept = () => {
     setshowdept(!showdept);
   };
   const handleComments = (comment) => {
     setComment(comment.target.value);
   };
-  const formatDate = (date) => {
+  const formatDate = (date, EndDates) => {
+    let hoursAddon = EndDates ? EndDates : 0;
+    // console.log(date, "date");
     if (!date) return null;
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
+    const hours = String(date.getHours() + hoursAddon).padStart(2, "0");
+    // console.log("🚀 ~ formatDate ~ hours:", hours);
     const minutes = String(date.getMinutes()).padStart(2, "0");
     const seconds = String(date.getSeconds()).padStart(2, "0");
-    const period = hours > 12 ? "PM" : "AM";
-    return `${year}/${month}/${day} ${hours}:${minutes} ${period}`;
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
   const handleSchedule = async (activeTaskId) => {
-    console.log(activeTaskId, "activeTaskId");
-    let from = startDate;
-    let to = endDate;
+    let from = startDate ? startDate : toDay;
+    let to = endDate ? endDate : endDateBe;
     let fromDate = new Date(from);
     let toDate = new Date(to);
     let timeDifferenceInMinutes = Math.abs((toDate - fromDate) / (1000 * 60));
@@ -762,9 +788,9 @@ export default function DataTable(props) {
           // window.alert( "Task Scheduled Successfully" );
           showNotification("Success", "Task Scheduled Successfully", "success");
         }
-        setStartDate("");
-        setEndDate("");
-        handleRowClick();
+        // setStartDate("");
+        // setEndDate("");
+        handleRowClick(complaintIDPK);
 
         // console.log(response, "rese");
       });
@@ -772,28 +798,28 @@ export default function DataTable(props) {
 
       // Assuming getData returns a Promise or can be awaited
 
-      // const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
-      //   data: {
-      //     p1_int: 91,
-      //     p2_int: localStorage.getItem("eid"),
-      //     p3_int: 0,
-      //     p4_int: 0,
-      //     p5_int: 0,
-      //     p6_int: 0,
-      //     P7_date: null,
-      //     P8_date: null,
-      //   },
-      // });
-      // const {
-      //   Output: {
-      //     status: { code },
-      //     data,
-      //   },
-      // } = response;
+      const response = await getData("DashboardService/VwAPINSEIPLDetails/", {
+        data: {
+          p1_int: 91,
+          p2_int: localStorage.getItem("eid"),
+          p3_int: 0,
+          p4_int: 0,
+          p5_int: 0,
+          p6_int: 0,
+          P7_date: null,
+          P8_date: null,
+        },
+      });
+      const {
+        Output: {
+          status: { code },
+          data,
+        },
+      } = response;
 
-      // if (data.length > 0) {
-      //   setCardHTML(data);
-      // }
+      if (data.length > 0) {
+        setCardHTML(data);
+      }
     } catch (error) {
       console.error("Error in handleSchedule:", error);
       // Handle error as needed
@@ -850,7 +876,17 @@ export default function DataTable(props) {
   const handleFocus = () => {
     setIsListVisible(!isListVisible);
   };
-
+  const handleStartDateChange = (date) => {
+    console.log(date, "date");
+    setStartDate(new Date(date));
+    let currentDate = startDate ? startDate : formatDate(date);
+    setToday(currentDate);
+  };
+  const handleEndDateChange = (date) => {
+    setEndDate(new Date(date));
+    let currentEnd = endDate ? endDate : formatDate(date, 1);
+    setEndDateBe(currentEnd);
+  };
   const handleassign = () => {
     // console.log("selectedInputValue:", selectedInputValue); // For debugging
 
@@ -889,8 +925,45 @@ export default function DataTable(props) {
 
     handleClose();
   };
+  const handleTransfer = async () => {
+    let transferRemarks = document.getElementById(
+      "TransferTaskReason_id"
+    ).value;
 
+    if (!transferRemarks) {
+      showNotification("Alert", "Kindly Enter the Transfer Reason", "info");
+      return false;
+    }
+    const response = await getData("DashboardService/VwAPINSEIPLDetailsNew/", {
+      data: {
+        p1_int: 65,
+        p2_int: complaintIDPK,
+        P9_varchar: transferRemarks,
+      },
+    });
+
+    const result = response.Output.data;
+    // console.log("🚀 ~ handleTransfer ~ result:", result);
+
+    ScheduleB4startWorkTask(response);
+
+    showNotification(
+      "success",
+      "Transfer Done for Next Week Successfully",
+      "info"
+    );
+
+    document.getElementById("TransferTaskReason_id").value = "";
+
+    handleClose();
+  };
   const handleChangeCheckpoints = (event, idpk, status) => {
+    console.log(
+      "🚀 ~ handleChangeCheckpoints ~ event, idpk, status:",
+      event,
+      idpk,
+      status
+    );
     let key = event.target.value;
     if (key && idpk && status) {
       let url = `https://smartfm.in/NSEIPLSERVICE/SupportAnalysisUpdate.php?CCMComplaintID=${key}&ServiceCarriedOut=${status}&Type=CHKSINGLEUPDATE&ExecEmpID=${idpk}`;
@@ -901,7 +974,13 @@ export default function DataTable(props) {
       showNotification("Alert", "invalid input", "info");
     }
   };
+  const handleAttachmentsClick = () => {
+    setIsModalOpen(true);
+  };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
   return (
     <>
       <div style={{ height: 400, width: "100%" }}>
@@ -945,6 +1024,33 @@ export default function DataTable(props) {
                   onClick={handleClose}
                 />
                 {selectedRow?.RequestDetailsDesc || "No Data"}
+                <div>
+                  <div className="flex justify-end">
+                    <h2
+                      className="border border-black p-2 flex cursor-pointer rounded"
+                      onClick={handleAttachmentsClick}
+                    >
+                      <TiAttachmentOutline className="mt-1" />
+                      Attachments
+                    </h2>
+                  </div>
+
+                  {isModalOpen && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+                      <div
+                        ref={containerRef}
+                        className="bg-white p-6 relative rounded shadow-lg h-[90vh] w-[75%]"
+                      >
+                        <IoClose
+                          className="absolute top-0 right-0   text-4xl cursor-pointer"
+                          onClick={closeModal}
+                        />
+                        <h3 className="text-lg font-bold mb-4">Attachments</h3>
+                        <p>No attachment found</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <Box
                   sx={sectionContainer}
                   className="scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200"
@@ -1018,7 +1124,7 @@ export default function DataTable(props) {
                                 </thead>
                                 <tbody
                                   id="checkpointsTable"
-                                  className="divide-y bg-blue-50 text-slate-800 bg-white"
+                                  className="divide-y bg-blue-50 text-slate-800 "
                                 >
                                   <tr
                                     className="bg-white border-b hover:bg-blue-100 hover:text-blue-600 cursor-pointer false"
@@ -1028,11 +1134,17 @@ export default function DataTable(props) {
                                       <textarea
                                         className="custom-scrollbar h-full overflow-auto border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none focus:bg-amber-100"
                                         rows="4"
-                                        onChange="handleChangeName(this.value, 'CMChkName', 6123)"
-                                      >
-                                        {des?.CMChkName || null}
-                                      </textarea>
+                                        onChange={(e) =>
+                                          handleChangeCheckpoints(
+                                            e,
+                                            6123,
+                                            "CMChkName"
+                                          )
+                                        }
+                                        value={des?.CMChkName || ""}
+                                      />
                                     </td>
+
                                     <td className="py-1 px-2 w-20">
                                       <div className="relative">
                                         <select
@@ -1467,12 +1579,21 @@ export default function DataTable(props) {
                       />
                       <button
                         onClick={() => {
-                          if (activeTask === activeTask) {
+                          if (activeTask === complaintIDPK) {
                             handleFinalCloseTask(activeTask);
                           }
                         }}
                         type="button"
-                        className="rounded bg-red-500  px-3 py-1 text-white hover:bg-red-700 focus:outline-none text-xs"
+                        className={`rounded bg-red-500 px-3 py-1 text-white hover:bg-red-700 focus:outline-none text-xs ${
+                          closedTaskIds.has(complaintIDPK) ||
+                          (activeTask !== null && activeTask !== complaintIDPK)
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                        disabled={
+                          closedTaskIds.has(complaintIDPK) ||
+                          (activeTask !== null && activeTask !== complaintIDPK)
+                        }
                       >
                         Close Task
                       </button>
@@ -1480,61 +1601,81 @@ export default function DataTable(props) {
                   </Box>
                   <Box sx={sectionStyle2}>
                     <div
-                      onClick={handleShowDiv}
-                      className="border  h-[8vh] cursor-pointer bg-white focus:outline-none ring-1 focus:ring-3 focus:ring-blue-600 flex justify-between"
+                      ref={containerRef}
+                      className="max-w-md mx-auto rounded-xl shadow-lg overflow-hidden md:max-w-2xl mb-4 bg-gradient-to-r from-indigo-500 to-pink-500"
                     >
-                      <p className="mt-2">Summary</p>
-                      {showDiv ? (
-                        <IoIosArrowUp className="mt-2" />
-                      ) : (
-                        <IoIosArrowDown className="mt-2" />
+                      <div
+                        onClick={handleShowDiv}
+                        className="cursor-pointer p-2 flex justify-between items-center bg-[#334ea8] text-[#fde047] hover:bg-opacity-90 transition duration-200"
+                      >
+                        <h2 className="text-base font-semibold">Summary</h2>
+                        {showDiv ? (
+                          <IoIosArrowUp
+                            size={24}
+                            className="transition-transform duration-200 transform rotate-180"
+                          />
+                        ) : (
+                          <IoIosArrowDown
+                            size={24}
+                            className="transition-transform duration-200"
+                          />
+                        )}
+                      </div>
+
+                      {showDiv && (
+                        <div className="p-3 bg-white bg-opacity-30 backdrop-blur-md max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-400 scrollbar-track-pink-200">
+                          {[
+                            {
+                              label: "Complainer Name",
+                              value: selectedRow?.ComplainerName,
+                              icon: (
+                                <AiOutlineUser
+                                  className="text-yellow-300"
+                                  size={20}
+                                />
+                              ),
+                            },
+                            {
+                              label: "Priority",
+                              value: selectedRow?.PriorityName,
+                            },
+                            {
+                              label: "Module",
+                              value: selectedRow?.CCMProTypeName,
+                            },
+                            {
+                              label: "Dept",
+                              value: selectedRow?.CCmWoTypeName,
+                            },
+                            {
+                              label: "Complaint No",
+                              value: selectedRow?.ComplaintNo,
+                            },
+                            {
+                              label: "Summary",
+                              value: selectedRow?.RequestDetailsDesc,
+                            },
+                            { label: "ETA Date", value: selectedRow?.ETADate },
+                            { label: "ETA Time", value: selectedRow?.ETATime },
+                          ].map((item, index) => (
+                            <div
+                              key={index}
+                              className="mb-3 pb-2 border-b border-indigo-200 last:border-b-0"
+                            >
+                              <div className="text-sm font-medium text-yellow-300">
+                                {item.label}
+                              </div>
+                              <div className="mt-1 text-sm text-white flex items-center">
+                                {item.icon && (
+                                  <span className="mr-2">{item.icon}</span>
+                                )}
+                                {item.value || "No Data"}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    {showDiv && (
-                      <div className="border ">
-                        <div id="transition-modal-description" className="mt-2">
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Complainer Name:</div>
-                            <div className="flex gap-1">
-                              <AiOutlineUser className="mt-1 text-base bg-slate-400 text-stone-200" />
-                              {selectedRow?.ComplainerName || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Priority:</div>
-                            <div>{selectedRow?.PriorityName || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Module:</div>
-                            <div>
-                              {selectedRow?.CCMProTypeName || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Dept:</div>
-                            <div>{selectedRow?.CCmWoTypeName || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Complaint No:</div>
-                            <div>{selectedRow?.ComplaintNo || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>Summary:</div>
-                            <div>
-                              {selectedRow?.RequestDetailsDesc || "No Data"}
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>ETA Date:</div>
-                            <div>{selectedRow?.ETADate || "No Data"}</div>
-                          </div>
-                          <div className="grid grid-cols-[40%_60%] mt-3">
-                            <div>ETA Time:</div>
-                            <div>{selectedRow?.ETATime || "No Data"}</div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
 
                     <div className="grid grid-cols-2 gap-2 mt-4">
                       <div className="">
@@ -1543,14 +1684,16 @@ export default function DataTable(props) {
                         </label>
                         <div>
                           <Flatpickr
-                            className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs"
-                            value={startDate}
-                            onChange={([date]) => setStartDate(date)}
+                            selected={startDate}
+                            onChange={handleStartDateChange}
+                            value={toDay}
+                            showTimeSelect
                             options={{
                               enableTime: true,
                               dateFormat: "Y-m-d H:i",
                               allowInput: true,
                             }}
+                            className=" block w-full border border-gray-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                           />
                         </div>
                       </div>
@@ -1559,14 +1702,16 @@ export default function DataTable(props) {
                           End
                         </label>
                         <Flatpickr
-                          className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-xs"
-                          value={endDate}
-                          onChange={([date]) => setEndDate(date)}
+                          selected={endDate}
+                          onChange={handleEndDateChange}
+                          value={endDateBe}
+                          showTimeSelect
                           options={{
                             enableTime: true,
                             dateFormat: "Y-m-d H:i",
                             allowInput: true,
                           }}
+                          className=" block w-full  border border-gray-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
                     </div>
@@ -1574,24 +1719,13 @@ export default function DataTable(props) {
                       <button
                         className="bg-amber-500 text-xs text-white px-4 py-1 font-medium rounded-full hover:bg-amber-600"
                         onClick={() => {
-                          if (!startDate || !endDate) {
-                            // window.alert(
-                            //   // "Please fill in the Start and End time"
-                            // );
-                            showNotification(
-                              "Alert",
-                              "Please fill in the Start and End time",
-                              "info"
-                            );
-                          } else {
-                            handleSchedule(complaintIDPK);
-                          }
+                          handleSchedule(complaintIDPK);
                         }}
                       >
                         Schedule
                       </button>
                     </div>
-                    <div className="h-[25vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 overflow-y-auto  mt-4">
+                    <div className="h-[20vh] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 overflow-y-auto  mt-4">
                       <p className=" text-sm font-medium text-gray-700">
                         Work Details
                       </p>
@@ -1621,6 +1755,29 @@ export default function DataTable(props) {
                         ))}
                       </div>
                     </div>
+                    <div className="mt-4  flex items-end justify-end">
+                      <button
+                        className={`bg-green-500 text-xs text-white px-4 py-1 font-medium rounded-full hover:bg-green-600 ${
+                          closedTaskIds.has(complaintIDPK) ||
+                          (activeTask !== null && activeTask !== complaintIDPK)
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                        disabled={
+                          closedTaskIds.has(complaintIDPK) ||
+                          (activeTask !== null && activeTask !== complaintIDPK)
+                        }
+                        onClick={() => {
+                          if (activeTask === complaintIDPK) {
+                            handlePauseTask(complaintIDPK);
+                          } else {
+                            handleStartTask(complaintIDPK);
+                          }
+                        }}
+                      >
+                        {activeTask === complaintIDPK ? "Pause" : "Start"}
+                      </button>
+                    </div>
                     <div className="flex items-center mt-4">
                       <label htmlFor="assignee" className="mr-2">
                         Assign To:
@@ -1647,534 +1804,30 @@ export default function DataTable(props) {
                         </button>
                       </div>
                     </div>
+
+                    <div className="flex gap-2 items-center mt-4">
+                      <label>Transfer </label>
+                      <textarea
+                        id="TransferTaskReason_id"
+                        placeholder="Reason For Transfering the Task"
+                        className="custom-scrollbar text-xs  bg-transparent border-2 border-gray-300 h-full overflow-auto  w-full text-gray-800 p-1 pr-4 rounded-md focus:outline-none focus:border-blue-600"
+                        rows="2"
+                      ></textarea>
+                      <div className="flex ">
+                        <button
+                          className="w-full bg-rose-400 text-white px-4 py-1 font-medium rounded-full hover:bg-rose-300 "
+                          onClick={handleTransfer}
+                        >
+                          Transfer
+                        </button>
+                      </div>
+                    </div>
                   </Box>
                 </Box>
               </Box>
             </Fade>
           </Modal>
         )}
-        {/* {checkPoint && (
-          <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            open={open}
-            onClose={handleClose}
-            disableEnforceFocus
-            closeAfterTransition
-            slots={{ backdrop: Backdrop }}
-            slotProps={{
-              backdrop: {
-                timeout: 500,
-              },
-            }}
-          >
-            <Fade in={open}>
-              <Box sx={style}>
-                <div className="relative">
-                  <Typography
-                    id="transition-modal-title"
-                    variant="h6"
-                    component="h2"
-                  >
-                    {selectedRow?.Projects || ""}
-                  </Typography>
-                </div>
-                <IoClose
-                  className="absolute top-0 right-0 text-4xl cursor-pointer"
-                  onClick={handleClose}
-                />
-                <div className="border border-black">
-                  <div className="w-full">
-                    <div>
-                      <p>CheckPoint </p>
-                    </div>
-                    <GridContainer spacing={1}>
-                      <GridItem xs={10} md={10} lg={10} sm={10}>
-                        <textarea
-                          rows="1"
-                          id="CheckpointsName"
-                          className="block rounded-md w-full h-[15vh] py-1 px-2 text-sm text-gray-800 bg-transparent border-2 border-gray-300 focus:outline-none focus:border-blue-600"
-                          placeholder="Enter New Checkpoints here..."
-                          value={checkpointsName}
-                          onChange={(e) => setCheckpointsName(e.target.value)}
-                        />
-                      </GridItem>
-                      <GridItem xs={1} md={1} lg={1} sm={1}>
-                        <select
-                          id="checkpointType"
-                          className=" text-sm text-gray-700 bg-transparent border-b-2 border-gray-300 focus:outline-none"
-                          value={checkpointType}
-                          onChange={(e) => setCheckpointType(e.target.value)}
-                        >
-                          <option value="1">BA</option>
-                          <option value="2">DB</option>
-                          <option value="3">DEV</option>
-                          <option value="4">QA</option>
-                          <option value="5">IMP</option>
-                          <option value="6">DEP</option>
-                        </select>
-                      </GridItem>
-                      <GridItem xs={1} md={1} lg={1} sm={1}>
-                        <button
-                          onClick={() => handleAddButtonClick(activeTask)}
-                          className=" text-sm font-semibold text-white bg-blue-500 hover:bg-gradient-to-br focus:ring-2 focus:outline-none focus:ring-blue-300 rounded-md transition duration-300 ease-in-out"
-                        >
-                          Add
-                        </button>
-                      </GridItem>
-                    </GridContainer>
-                  </div>
-                  <div className="mt-4 custom-scrollbar overflow-auto  borderborder-gray-100	h-[40vh]">
-                    {checkpointDes.length > 0
-                      ? checkpointDes.map((des) => {
-                          return (
-                            <table
-                              id=""
-                              className="relative tracking-wider w-full border text-left text-xs text-slate-500"
-                            >
-                              <thead className="text-xs text-green-600 uppercase">
-                                <tr>
-                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                    Checkpoint Description
-                                  </th>
-                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                    BA
-                                  </th>
-                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                    DB
-                                  </th>
-                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                    DEV
-                                  </th>
-                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                    QA
-                                  </th>
-                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                    IMP
-                                  </th>
-                                  <th className="sticky top-0 py-2 px-2 bg-gray-200">
-                                    DEP
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody
-                                id="checkpointsTable"
-                                className="divide-y bg-blue-50 text-slate-800 bg-white"
-                              >
-                                <tr
-                                  className="bg-white border-b hover:bg-blue-100 hover:text-blue-600 cursor-pointer false"
-                                  data-idpk="6123"
-                                >
-                                  <td className="py-1 px-2">
-                                    <textarea
-                                      className="custom-scrollbar h-full overflow-auto border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none focus:bg-amber-100"
-                                      rows="4"
-                                      onChange="handleChangeName(this.value, 'CMChkName', 6123)"
-                                    >
-                                      {des?.CMChkName || null}
-                                    </textarea>
-                                  </td>
-                                  <td className="py-1 px-2 w-24">
-                                    <div className="relative">
-                                      <select
-                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                        onChange={(e) =>
-                                          handleChangeCheckpoints(
-                                            e,
-                                            des.CMCheckPointsIDPK,
-                                            "BAStatus"
-                                          )
-                                        }
-                                        disabled={!activeTask ? true : false}
-                                      >
-                                        <option
-                                          className="text-gray-600"
-                                          value="1"
-                                          selected={
-                                            des.BAStatus === "1" ? true : false
-                                          }
-                                        >
-                                          NYT
-                                        </option>
-                                        <option
-                                          className="text-green-600"
-                                          value="2"
-                                          selected={
-                                            des.BAStatus === "2" ? true : false
-                                          }
-                                        >
-                                          Pass
-                                        </option>
-                                        <option
-                                          className="text-red-600"
-                                          value="3"
-                                          selected={
-                                            des.BAStatus === "3" ? true : false
-                                          }
-                                        >
-                                          Fail
-                                        </option>
-                                        <option
-                                          className="text-amber-600"
-                                          value="4"
-                                          selected={
-                                            des.BAStatus === "4" ? true : false
-                                          }
-                                        >
-                                          OnHold
-                                        </option>
-                                      </select>
-                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                        <svg
-                                          className="w-4 h-4 fill-current"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          viewBox="0 0 20 20"
-                                        >
-                                          <path d="M5 7l5 5 5-5z"></path>
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="py-1 px-2 w-24">
-                                    <div className="relative">
-                                      <select
-                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                        onChange={(e) =>
-                                          handleChangeCheckpoints(
-                                            e,
-                                            des.CMCheckPointsIDPK,
-                                            "DBStatus"
-                                          )
-                                        }
-                                        disabled={!activeTask ? true : false}
-                                      >
-                                        <option
-                                          className="text-gray-600"
-                                          value="1"
-                                          selected={
-                                            des.DBStatus === "1" ? true : false
-                                          }
-                                        >
-                                          NYT
-                                        </option>
-                                        <option
-                                          className="text-green-600"
-                                          value="2"
-                                          selected={
-                                            des.DBStatus === "2" ? true : false
-                                          }
-                                        >
-                                          Pass
-                                        </option>
-                                        <option
-                                          className="text-red-600"
-                                          value="3"
-                                          selected={
-                                            des.DBStatus === "3" ? true : false
-                                          }
-                                        >
-                                          Fail
-                                        </option>
-                                        <option
-                                          className="text-amber-600"
-                                          value="4"
-                                          selected={
-                                            des.DBStatus === "4" ? true : false
-                                          }
-                                        >
-                                          OnHold
-                                        </option>
-                                      </select>
-                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                        <svg
-                                          className="w-4 h-4 fill-current"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          viewBox="0 0 20 20"
-                                        >
-                                          <path d="M5 7l5 5 5-5z"></path>
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="py-1 px-2 w-24">
-                                    <div className="relative">
-                                      <select
-                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                        onChange={(e) =>
-                                          handleChangeCheckpoints(
-                                            e,
-                                            des.CMCheckPointsIDPK,
-                                            "DevStatus"
-                                          )
-                                        }
-                                        disabled={!activeTask ? true : false}
-                                      >
-                                        <option
-                                          className="text-gray-600"
-                                          value="1"
-                                          selected={
-                                            des.DevStatus === "1" ? true : false
-                                          }
-                                        >
-                                          NYT
-                                        </option>
-                                        <option
-                                          className="text-green-600"
-                                          value="2"
-                                          selected={
-                                            des.DevStatus === "2" ? true : false
-                                          }
-                                        >
-                                          Pass
-                                        </option>
-                                        <option
-                                          className="text-red-600"
-                                          value="3"
-                                          selected={
-                                            des.DevStatus === "3" ? true : false
-                                          }
-                                        >
-                                          Fail
-                                        </option>
-                                        <option
-                                          className="text-amber-600"
-                                          value="4"
-                                          selected={
-                                            des.DevStatus === "4" ? true : false
-                                          }
-                                        >
-                                          OnHold
-                                        </option>
-                                      </select>
-                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                        <svg
-                                          className="w-4 h-4 fill-current"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          viewBox="0 0 20 20"
-                                        >
-                                          <path d="M5 7l5 5 5-5z"></path>
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="py-1 px-2 w-24">
-                                    <div className="relative">
-                                      <select
-                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                        onChange={(e) =>
-                                          handleChangeCheckpoints(
-                                            e,
-                                            des.CMCheckPointsIDPK,
-                                            "QAStatus"
-                                          )
-                                        }
-                                        disabled={!activeTask ? true : false}
-                                      >
-                                        <option
-                                          className="text-gray-600"
-                                          value="1"
-                                          selected={
-                                            des.QAStatus === "1" ? true : false
-                                          }
-                                        >
-                                          NYT
-                                        </option>
-                                        <option
-                                          className="text-green-600"
-                                          value="2"
-                                          selected={
-                                            des.QAStatus === "2" ? true : false
-                                          }
-                                        >
-                                          Pass
-                                        </option>
-                                        <option
-                                          className="text-red-600"
-                                          value="3"
-                                          selected={
-                                            des.QAStatus === "3" ? true : false
-                                          }
-                                        >
-                                          Fail
-                                        </option>
-                                        <option
-                                          className="text-amber-600"
-                                          value="4"
-                                          selected={
-                                            des.QAStatus === "4" ? true : false
-                                          }
-                                        >
-                                          OnHold
-                                        </option>
-                                      </select>
-                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                        <svg
-                                          className="w-4 h-4 fill-current"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          viewBox="0 0 20 20"
-                                        >
-                                          <path d="M5 7l5 5 5-5z"></path>
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="py-1 px-2 w-24">
-                                    <div className="relative">
-                                      <select
-                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                        onChange={(e) =>
-                                          handleChangeCheckpoints(
-                                            e,
-                                            des.CMCheckPointsIDPK,
-                                            "ImpStatus"
-                                          )
-                                        }
-                                        disabled={!activeTask ? true : false}
-                                      >
-                                        <option
-                                          className="text-gray-600"
-                                          value="1"
-                                          selected={
-                                            des.QAStatus === "1" ? true : false
-                                          }
-                                        >
-                                          NYT
-                                        </option>
-                                        <option
-                                          className="text-green-600"
-                                          value="2"
-                                          selected={
-                                            des.QAStatus === "2" ? true : false
-                                          }
-                                        >
-                                          Pass
-                                        </option>
-                                        <option
-                                          className="text-red-600"
-                                          value="3"
-                                          selected={
-                                            des.QAStatus === "3" ? true : false
-                                          }
-                                        >
-                                          Fail
-                                        </option>
-                                        <option
-                                          className="text-amber-600"
-                                          value="4"
-                                          selected={
-                                            des.QAStatus === "4" ? true : false
-                                          }
-                                        >
-                                          OnHold
-                                        </option>
-                                      </select>
-                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                        <svg
-                                          className="w-4 h-4 fill-current"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          viewBox="0 0 20 20"
-                                        >
-                                          <path d="M5 7l5 5 5-5z"></path>
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="py-1 px-2 w-24">
-                                    <div className="relative">
-                                      <select
-                                        className="dropdown appearance-none bg-transparent border-none w-full text-gray-700 p-1 pr-4 rounded-md focus:outline-none"
-                                        onChange={(e) =>
-                                          handleChangeCheckpoints(
-                                            e,
-                                            des.CMCheckPointsIDPK,
-                                            "DEPStatus"
-                                          )
-                                        }
-                                        disabled={!activeTask ? true : false}
-                                      >
-                                        <option
-                                          className="text-gray-600"
-                                          value="1"
-                                          selected={
-                                            des.DEPStatus === "1" ? true : false
-                                          }
-                                        >
-                                          NYT
-                                        </option>
-                                        <option
-                                          className="text-green-600"
-                                          value="2"
-                                          selected={
-                                            des.DEPStatus === "2" ? true : false
-                                          }
-                                        >
-                                          Pass
-                                        </option>
-                                        <option
-                                          className="text-red-600"
-                                          value="3"
-                                          selected={
-                                            des.DEPStatus === "3" ? true : false
-                                          }
-                                        >
-                                          Fail
-                                        </option>
-                                        <option
-                                          className="text-amber-600"
-                                          value="4"
-                                          selected={
-                                            des.DEPStatus === "4" ? true : false
-                                          }
-                                        >
-                                          OnHold
-                                        </option>
-                                      </select>
-                                      <div className="absolute inset-y-0 right-0 flex items-center px-1 pointer-events-none">
-                                        <svg
-                                          className="w-4 h-4 fill-current"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          viewBox="0 0 20 20"
-                                        >
-                                          <path d="M5 7l5 5 5-5z"></path>
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  </td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          );
-                        })
-                      : null}
-                  </div>
-                  <div
-                    id="closeTask_div"
-                    className="flex mt-3  justify-end space-x-1 "
-                  >
-                    <input
-                      type="text"
-                      id="closeRemarks"
-                      style={{ width: "30%" }}
-                      placeholder="Enter Close Remarks..."
-                      className="bg-white border border-gray-300 text-slate-900 text-xs  rounded-lg focus:outline-none focus:ring-blue-600 ring-1 focus:border-blue-500 block  p-2	"
-                    />
-                    <button
-                      onClick={() => {
-                        if (activeTask === activeTask) {
-                          handleFinalCloseTask(activeTask);
-                        }
-                      }}
-                      type="button"
-                      className="rounded bg-red-500  px-3 py-1 text-white hover:bg-red-700 focus:outline-none text-xs"
-                    >
-                      Close Task
-                    </button>
-                  </div>
-                </div>
-              </Box>
-            </Fade>
-          </Modal>
-        )} */}
       </div>
     </>
   );

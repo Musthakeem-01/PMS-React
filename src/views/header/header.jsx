@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../../assets/img/logo-01.png";
 import Projects from "../projects";
 import Dashboard from "../dashboard";
@@ -13,6 +13,8 @@ const Header = () => {
   const [clickedDes, setclickedDes] = useState(null);
   // console.log("🚀 ~ Header ~ clickedDes:", clickedDes);
   const [workid, setWorkId] = useState(null);
+  const [greeting, setGreeting] = useState("");
+
   // console.log("🚀 ~ Header ~ workid:", workid);
   const handlechangetab = (changeTab, id, description) => {
     // console.log(changeTab, id, description, "changeTab,id,description");
@@ -20,17 +22,33 @@ const Header = () => {
     setWorkId(id);
     setclickedDes(description);
   };
-  // const selecteddes = (desc) => {
-  //   console.log("🚀 ~ selecteddes ~ desc:", desc);
-  //   setclickedDes(desc);
-  // };
-  // const selectworkid = (id) => {
-  //   console.log("🚀 ~ selectworkid ~ id:", id);
-  //   // console.log(id, "id from dashboard");
-  //   setWorkId(id);
-  // };
 
+  function getGreeting() {
+    const currentTime = new Date().getHours();
+    if (currentTime < 12) {
+      return "Good morning";
+    } else if (currentTime < 18) {
+      return "Good afternoon";
+    } else {
+      return "Good evening";
+    }
+  }
+  const CurrentIcon = () => {
+    const hours = new Date().getHours();
+    if (hours >= 5 && hours < 12) {
+      return "☕"; //FiCoffee
+    } else if (hours >= 12 && hours < 18) {
+      return <span style={{ color: "#FFA500" }}>☀️</span>;
+    } else {
+      return "🌔";
+    }
+  };
   const navigate = useNavigate();
+  useEffect(() => {
+    const currentGreeting = getGreeting();
+    setGreeting(currentGreeting);
+  });
+  let name = localStorage.getItem("username");
 
   return (
     <div className="w-full">
@@ -55,6 +73,14 @@ const Header = () => {
               </a>
             ))}
           </div>
+          {/* <div className="mr-8 h-14 flex justify-start items-center text-base font-medium border-transparent border-b-4 text-stone-600 cursor-pointer">
+            <h1 className="text-base  font-semibold text-center">
+              {greeting ? greeting : "Welcome"},
+            </h1>
+            <h1 className="text-base  font-semibold  text-center">
+              {name.charAt(0).toUpperCase() + name.slice(1)} {CurrentIcon()}
+            </h1>
+          </div> */}
           <div className="w-3/12 h-14 gap-5 flex justify-end items-center">
             {<CreateTask />}
             <form className="max-w-md">

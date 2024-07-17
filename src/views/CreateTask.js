@@ -232,6 +232,7 @@ export default function CreateTask() {
       handleCreateTask();
     }
   }
+
   const handleCreateTask = async () => {
     const param = {
       NatureOfComplaint: createTaskkey.DivisionName, // Division
@@ -494,6 +495,7 @@ export default function CreateTask() {
   };
 
   const handleImageUpload = (event) => {
+    console.log("🚀 ~ handleImageUpload ~ event:", event);
     const files = event.target.files;
     if (files) {
       const newImages = Array.from(files).map((file) => {
@@ -521,6 +523,7 @@ export default function CreateTask() {
         size="small"
         style={{ textTransform: "capitalize" }}
         onClick={handleOpen}
+        id="createTaskBtn"
       >
         Create
       </Button>
@@ -802,8 +805,7 @@ export default function CreateTask() {
                       <button
                         onClick={validate}
                         type="button"
-                        id="createTaskButton"
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 "
                       >
                         Create Task
                       </button>

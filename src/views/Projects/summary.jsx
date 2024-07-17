@@ -156,196 +156,253 @@ const Summary = (props) => {
       <div className="w-full max-w-screen-lg text-center ">
         <div className="w-full ">
           <div className="w-full mt-2 flex gap-4">
-            <div className="w-full min-h-60 max-h-96 flex  bg-white rounded-xl          overflow-y-auto">
-              <div className="border border-gray-100 w-[15%] p-4">
-                <h2 className="text-lg font-semibold mb-4">Overview</h2>
-                <div className="grid grid-cols-2 gap-2 cursor-pointer">
-                  {[
-                    { label: "Total", key: "OpenTaks" },
-                    { label: "DR", key: "DR" },
-                    { label: "CR", key: "CR" },
-                    { label: "NR", key: "NR" },
-                    { label: "OR", key: "Other" },
-                  ].map(({ label, key }) => {
-                    const value = dashboardData?.[key] || 0;
+            <div className="w-full min-h-60 max-h-96 flex bg-white rounded-xl p-3">
+              <div className="w-full grid grid-cols-5 gap-2">
+                {/* Overview Section */}
+                <div className="col-span-1 bg-gray-50 rounded-lg p-2 shadow-sm">
+                  <h2 className="text-sm font-semibold mb-2">Overview</h2>
+                  <div className="space-y-1">
+                    {[
+                      { label: "Total", key: "OpenTaks" },
+                      { label: "DR", key: "DR" },
+                      { label: "CR", key: "CR" },
+                      { label: "NR", key: "NR" },
+                      { label: "OR", key: "Other" },
+                    ].map(({ label, key }) => {
+                      const value = dashboardData?.[key] || 0;
+                      const barWidth = `${Math.min((value / 250) * 100, 100)}%`;
+                      const barColor =
+                        value > 200
+                          ? "bg-red-500"
+                          : value > 150
+                          ? "bg-orange-500"
+                          : value > 100
+                          ? "bg-yellow-500"
+                          : value > 50
+                          ? "bg-green-500"
+                          : "bg-purple-500";
 
-                    const getColorClasses = (val) => {
-                      if (val > 200) return "bg-red-100 text-red-800";
-                      if (val > 150) return "bg-orange-100 text-orange-800";
-                      if (val > 100) return "bg-yellow-100 text-yellow-800";
-                      if (val > 50) return "bg-green-100 text-green-800";
-                      return "bg-purple-100 text-purple-800";
-                    };
-
-                    const colorClasses = getColorClasses(value);
-
-                    return (
-                      <div key={label} className="flex flex-col items-center">
-                        <span className="text-xs font-medium text-gray-600 mb-1">
-                          {label}
-                        </span>
+                      return (
                         <div
-                          className={`flex items-center justify-center w-10 h-10 rounded-full ${colorClasses} font-semibold text-sm`}
+                          key={label}
+                          className="flex items-center justify-between text-xs"
                         >
-                          {value}
+                          <span className="font-medium text-gray-600 w-8">
+                            {label}
+                          </span>
+                          <div className="w-1/2 bg-gray-200 rounded-full h-1.5">
+                            <div
+                              className={`h-1.5 rounded-full ${barColor}`}
+                              style={{ width: barWidth }}
+                            ></div>
+                          </div>
+                          <span className="font-semibold w-6 text-right">
+                            {value}
+                          </span>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-              <div className="border border-gray-100 w-[20%] p-4">
-                <h6 className="text-lg font-semibold mb-4">Task Age</h6>
-                <div className="grid grid-cols-3 gap-2 cursor-pointer">
-                  {[
-                    { label: "7D", key: "7D" },
-                    { label: "14D", key: "14D" },
-                    { label: "30D", key: "30D" },
-                    { label: "60D", key: "60D" },
-                    { label: "90D", key: "90D" },
-                    { label: "120D", key: "120D" },
-                    { label: "120PD", key: "120PD" },
-                  ].map(({ label, key }) => {
-                    const value = dashboardData?.[key] || 0;
 
-                    const getColorClasses = (val) => {
-                      if (val > 200) return "bg-red-100 text-red-800";
-                      if (val > 150) return "bg-orange-100 text-orange-800";
-                      if (val > 100) return "bg-yellow-100 text-yellow-800";
-                      if (val > 50) return "bg-green-100 text-green-800";
-                      return "bg-purple-100 text-purple-800";
-                    };
+                {/* Task Age Section */}
+                <div className="col-span-1 bg-gray-50 rounded-lg p-2 shadow-sm">
+                  <h6 className="text-sm font-semibold mb-2">Task Age</h6>
+                  <div className="grid grid-cols-2 gap-1 text-xs">
+                    {[
+                      { label: "7D", key: "7D" },
+                      { label: "14D", key: "14D" },
+                      { label: "30D", key: "30D" },
+                      { label: "60D", key: "60D" },
+                      { label: "90D", key: "90D" },
+                      { label: "120D", key: "120D" },
+                      { label: "120PD", key: "120PD" },
+                    ].map(({ label, key }) => {
+                      const value = dashboardData?.[key] || 0;
+                      const bgColor =
+                        value > 200
+                          ? "bg-red-100"
+                          : value > 150
+                          ? "bg-orange-100"
+                          : value > 100
+                          ? "bg-yellow-100"
+                          : value > 50
+                          ? "bg-green-100"
+                          : "bg-purple-100";
+                      const textColor =
+                        value > 200
+                          ? "text-red-800"
+                          : value > 150
+                          ? "text-orange-800"
+                          : value > 100
+                          ? "text-yellow-800"
+                          : value > 50
+                          ? "text-green-800"
+                          : "text-purple-800";
 
-                    const colorClasses = getColorClasses(value);
-
-                    return (
-                      <div key={label} className="flex flex-col items-center">
-                        <span className="text-xs font-medium text-gray-600 mb-1">
-                          {label}
-                        </span>
+                      return (
                         <div
-                          className={`flex items-center justify-center w-10 h-10 rounded-full ${colorClasses} font-semibold text-sm`}
+                          key={label}
+                          className={`flex flex-col justify-between p-1 rounded ${bgColor}`}
                         >
-                          {value}
+                          <span className="font-medium text-gray-600">
+                            {label}
+                          </span>
+                          <span className={`text-right font-bold ${textColor}`}>
+                            {value}
+                          </span>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-              <div className="border border-gray-100  w-[20%] p-4">
-                <h6 className="text-lg font-semibold mb-4">Goals</h6>
-                <div className="grid grid-cols-3 gap-2 cursor-pointer">
-                  {[
-                    { label: "V2", key: "v2" },
-                    { label: "V3", key: "v3" },
-                    { label: "V4", key: "v4" },
-                    { label: "V5", key: "v5" },
-                    { label: "V6", key: "v6" },
-                    { label: "B2C", key: "B2C" },
-                    { label: "Bill", key: "billing" },
-                    { label: "Proleaz", key: "Proleaz" },
-                    { label: "All", key: "Total" },
-                  ].map(({ label, key }) => {
-                    const value = projectData?.[key] || 0;
 
-                    const getColorClasses = (val) => {
-                      if (val > 200) return "bg-red-100 text-red-800";
-                      if (val > 150) return "bg-orange-100 text-orange-800";
-                      if (val > 100) return "bg-yellow-100 text-yellow-800";
-                      if (val > 50) return "bg-green-100 text-green-800";
-                      return "bg-purple-100 text-purple-800";
-                    };
+                {/* Goals Section */}
+                <div className="col-span-1 bg-gray-50 rounded-lg p-2 shadow-sm">
+                  <h6 className="text-sm font-semibold mb-2">Goals</h6>
+                  <div className="grid grid-cols-3 gap-1">
+                    {[
+                      { label: "V2", key: "v2" },
+                      { label: "V3", key: "v3" },
+                      { label: "V4", key: "v4" },
+                      { label: "V5", key: "v5" },
+                      { label: "V6", key: "v6" },
+                      { label: "B2C", key: "B2C" },
+                      { label: "Bill", key: "billing" },
+                      { label: "Proleaz", key: "Proleaz" },
+                      { label: "All", key: "Total" },
+                    ].map(({ label, key }) => {
+                      const value = projectData?.[key] || 0;
+                      const bgColor =
+                        value > 200
+                          ? "bg-red-100"
+                          : value > 150
+                          ? "bg-orange-100"
+                          : value > 100
+                          ? "bg-yellow-100"
+                          : value > 50
+                          ? "bg-green-100"
+                          : "bg-purple-100";
+                      const textColor =
+                        value > 200
+                          ? "text-red-800"
+                          : value > 150
+                          ? "text-orange-800"
+                          : value > 100
+                          ? "text-yellow-800"
+                          : value > 50
+                          ? "text-green-800"
+                          : "text-purple-800";
 
-                    const colorClasses = getColorClasses(value);
-
-                    return (
-                      <div key={label} className="flex flex-col items-center">
-                        <span className="text-xs font-medium text-gray-600 mb-1">
-                          {label}
-                        </span>
+                      return (
                         <div
-                          className={`flex items-center justify-center w-10 h-10 rounded-full ${colorClasses} font-semibold text-sm`}
+                          key={label}
+                          className={`flex flex-col items-center justify-center p-1 rounded-md ${bgColor} text-xs`}
                         >
-                          {value}
+                          <span className="font-medium text-gray-600">
+                            {label}
+                          </span>
+                          <span className={`font-semibold ${textColor}`}>
+                            {value}
+                          </span>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-              <div className="border border-gray-100 w-[35%] p-4">
-                <h6 className="text-lg font-semibold mb-4">Department</h6>
 
-                <div className="grid grid-cols-5 gap-2 cursor-pointer">
-                  {activityCount.map((item, index) => {
-                    let bgColor = "bg-purple-100";
-                    let textColor = "text-purple-800";
+                {/* Department Section */}
+                <div className="col-span-1 bg-gray-50 rounded-lg p-2 shadow-sm">
+                  <h6 className="text-sm font-semibold mb-2">Department</h6>
+                  <div className="grid grid-cols-2 gap-1">
+                    {activityCount.map((item, index) => {
+                      const value = item.Total;
+                      const bgColor =
+                        value > 200
+                          ? "bg-red-100"
+                          : value > 150
+                          ? "bg-orange-100"
+                          : value > 100
+                          ? "bg-yellow-100"
+                          : value > 50
+                          ? "bg-green-100"
+                          : "bg-purple-100";
+                      const textColor =
+                        value > 200
+                          ? "text-red-800"
+                          : value > 150
+                          ? "text-orange-800"
+                          : value > 100
+                          ? "text-yellow-800"
+                          : value > 50
+                          ? "text-green-800"
+                          : "text-purple-800";
 
-                    if (item.Total > 200) {
-                      bgColor = "bg-red-100";
-                      textColor = "text-red-800";
-                    } else if (item.Total > 150) {
-                      bgColor = "bg-orange-100";
-                      textColor = "text-orange-800";
-                    } else if (item.Total > 100) {
-                      bgColor = "bg-yellow-100";
-                      textColor = "text-yellow-800";
-                    } else if (item.Total > 50) {
-                      bgColor = "bg-green-100";
-                      textColor = "text-green-800";
-                    }
-
-                    return (
-                      <div key={index} className="flex flex-col items-center">
-                        <span className="text-xs font-medium text-gray-600 mb-1">
-                          {item.Department}
-                        </span>
-
+                      return (
                         <div
-                          className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm ${bgColor} ${textColor}`}
+                          key={index}
+                          className={`flex items-center justify-between p-1 rounded-md ${bgColor}`}
                         >
-                          {item.Total}
+                          <span className="text-[10px] font-semibold text-gray-600 truncate w-3/5">
+                            {item.Department}
+                          </span>
+                          <span
+                            className={`text-xs font-semibold ${textColor}`}
+                          >
+                            {value}
+                          </span>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
 
-              <div className="border border-gray-100  w-[10%] p-4">
-                <h6 className="text-lg font-semibold mb-4"> Activities</h6>
-                <div className="grid grid-cols-1 gap-2 cursor-pointer">
-                  {[
-                    { label: "Completed", key: "v2" },
-                    { label: "Standby", key: "v3" },
-                    { label: "Overdue", key: "v4" },
-                  ].map(({ label, key }) => {
-                    const value = dashboardData?.[key] || 0;
+                {/* Activities Section */}
+                <div className="col-span-1 bg-gray-50 rounded-lg p-2 shadow-sm">
+                  <h6 className="text-sm font-semibold mb-2">Activities</h6>
+                  <div className="space-y-2">
+                    {[
+                      { label: "Completed", key: "v2" },
+                      { label: "Standby", key: "v3" },
+                      { label: "Overdue", key: "v4" },
+                    ].map(({ label, key }) => {
+                      const value = dashboardData?.[key] || 0;
+                      const bgColor =
+                        value > 200
+                          ? "bg-red-100"
+                          : value > 150
+                          ? "bg-orange-100"
+                          : value > 100
+                          ? "bg-yellow-100"
+                          : value > 50
+                          ? "bg-green-100"
+                          : "bg-purple-100";
+                      const textColor =
+                        value > 200
+                          ? "text-red-800"
+                          : value > 150
+                          ? "text-orange-800"
+                          : value > 100
+                          ? "text-yellow-800"
+                          : value > 50
+                          ? "text-green-800"
+                          : "text-purple-800";
 
-                    const getColorClasses = (val) => {
-                      if (val > 200) return "bg-red-100 text-red-800";
-                      if (val > 150) return "bg-orange-100 text-orange-800";
-                      if (val > 100) return "bg-yellow-100 text-yellow-800";
-                      if (val > 50) return "bg-green-100 text-green-800";
-                      return "bg-purple-100 text-purple-800";
-                    };
-
-                    const colorClasses = getColorClasses(value);
-
-                    return (
-                      <div key={label} className="flex flex-col items-center">
-                        <span className="text-xs font-medium text-gray-600 mb-1">
-                          {label}
-                        </span>
+                      return (
                         <div
-                          className={`flex items-center justify-center w-10 h-10 rounded-full ${colorClasses} font-semibold text-sm`}
+                          key={label}
+                          className={`flex gap-4 items-center p-2 rounded-lg ${bgColor}`}
                         >
-                          {value}
+                          <span className="text-xs font-medium text-gray-600 mb-0.5">
+                            {label}
+                          </span>
+                          <span className={`text-sm font-bold ${textColor}`}>
+                            {value}
+                          </span>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>

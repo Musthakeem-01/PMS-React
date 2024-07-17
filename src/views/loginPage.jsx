@@ -32,7 +32,9 @@ function LoginPage() {
       const data = await response.json();
       const eid = data.UserValues[0].EmployeeID;
       const UserIDPK = data.UserValues[0].UserIDPK;
+      const IsCreatedTask = data.UserValues[0].IsCreatedTask;
       // console.log("🚀 ~ handleLogin ~ NstUserID:", UserIDPK);
+
       if (!data.UserValues[0].UserIDPK) {
         alert("Invalid UserName / Password");
         return false;
@@ -42,6 +44,7 @@ function LoginPage() {
       localStorage.setItem("username", username);
       localStorage.setItem("eid", eid);
       localStorage.setItem("UserIDPK", UserIDPK);
+      localStorage.setItem("IsCreatedTask", IsCreatedTask);
       navigate("/Home");
     } catch (error) {
       console.error("Error during login:", error);

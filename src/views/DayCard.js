@@ -173,27 +173,40 @@ const DayCard = () => {
     }
     fetchWeekDates();
   };
-
+  const bgcolors = (event) => {};
   return (
     <div className="w-full">
       <div className="mt-10 overflow-auto custom-scrollbar">
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="flex flex-col gap-4">
-            {/* Row 1: Days Column */}
-            <div className="flex gap-2 overflow-auto custom-scrollbar">
+            <div className="flex gap-2 overflow-auto custom-scrollbar justify-evenly">
               {weekDates.map(
                 (item) => (
-                  // responseCount.map( ( count ) =>
                   <Droppable droppableId={item.date} key={item.date}>
                     {(provided) => (
                       <div>
                         <div
-                          className="w-50  flex gap-2 cursor-pointer rounded bg-BoardCardBG px-2 py-1.5 border-blue-600 border-l-4"
+                          className={`w-50 ${
+                            responseCount.find(
+                              (count) => count.Day === item.day.slice(0, 3)
+                            )
+                              ? "bg-black"
+                              : ""
+                          } flex gap-2 cursor-pointer rounded bg-BoardCardBG px-2 py-1.5 border-blue-600 border-l-4`}
                           ref={provided.innerRef}
                           {...provided.droppableProps}
                           onClick={() => handleDayClick(item.day, item.date)}
                         >
-                          <span className="text-sm font-medium text-stone-800">
+                          <span
+                            className={`text-sm ${
+                              responseCount.find(
+                                (txtColr) =>
+                                  txtColr.Day === item.day.slice(0, 3)
+                              )
+                                ? "text-white"
+                                : "text-stone-800 font-medium"
+                            }`}
+                          >
                             {item.day}
                           </span>
                           {responseCount.map((count) =>
@@ -220,6 +233,7 @@ const DayCard = () => {
               )}
             </div>
 
+            {/* Row 2: Data Cards Column */}
             <div className="flex gap-2 overflow-auto custom-scrollbar">
               <Droppable droppableId="response-cards-column">
                 {(provided) => (

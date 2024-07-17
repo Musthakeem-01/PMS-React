@@ -165,42 +165,42 @@ function Dashboard(props) {
 
   return (
     <div className={`${bgClass} w-full h-auto pt-20 pr-7 pl-7 pb-3`}>
-      {/* <div className="w-full pb-7"> */}
-      {/* <div className="flex justify-start items-center py-4  ">
-        <span className="text-white text-center mr-2 cursor-pointer">
-          <ColorPickerModal onColorChange={handleColorChange} />
-        </span>
+      <div className="w-full pb-7">
+        <div className="flex justify-start items-center">
+          <span className="text-white text-center mr-2 cursor-pointer">
+            <ColorPickerModal onColorChange={handleColorChange} />
+          </span>
 
-        <h1 className="text-2xl font-medium text-white text-center">
-          {greeting ? greeting : "Welcome"},
-        </h1>
+          <h1 className="text-2xl font-medium text-white text-center">
+            {greeting ? greeting : "Welcome"},
+          </h1>
 
-        <h1 className="text-2xl font-medium text-white text-center">
-          {name.charAt(0).toUpperCase() + name.slice(1)} {CurrentIcon()}
-        </h1>
-        
-      </div> */}
-      <div className="flex justify-start ">
-        <Summary
-          selecteddes={selecteddes}
-          selectworkid={selectworkid}
-          WorkOrderID={WorkOrderID}
-          onClickData={onClickData}
-          changeTab={props.changeTab}
-        />
-      </div>
-      {/* <div className="w-full pt-4 flex justify-between items-center"> */}
-      {/* <h1 className="text-defaultDashborderText font-medium cursor-pointer text-white">
+          <h1 className="text-2xl font-medium text-white text-center">
+            {name.charAt(0).toUpperCase() + name.slice(1)}
+            {/* { CurrentIcon() } */}
+          </h1>
+        </div>
+        <div className="flex justify-start ">
+          <Summary
+            selecteddes={selecteddes}
+            selectworkid={selectworkid}
+            WorkOrderID={WorkOrderID}
+            onClickData={onClickData}
+            changeTab={props.changeTab}
+          />
+        </div>
+        {/* <div className="w-full pt-4 flex justify-between items-center"> */}
+        {/* <h1 className="text-defaultDashborderText font-medium cursor-pointer text-white">
           Dashboards
         </h1> */}
-      {/* <div className="flex justify-center items-center">
+        {/* <div className="flex justify-center items-center">
             <TailwindStyledButton variant="contained">
               Create contract
             </TailwindStyledButton>
           </div> */}
-      {/* </div> */}
+        {/* </div> */}
 
-      {/* 
+        {/* 
         <div className="w-full pt-6 h-96">
           <CustomTable
             WorkOrderID={WorkOrderID}
@@ -208,9 +208,8 @@ function Dashboard(props) {
             changeTab={props.changeTab}
           />
         </div> */}
+      </div>
     </div>
-    //{" "}
-    // </div>
   );
 }
 

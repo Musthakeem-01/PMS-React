@@ -22,6 +22,8 @@ import Timeline from "./Projects/timeline";
 import DescView from "./DataTable";
 import { IoTodaySharp } from "react-icons/io5";
 import DayCard from "./DayCard";
+import { LuRefreshCcw } from "react-icons/lu";
+
 let values;
 
 const ProjectLinks = [
@@ -34,7 +36,7 @@ const ProjectLinks = [
   // { key: "Approvals", label: "Approvals", icon: TbArrowRampRight },
   // { key: "Forms", label: "Forms", icon: SiGoogleforms },
   // { key: "Pages", label: "Pages", icon: RiPagesLine },
-  { key: "Attachments", label: "Attachments", icon: GrAttachment },
+  // { key: "Attac`hments", label: "Attachments", icon: GrAttachment },
   // { key: "Issues", label: "Issues", icon: MdOutlineRunningWithErrors },
   // { key: "Reports", label: "Reports", icon: FaChartLine },
   // { key: "Shortcuts", label: "Shortcuts", icon: FaLink },
@@ -133,12 +135,22 @@ function Projects(props) {
       console.error("Error fetching data:", error.message);
     }
   };
+  const handleRefresh = async () => {
+    fetchData();
+  };
   return (
     <div className="w-full h-screen bg-gradient-to-br from-NanoBGcolor1 via-NanoBGcolor2 to-NanoBGcolor3 flex flex-col">
       <div className="fixed top-12 left-0 right-0 z-10 border-ProjectHeaderBarBorderColor border-b">
         <div className="w-full pt-7 pr-7 pl-7 pb-2 flex justify-between items-center">
-          <h1 className="text-2xl text-white font-medium cursor-pointer">
-            {props.desc}
+          <h1 className="text-2xl  text-white font-medium cursor-pointer">
+            <div className="flex gap-2">
+              {props.desc}
+              <LuRefreshCcw
+                className="mt-1"
+                title="Refresh"
+                onClick={handleRefresh}
+              />
+            </div>
           </h1>
         </div>
         <div className="group w-full px-7 flex justify-start items-center overflow-x-auto">
